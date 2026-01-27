@@ -6,17 +6,49 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import api, { getErrorMessage } from "@/utils/api";
+import useAuthStore from "@/store/authStore";
+import { ApiResponse, User } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 export function SignupForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const router = useRouter();
 
-  const handleEmailSignup = (e: React.FormEvent) => {
+  const { setAuthUser } = useAuthStore();
+
+  const [loading, setLoading] = useState(false);
+
+  const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Add your signup logic here
-    console.log("Signup with:", { username, email, password, confirmPassword });
+
+    setLoading(true);
+
+    // check password is correct
+    if (password !== confirmPassword) {
+      alert("password and confirm password not matched!!");
+      return;
+    }
+
+    try {
+      const res = await api.post<ApiResponse<User>>("/auth/signup", {
+        username,
+        email,
+        password,
+      });
+
+      setAuthUser(res.data.data);
+      router.push("/login");
+    } catch (error) {
+      console.log(error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleSignup = () => {
@@ -84,7 +116,11 @@ export function SignupForm() {
             />
           </div>
 
-          <Button type="submit" className="w-full cursor-pointer">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full cursor-pointer"
+          >
             Create Account
           </Button>
         </form>
@@ -99,6 +135,7 @@ export function SignupForm() {
         <Button
           type="button"
           variant="outline"
+          disabled={loading}
           onClick={handleGoogleSignup}
           className="w-full cursor-pointer"
         >

@@ -7,14 +7,45 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import api, { getErrorMessage } from "@/utils/api";
+import { toast } from "sonner";
+import useAuthStore from "@/store/authStore";
+import { ApiResponse, User } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleEmailLogin = (e: React.FormEvent) => {
+  const router = useRouter();
+
+  const { setAuthUser } = useAuthStore();
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login with:", email, password);
+
+    setLoading(true);
+
+    if (email.trim().length === 0 || password.trim().length < 5) {
+      alert("invalids credentials");
+      return;
+    }
+
+    try {
+      const res = await api.post<ApiResponse<User>>("/auth/login", {
+        email,
+        password,
+      });
+
+      setAuthUser(res.data.data);
+      router.push("/home");
+    } catch (error) {
+      console.log(error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -49,7 +80,11 @@ export function LoginForm() {
             />
           </div>
 
-          <Button type="submit" className="w-full cursor-pointer">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full cursor-pointer"
+          >
             Sign In
           </Button>
         </form>
@@ -64,6 +99,7 @@ export function LoginForm() {
         <Button
           type="button"
           variant="outline"
+          disabled={loading}
           onClick={handleGoogleLogin}
           className="w-full gap-2 cursor-pointer"
         >
