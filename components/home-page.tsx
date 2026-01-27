@@ -4,19 +4,12 @@ import { ApiResponse, User } from "@/types/api";
 import api from "@/utils/api";
 import React, { useEffect } from "react";
 
-function HomeClient() {
+interface HomeClientProps {
+  user: User;
+}
+
+function HomeClient({ user }: HomeClientProps) {
   const { setAuthUser, authUser } = useAuthStore();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const res = await api.get<ApiResponse<User>>("/auth/get-user");
-
-      console.log(res.data.data);
-      setAuthUser(res.data.data);
-    };
-
-    getUser();
-  }, []);
 
   return (
     <>
