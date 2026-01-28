@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { DropdownMenuIcons } from "./dropdown-menu";
 
 export function Navigation() {
   return (
@@ -16,7 +17,7 @@ export function Navigation() {
             B
           </div>
           <span className="hidden font-semibold text-foreground sm:inline">
-            BidLive
+            Bidding hub
           </span>
         </Link>
 
@@ -52,12 +53,14 @@ export function Navigation() {
           <Button variant="ghost" size="icon" className="md:hidden">
             <Search className="h-5 w-5" />
           </Button>
-          <Avatar className="h-8 w-8">
+
+          {/* <Avatar className="h-8 w-8 cursor-pointer">
             <AvatarImage src="/placeholder-user.jpg" alt="User" />
             <AvatarFallback className="bg-primary text-primary-foreground">
-              US
+              S
             </AvatarFallback>
-          </Avatar>
+          </Avatar> */}
+          <DropdownMenuIcons />
         </div>
       </div>
     </header>

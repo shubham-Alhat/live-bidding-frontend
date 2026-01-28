@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import Image from "next/image";
 
 interface AuctionCardProps {
   id: string;
@@ -32,9 +33,11 @@ export function AuctionCard({
       <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card border-border">
         {/* Image Container */}
         <div className="relative overflow-hidden bg-muted h-48">
-          <img
-            src={image || "/placeholder.svg"}
+          <Image
+            src={"/image.jpg"}
             alt={title}
+            fill
+            style={{ objectFit: "cover" }}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
           {/* Live Badge */}
