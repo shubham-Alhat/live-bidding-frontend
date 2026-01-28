@@ -5,16 +5,20 @@ import api from "@/utils/api";
 import React, { useEffect } from "react";
 
 interface HomeClientProps {
-  user: User;
+  user: User | null;
 }
 
 function HomeClient({ user }: HomeClientProps) {
   const { setAuthUser, authUser } = useAuthStore();
 
+  useEffect(() => {
+    setAuthUser(user);
+  }, []);
+
   return (
     <>
       <div>home page</div>
-      <p>{authUser?.username}</p>
+      <p>{authUser ? `user exist ${authUser.username}` : "no user"}</p>
     </>
   );
 }
