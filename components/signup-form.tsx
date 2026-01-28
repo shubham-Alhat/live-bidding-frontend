@@ -52,8 +52,8 @@ export function SignupForm() {
   };
 
   const handleGoogleSignup = () => {
-    // TODO: Add your Google OAuth logic here
-    console.log("Signup with Google");
+    setLoading(true);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/login/google`;
   };
 
   return (

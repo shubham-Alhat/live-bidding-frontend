@@ -49,7 +49,8 @@ export function LoginForm() {
   };
 
   const handleGoogleLogin = () => {
-    console.log("Login with Google");
+    setLoading(true);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/login/google`;
   };
 
   return (
