@@ -11,9 +11,24 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
 import { LogOutIcon, PlusCircle, SettingsIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import api, { getErrorMessage } from "@/utils/api";
+import { ApiResponse, User } from "@/types/api";
 
 export function DropdownMenuIcons() {
   const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const res = await api.post<ApiResponse<User>>("/auth/logout");
+
+      toast.success(res.data.message);
+      router.push("/login");
+    } catch (error) {
+      console.log(error);
+      toast.error(getErrorMessage(error));
+    }
+  };
 
   const handleCreateAuction = () => {
     router.push("/home/create");
@@ -42,7 +57,7 @@ export function DropdownMenuIcons() {
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
           <LogOutIcon />
           Log out
         </DropdownMenuItem>

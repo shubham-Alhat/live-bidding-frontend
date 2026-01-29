@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import React from "react";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock auction data
 const auctionData = {
@@ -50,7 +52,42 @@ const auctionData = {
       timestamp: "5 min ago",
     },
     {
-      id: "4",
+      id: "455",
+      bidder: "LuxeWatcher",
+      avatar: "/placeholder-user.jpg",
+      amount: 8,
+      timestamp: "8 min ago",
+    },
+    {
+      id: "456",
+      bidder: "LuxeWatcher",
+      avatar: "/placeholder-user.jpg",
+      amount: 8,
+      timestamp: "8 min ago",
+    },
+    {
+      id: "433",
+      bidder: "LuxeWatcher",
+      avatar: "/placeholder-user.jpg",
+      amount: 8,
+      timestamp: "8 min ago",
+    },
+    {
+      id: "422",
+      bidder: "LuxeWatcher",
+      avatar: "/placeholder-user.jpg",
+      amount: 8,
+      timestamp: "8 min ago",
+    },
+    {
+      id: "411",
+      bidder: "LuxeWatcher",
+      avatar: "/placeholder-user.jpg",
+      amount: 8,
+      timestamp: "8 min ago",
+    },
+    {
+      id: "400",
       bidder: "LuxeWatcher",
       avatar: "/placeholder-user.jpg",
       amount: 8,
@@ -238,7 +275,7 @@ export default function LiveAuctionPage({
             {/* Right Column - Bid Logs + Bid Action */}
             <div className="lg:col-span-2 flex flex-col space-y-4">
               {/* Bid Logs Container */}
-              <Card className="bg-card border border-border rounded-lg overflow-hidden flex-1 flex flex-col">
+              <Card className="bg-card border border-border rounded-lg flex-1 flex flex-col">
                 <BidLogs
                   currentWinner={auctionData.leadingBidder}
                   currentWinnerAvatar={auctionData.leadingBidderAvatar}
