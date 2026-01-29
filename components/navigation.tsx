@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { DropdownMenuIcons } from "./dropdown-menu";
+import Image from "next/image";
 
 export function Navigation() {
   return (
@@ -13,8 +14,8 @@ export function Navigation() {
       <div className="flex items-center justify-between gap-4 px-6 py-4">
         {/* Logo */}
         <Link href="/home" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
-            B
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg  text-primary-foreground font-bold bg-primary relative">
+            <Image src={"/logo.png"} fill alt="logo" />
           </div>
           <span className="hidden font-semibold text-foreground sm:inline">
             Bidding hub
@@ -54,12 +55,6 @@ export function Navigation() {
             <Search className="h-5 w-5" />
           </Button>
 
-          {/* <Avatar className="h-8 w-8 cursor-pointer">
-            <AvatarImage src="/placeholder-user.jpg" alt="User" />
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              S
-            </AvatarFallback>
-          </Avatar> */}
           <DropdownMenuIcons />
         </div>
       </div>

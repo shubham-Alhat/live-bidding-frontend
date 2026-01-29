@@ -6,6 +6,7 @@ import { BidAction } from "@/components/live-auction/bid-action";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import React from "react";
 
 // Mock auction data
 const auctionData = {
@@ -55,13 +56,6 @@ const auctionData = {
       amount: 8,
       timestamp: "8 min ago",
     },
-    {
-      id: "5",
-      bidder: "BidderX",
-      avatar: "/placeholder-user.jpg",
-      amount: 7,
-      timestamp: "12 min ago",
-    },
   ],
 };
 
@@ -70,6 +64,8 @@ export default function LiveAuctionPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { id } = React.use(params);
+  console.log("id - ", id);
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
