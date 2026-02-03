@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
-import { Product } from "@/app/(auth)/home/create/page";
+import api, { getErrorMessage } from "@/utils/api";
+import { ApiResponse, Product } from "@/types/api";
 
 interface CreateProductFormProps {
   onAddProduct: (product: Omit<Product, "id" | "createdAt">) => void;
@@ -138,14 +139,40 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
         throw new Error("Invalid price");
       }
 
-      onAddProduct({
-        name: productName.trim(),
-        image: imagePreview,
-        price,
-        duration: calculateDuration(),
-        durationUnit,
-        isLaunched: false,
-      });
+      // onAddProduct({
+      //   name: productName.trim(),
+      //   image: imagePreview,
+      //   price,
+      //   duration: calculateDuration(),
+      //   durationUnit,
+      //   isLaunched: false,
+      // });
+
+      const formData = new FormData();
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      } else {
+        toast.error("image file not found");
+        return;
+      }
+
+      const totalSeconds = calculateDuration();
+
+      formData.append("duration", totalSeconds.toString());
+      formData.append("intialPrice", price.toString());
+      formData.append("productName", productName.trim());
+
+      const res = await api.post<ApiResponse<Product>>(
+        "/product/create",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        },
+      );
+
+      console.log(res.data);
 
       // Reset form
       setProductName("");
@@ -164,14 +191,8 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
       //     description: "Product created successfully",
       //   });
     } catch (error) {
-      toast.error("Error", {
-        description: "Failed to create product. Please check your inputs.",
-      });
-      //   toast({
-      //     title: "Error",
-      //     description: "Failed to create product. Please check your inputs.",
-      //     variant: "destructive",
-      //   });
+      toast.error(getErrorMessage(error));
+      console.log(error);
     } finally {
       setIsLoading(false);
     }

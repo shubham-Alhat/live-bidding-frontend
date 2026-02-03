@@ -6,17 +6,7 @@ import { ProductList } from "@/components/product-list";
 import { Button } from "@/components/ui/button";
 import { CircleArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-export interface Product {
-  id: string;
-  name: string;
-  image: string;
-  price: number;
-  duration: number;
-  durationUnit: "seconds" | "minutes";
-  isLaunched: boolean;
-  createdAt: Date;
-}
+import { Product } from "@/types/api";
 
 export default function Create() {
   const router = useRouter();
@@ -26,7 +16,7 @@ export default function Create() {
     const newProduct: Product = {
       ...product,
       id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
     };
     setProducts([newProduct, ...products]);
   };
