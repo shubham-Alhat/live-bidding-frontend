@@ -66,3 +66,8 @@ export interface ApiResponse<T> {
   message: string;
   data: T | null;
 }
+
+export interface getAllProductResponse<T> {
+  message: string;
+  data: T | [];
+}

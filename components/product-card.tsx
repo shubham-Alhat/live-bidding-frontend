@@ -16,24 +16,19 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Rocket, Trash2 } from "lucide-react";
-import { Product } from "@/types/api";
+import { ApiResponse, Product } from "@/types/api";
 import useProductStore from "@/store/productStore";
+import { toast } from "sonner";
+import api, { getErrorMessage } from "@/utils/api";
 
 interface ProductCardProps {
   product: Product;
-  onLaunch: () => void;
-  onDelete: () => void;
-  isDeleting: boolean;
 }
 
-export function ProductCard({
-  product,
-  onLaunch,
-  onDelete,
-  isDeleting,
-}: ProductCardProps) {
+export function ProductCard({ product }: ProductCardProps) {
   const [isLaunching, setIsLaunching] = useState(false);
-  const { productList } = useProductStore();
+  const { productList, deleteProduct } = useProductStore();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -49,19 +44,46 @@ export function ProductCard({
     return `${secs}s`;
   };
 
-  const handleLaunch = async () => {
-    setIsLaunching(true);
+  const handleLaunch = async (productId: string) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      onLaunch();
+      const res = await api.put(`/product/launch/${productId}`);
     } catch (error) {
-    } finally {
-      setIsLaunching(false);
+      console.log(error);
+      toast.error(getErrorMessage(error));
     }
   };
 
-  const handleDelete = () => {
-    onDelete();
+  // const handleLaunch = async () => {
+  //   setIsLaunching(true);
+  //   try {
+  //     await new Promise((resolve) => setTimeout(resolve, 500));
+  //     onLaunch();
+  //   } catch (error) {
+  //   } finally {
+  //     setIsLaunching(false);
+  //   }
+  // };
+
+  // const handleDelete = () => {
+  //   onDelete();
+  // };
+
+  const handleDelete = async (productId: string) => {
+    setIsDeleting(true);
+    try {
+      const res = await api.delete<ApiResponse<Product>>(
+        `/product/${productId}`,
+      );
+
+      deleteProduct(productId);
+
+      toast.success(res.data.message);
+    } catch (error) {
+      console.log(error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -111,7 +133,7 @@ export function ProductCard({
         {/* Price */}
         <div>
           <p className="text-2xl font-bold text-primary">
-            ${product.initialPrice.toFixed(2)}
+            ${product.initialPrice}
           </p>
           <p className="text-xs text-muted-foreground">Initial Price</p>
         </div>
@@ -132,7 +154,7 @@ export function ProductCard({
               <>
                 <Button
                   disabled
-                  className="flex-1 bg-muted text-muted-foreground"
+                  className="flex-1 bg-muted text-muted-foreground cursor-pointer"
                 >
                   Launched
                 </Button>
@@ -142,9 +164,9 @@ export function ProductCard({
             return (
               <>
                 <Button
-                  onClick={handleLaunch}
+                  onClick={() => handleLaunch(product.id)}
                   disabled={isLaunching}
-                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="flex-1 bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90"
                 >
                   {isLaunching ? (
                     <>
@@ -182,7 +204,14 @@ export function ProductCard({
               disabled={isDeleting}
               className="border-border hover:bg-destructive-foreground hover:text-destructive bg-transparent cursor-pointer"
             >
-              <Trash2 className="h-4 w-4" />
+              {/* <Trash2 className="h-4 w-4" /> */}
+              {isDeleting ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                </>
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -198,7 +227,7 @@ export function ProductCard({
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                onClick={handleDelete}
+                onClick={() => handleDelete(product.id)}
                 className="bg-destructive-foreground text-destructive hover:bg-destructive/90"
               >
                 Delete

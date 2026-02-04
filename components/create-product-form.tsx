@@ -305,7 +305,7 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            className="w-full bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90"
           >
             {isLoading ? (
               <>

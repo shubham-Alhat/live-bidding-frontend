@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CreateProductForm } from "@/components/create-product-form";
 import { ProductList } from "@/components/product-list";
 import { Button } from "@/components/ui/button";
 import { CircleArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Product } from "@/types/api";
+import { ApiResponse, getAllProductResponse, Product } from "@/types/api";
+import { toast } from "sonner";
+import api, { getErrorMessage } from "@/utils/api";
+import useProductStore from "@/store/productStore";
 
 export default function Create() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const { setProductList } = useProductStore();
 
   const addProduct = (product: Omit<Product, "id" | "createdAt">) => {
     const newProduct: Product = {
@@ -30,6 +34,21 @@ export default function Create() {
   const deleteProduct = (id: string) => {
     setProducts(products.filter((p) => p.id !== id));
   };
+
+  useEffect(() => {
+    const getAllProducts = async () => {
+      try {
+        const res =
+          await api.get<getAllProductResponse<Product[]>>("/product/get-all");
+
+        setProductList(res.data.data);
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+        console.log(error);
+      }
+    };
+    getAllProducts();
+  }, []);
 
   return (
     <main className="min-h-screen bg-background">

@@ -30,16 +30,7 @@ export function ProductList({
       <h2 className="text-2xl font-bold text-foreground">Your Products</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {productList.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onLaunch={() => onLaunch(product.id)}
-            onDelete={() => {
-              setDeletingId(product.id);
-              onDelete(product.id);
-            }}
-            isDeleting={deletingId === product.id}
-          />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </div>
