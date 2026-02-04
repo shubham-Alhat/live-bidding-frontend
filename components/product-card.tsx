@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Rocket, Trash2 } from "lucide-react";
-import { Product } from "@/app/(auth)/home/create/page";
+import { Product } from "@/types/api";
+import useProductStore from "@/store/productStore";
 
 interface ProductCardProps {
   product: Product;
@@ -32,6 +33,7 @@ export function ProductCard({
   isDeleting,
 }: ProductCardProps) {
   const [isLaunching, setIsLaunching] = useState(false);
+  const { productList } = useProductStore();
 
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -80,22 +82,36 @@ export function ProductCard({
           <h3 className="flex-1 text-lg font-semibold text-foreground line-clamp-2">
             {product.name}
           </h3>
-          {product.isLaunched ? (
-            <Badge className="shrink-0 animate-pulse bg-primary text-primary-foreground">
-              <span className="mr-1 inline-block text-destructive h-2 w-2 rounded-full bg-current" />
-              Live
-            </Badge>
-          ) : (
-            <Badge variant="secondary" className="shrink-0">
-              Not Launched
-            </Badge>
-          )}
+          {(() => {
+            if (product.status === "LIVE") {
+              return (
+                <Badge className="shrink-0 animate-pulse bg-primary text-primary-foreground">
+                  <span className="mr-1 inline-block text-destructive h-2 w-2 rounded-full bg-current" />
+                  Live
+                </Badge>
+              );
+            } else if (product.status === "NOTLIVE") {
+              return (
+                <Badge variant="secondary" className="shrink-0">
+                  Not Launched
+                </Badge>
+              );
+            } else if (product.status === "ARCHIVE") {
+              return (
+                <Badge variant="outline" className="shrink-0">
+                  Archived
+                </Badge>
+              );
+            } else {
+              return null;
+            }
+          })()}
         </div>
 
         {/* Price */}
         <div>
           <p className="text-2xl font-bold text-primary">
-            ${product.price.toFixed(2)}
+            ${product.initialPrice.toFixed(2)}
           </p>
           <p className="text-xs text-muted-foreground">Initial Price</p>
         </div>
@@ -103,36 +119,60 @@ export function ProductCard({
         {/* Duration */}
         <div className="rounded-lg bg-secondary/50 px-3 py-2">
           <p className="text-sm font-medium text-foreground">
-            Duration: {formatDuration(product.duration)}
+            Duration: {formatDuration(product.durationInSeconds)}
           </p>
         </div>
       </CardContent>
 
       {/* Card Footer - Actions */}
       <CardFooter className="flex gap-2 border-t border-border">
-        {product.isLaunched ? (
-          <Button disabled className="flex-1 bg-muted text-muted-foreground">
-            Launched
-          </Button>
-        ) : (
-          <Button
-            onClick={handleLaunch}
-            disabled={isLaunching}
-            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {isLaunching ? (
+        {(() => {
+          if (product.status === "LIVE") {
+            return (
               <>
-                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                Launching...
+                <Button
+                  disabled
+                  className="flex-1 bg-muted text-muted-foreground"
+                >
+                  Launched
+                </Button>
               </>
-            ) : (
+            );
+          } else if (product.status === "NOTLIVE") {
+            return (
               <>
-                <Rocket className="mr-2 h-4 w-4" />
-                Launch
+                <Button
+                  onClick={handleLaunch}
+                  disabled={isLaunching}
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  {isLaunching ? (
+                    <>
+                      <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                      Launching...
+                    </>
+                  ) : (
+                    <>
+                      <Rocket className="mr-2 h-4 w-4" />
+                      Launch
+                    </>
+                  )}
+                </Button>
               </>
-            )}
-          </Button>
-        )}
+            );
+          } else if (product.status === "ARCHIVE") {
+            return (
+              <>
+                <Button
+                  disabled
+                  className="flex-1 bg-muted text-muted-foreground"
+                >
+                  Archived
+                </Button>
+              </>
+            );
+          }
+        })()}
 
         <AlertDialog>
           <AlertDialogTrigger asChild>

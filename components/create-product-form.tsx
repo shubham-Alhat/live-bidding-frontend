@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Product } from "@/types/api";
+import useProductStore from "@/store/productStore";
 
 interface CreateProductFormProps {
   onAddProduct: (product: Omit<Product, "id" | "createdAt">) => void;
@@ -41,6 +42,8 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { addNewProduct } = useProductStore();
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -48,11 +51,7 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
         toast.warning("File too large", {
           description: "Image size should be less than 5MB",
         });
-        // toast({
-        //   title: "File too large",
-        //   description: "Image size should be less than 5MB",
-        //   variant: "destructive",
-        // });
+
         return;
       }
       setImageFile(file);
@@ -64,19 +63,19 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
     }
   };
 
-  const handleDragAndDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // const handleDragAndDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   const file = e.dataTransfer.files?.[0];
+  //   if (file && file.type.startsWith("image/")) {
+  //     setImageFile(file);
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setImagePreview(reader.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   const calculateDuration = (): number => {
     const value = parseInt(durationValue, 10);
@@ -99,11 +98,7 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
       toast.error("Validation error", {
         description: "Please enter a product name",
       });
-      //   toast({
-      //     title: "Validation error",
-      //     description: "Please enter a product name",
-      //     variant: "destructive",
-      //   });
+
       return;
     }
 
@@ -111,11 +106,7 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
       toast.error("Validation error", {
         description: "Please enter an initial price",
       });
-      //   toast({
-      //     title: "Validation error",
-      //     description: "Please enter an initial price",
-      //     variant: "destructive",
-      //   });
+
       return;
     }
 
@@ -123,11 +114,7 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
       toast.error("Validation error", {
         description: "Please upload a product image",
       });
-      //   toast({
-      //     title: "Validation error",
-      //     description: "Please upload a product image",
-      //     variant: "destructive",
-      //   });
+
       return;
     }
 
@@ -138,15 +125,6 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
       if (isNaN(price) || price < 0) {
         throw new Error("Invalid price");
       }
-
-      // onAddProduct({
-      //   name: productName.trim(),
-      //   image: imagePreview,
-      //   price,
-      //   duration: calculateDuration(),
-      //   durationUnit,
-      //   isLaunched: false,
-      // });
 
       const formData = new FormData();
 
@@ -172,7 +150,7 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
         },
       );
 
-      console.log(res.data);
+      if (res.data.data) addNewProduct(res.data.data);
 
       // Reset form
       setProductName("");
@@ -185,11 +163,6 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
       toast.success("Success!", {
         description: "Product created successfully",
       });
-
-      //   toast({
-      //     title: "Success!",
-      //     description: "Product created successfully",
-      //   });
     } catch (error) {
       toast.error(getErrorMessage(error));
       console.log(error);
@@ -233,11 +206,6 @@ export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
               </div>
             ) : (
               <div
-                onDrop={handleDragAndDrop}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
                 onClick={() => fileInputRef.current?.click()}
                 className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-secondary/30 px-6 py-12 transition-colors hover:border-primary hover:bg-secondary/50"
               >
