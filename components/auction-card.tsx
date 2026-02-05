@@ -5,37 +5,21 @@ import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import Image from "next/image";
+import { Auction } from "@/types/api";
 
 interface AuctionCardProps {
-  id: string;
-  title: string;
-  image: string;
-  currentBid: number;
-  seller: {
-    name: string;
-    avatar: string;
-  };
-  viewers: number;
-  category: string;
+  auction: Auction;
 }
 
-export function AuctionCard({
-  id,
-  title,
-  image,
-  currentBid,
-  seller,
-  viewers,
-  category,
-}: AuctionCardProps) {
+export function AuctionCard({ auction }: AuctionCardProps) {
   return (
-    <Link href={`/home/live/${id}`}>
+    <Link href={`/home/live/${auction.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card border-border">
         {/* Image Container */}
         <div className="relative overflow-hidden bg-muted h-48">
           <Image
             src={"/image.jpg"}
-            alt={title}
+            alt={auction.ownerId}
             fill
             style={{ objectFit: "cover" }}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
@@ -43,7 +27,7 @@ export function AuctionCard({
           {/* Live Badge */}
           <div className="absolute top-3 right-3">
             <Badge className="bg-destructive text-destructive-foreground animate-pulse">
-              Live · {viewers}
+              Live · {23}
             </Badge>
           </div>
         </div>
@@ -54,31 +38,34 @@ export function AuctionCard({
           <div className="flex items-center gap-2">
             <Avatar className="h-6 w-6">
               <AvatarImage
-                src={seller.avatar || "/placeholder.svg"}
-                alt={seller.name}
+                src={auction.owner?.username || "/placeholder.svg"}
+                alt={auction.product?.name}
               />
               <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                {seller.name.charAt(0)}
+                {auction.owner?.username.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <span className="text-xs text-muted-foreground">{seller.name}</span>
+            <span className="text-xs text-muted-foreground">
+              {auction.owner?.username}
+            </span>
           </div>
 
           {/* Category Badge */}
           <Badge variant="outline" className="w-fit text-xs border-border">
-            {category}
+            {"all category"}
           </Badge>
 
           {/* Title */}
           <h3 className="font-semibold text-foreground line-clamp-2">
-            {title}
+            {auction.product?.name}
           </h3>
 
           {/* Bid Info */}
           <div>
             <p className="text-xs text-muted-foreground">Current Bid</p>
             <p className="text-lg font-bold text-primary">
-              ${currentBid.toLocaleString()}
+              {/* ${currentBid.toLocaleString()} */}
+              $26
             </p>
           </div>
         </div>

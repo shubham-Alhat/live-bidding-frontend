@@ -5,7 +5,7 @@ import { CreateProductForm } from "@/components/create-product-form";
 import { ProductList } from "@/components/product-list";
 import { Button } from "@/components/ui/button";
 import { CircleArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ApiResponse, getAllProductResponse, Product } from "@/types/api";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
@@ -13,9 +13,20 @@ import useProductStore from "@/store/productStore";
 
 export default function Create() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
   const [isFetching, setIsFetching] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const { setProductList } = useProductStore();
+
+  useEffect(() => {
+    console.log(urlError);
+    if (urlError) {
+      setTimeout(() => {
+        toast.error("Product not found!!");
+      }, 200);
+    }
+  }, []);
 
   const addProduct = (product: Omit<Product, "id" | "createdAt">) => {
     const newProduct: Product = {

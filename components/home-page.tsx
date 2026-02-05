@@ -3,6 +3,9 @@ import useAuthStore from "@/store/authStore";
 import { Navigation } from "./navigation";
 import { Sidebar } from "./sidebar";
 import { AuctionCard } from "./auction-card";
+import { Auction, Product } from "@/types/api";
+import useAuctionStore from "@/store/auctionStore";
+import { useEffect } from "react";
 
 // Mock auction data
 const auctions = [
@@ -79,8 +82,16 @@ const auctions = [
     category: "Collectibles",
   },
 ];
-function HomeClient() {
+
+interface AllAuctionsProps {
+  allAuctions: Auction[] | [];
+}
+
+function HomeClient({ allAuctions }: AllAuctionsProps) {
   const { authUser } = useAuthStore();
+  const { liveAuctions, setLiveAuction } = useAuctionStore();
+
+  setLiveAuction(allAuctions);
 
   return (
     <>
@@ -100,8 +111,8 @@ function HomeClient() {
 
             {/* Grid of Auction Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {auctions.map((auction) => (
-                <AuctionCard key={auction.id} {...auction} />
+              {liveAuctions.map((auction) => (
+                <AuctionCard key={auction.id} auction={auction} />
               ))}
             </div>
           </main>

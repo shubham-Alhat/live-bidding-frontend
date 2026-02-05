@@ -7,6 +7,8 @@ interface ProductStoreState {
   addNewProduct: (product: Product) => void;
   updateLaunchedProduct: (product: Product) => void;
   deleteProduct: (productId: string) => void;
+  launchedProduct: Product | null;
+  setLaunchedProduct: (product: Product) => void;
 }
 
 const useProductStore = create<ProductStoreState>((set, get) => ({
@@ -30,6 +32,11 @@ const useProductStore = create<ProductStoreState>((set, get) => ({
     );
 
     set({ productList: filteredProductList });
+  },
+
+  launchedProduct: null,
+  setLaunchedProduct: (product) => {
+    set({ launchedProduct: product });
   },
 }));
 
