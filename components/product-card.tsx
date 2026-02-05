@@ -15,11 +15,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { Rocket, Trash2 } from "lucide-react";
-import { ApiResponse, Product } from "@/types/api";
+import { ExternalLink, Rocket, Trash2 } from "lucide-react";
+import { ApiRes, ApiResponse, Product } from "@/types/api";
 import useProductStore from "@/store/productStore";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface ProductCardProps {
   product: Product;
@@ -29,6 +31,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isLaunching, setIsLaunching] = useState(false);
   const { productList, deleteProduct } = useProductStore();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { updateLaunchedProduct } = useProductStore();
+  const router = useRouter();
 
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -46,10 +50,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleLaunch = async (productId: string) => {
     try {
-      const res = await api.put(`/product/launch/${productId}`);
+      setIsLaunching(true);
+      const res = await api.put<ApiRes<Product>>(
+        `/product/launch/${productId}`,
+      );
+
+      updateLaunchedProduct(res.data.data);
+      toast.success(res.data.message);
     } catch (error) {
       console.log(error);
       toast.error(getErrorMessage(error));
+    } finally {
+      setIsLaunching(false);
     }
   };
 
@@ -67,6 +79,11 @@ export function ProductCard({ product }: ProductCardProps) {
   // const handleDelete = () => {
   //   onDelete();
   // };
+
+  const handleLiveStatus = (id: string) => {
+    const url = `/home/live-product/${id}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   const handleDelete = async (productId: string) => {
     setIsDeleting(true);
@@ -107,9 +124,9 @@ export function ProductCard({ product }: ProductCardProps) {
           {(() => {
             if (product.status === "LIVE") {
               return (
-                <Badge className="shrink-0 animate-pulse bg-primary text-primary-foreground">
-                  <span className="mr-1 inline-block text-destructive h-2 w-2 rounded-full bg-current" />
-                  Live
+                <Badge className="shrink-0 bg-muted text-primary-foreground">
+                  <span className="mr-1 inline-block text-destructive h-2 w-2 rounded-full bg-current animate-pulse" />
+                  <span className="text-white">Live</span>
                 </Badge>
               );
             } else if (product.status === "NOTLIVE") {
@@ -153,10 +170,11 @@ export function ProductCard({ product }: ProductCardProps) {
             return (
               <>
                 <Button
-                  disabled
-                  className="flex-1 bg-muted text-muted-foreground cursor-pointer"
+                  onClick={() => handleLiveStatus(product.id)}
+                  className="flex-1 cursor-pointer"
                 >
-                  Launched
+                  See live status
+                  <ExternalLink />
                 </Button>
               </>
             );

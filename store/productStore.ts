@@ -5,6 +5,7 @@ interface ProductStoreState {
   productList: Product[];
   setProductList: (productArray: Product[] | []) => void;
   addNewProduct: (product: Product) => void;
+  updateLaunchedProduct: (product: Product) => void;
   deleteProduct: (productId: string) => void;
 }
 
@@ -12,6 +13,13 @@ const useProductStore = create<ProductStoreState>((set, get) => ({
   productList: [],
   setProductList: (productArray) => {
     set({ productList: productArray });
+  },
+  updateLaunchedProduct: (product) => {
+    set({
+      productList: get().productList.map((pd) =>
+        pd.id === product.id ? { ...pd, status: "LIVE" } : pd,
+      ),
+    });
   },
   addNewProduct: (product) => {
     set((state) => ({ productList: [...state.productList, product] }));

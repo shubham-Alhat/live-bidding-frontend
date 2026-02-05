@@ -71,3 +71,8 @@ export interface getAllProductResponse<T> {
   message: string;
   data: T | [];
 }
+
+export interface ApiRes<T> {
+  message: string;
+  data: T;
+}

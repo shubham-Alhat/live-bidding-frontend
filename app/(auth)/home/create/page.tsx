@@ -13,6 +13,7 @@ import useProductStore from "@/store/productStore";
 
 export default function Create() {
   const router = useRouter();
+  const [isFetching, setIsFetching] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const { setProductList } = useProductStore();
 
@@ -45,6 +46,8 @@ export default function Create() {
       } catch (error) {
         toast.error(getErrorMessage(error));
         console.log(error);
+      } finally {
+        setIsFetching(false);
       }
     };
     getAllProducts();
@@ -74,6 +77,7 @@ export default function Create() {
         </div>
 
         {/* Products List Section */}
+        {isFetching ? <div>fetching...</div> : ""}
         <ProductList
           products={products}
           onLaunch={launchProduct}
