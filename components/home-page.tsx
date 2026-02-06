@@ -3,9 +3,12 @@ import useAuthStore from "@/store/authStore";
 import { Navigation } from "./navigation";
 import { Sidebar } from "./sidebar";
 import { AuctionCard } from "./auction-card";
-import { Auction, Product } from "@/types/api";
+import { ApiRes, ApiResponse, Auction, Product } from "@/types/api";
 import useAuctionStore from "@/store/auctionStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import api, { getErrorMessage } from "@/utils/api";
+import { toast } from "sonner";
+import { AuctionCardSkeleton } from "./auction-card-skeleton";
 
 // Mock auction data
 const auctions = [
@@ -87,11 +90,26 @@ interface AllAuctionsProps {
   allAuctions: Auction[] | [];
 }
 
-function HomeClient({ allAuctions }: AllAuctionsProps) {
+function HomeClient() {
   const { authUser } = useAuthStore();
-  const { liveAuctions, setLiveAuction } = useAuctionStore();
+  const { liveAuctions, setLiveAuctions } = useAuctionStore();
+  const [loading, setLoading] = useState(true);
 
-  setLiveAuction(allAuctions);
+  useEffect(() => {
+    const getAllAuctions = async () => {
+      try {
+        const res = await api.get<ApiRes<Auction[] | []>>("/auction/get-all");
+
+        setLiveAuctions(res.data.data);
+      } catch (error) {
+        console.log(error);
+        toast.error(getErrorMessage(error));
+      } finally {
+        setLoading(false);
+      }
+    };
+    getAllAuctions();
+  }, []);
 
   return (
     <>
@@ -110,11 +128,21 @@ function HomeClient({ allAuctions }: AllAuctionsProps) {
             </div>
 
             {/* Grid of Auction Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {liveAuctions.map((auction) => (
-                <AuctionCard key={auction.id} auction={auction} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <AuctionCardSkeleton key={index} />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {liveAuctions.length === 0
+                  ? "Sorry no live auctions available"
+                  : liveAuctions.map((auction) => (
+                      <AuctionCard key={auction.id} auction={auction} />
+                    ))}
+              </div>
+            )}
           </main>
         </div>
       </div>

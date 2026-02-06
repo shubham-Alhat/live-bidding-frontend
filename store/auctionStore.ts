@@ -3,13 +3,13 @@ import { create } from "zustand";
 
 interface AuctionStoreState {
   liveAuctions: Auction[] | [];
-  setLiveAuction: (allProducts: Auction[] | []) => void;
+  setLiveAuctions: (allAuctions: Auction[] | []) => void;
 }
 
 const useAuctionStore = create<AuctionStoreState>((set) => ({
   liveAuctions: [],
-  setLiveAuction: (allProducts) => {
-    set({ liveAuctions: allProducts });
+  setLiveAuctions: (allAuctions) => {
+    set({ liveAuctions: allAuctions });
   },
 }));
 

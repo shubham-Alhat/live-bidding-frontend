@@ -18,8 +18,8 @@ export function AuctionCard({ auction }: AuctionCardProps) {
         {/* Image Container */}
         <div className="relative overflow-hidden bg-muted h-48">
           <Image
-            src={"/image.jpg"}
-            alt={auction.ownerId}
+            src={auction.product?.image || "/image.jpg"}
+            alt="Image-Product"
             fill
             style={{ objectFit: "cover" }}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
@@ -38,8 +38,8 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           <div className="flex items-center gap-2">
             <Avatar className="h-6 w-6">
               <AvatarImage
-                src={auction.owner?.username || "/placeholder.svg"}
-                alt={auction.product?.name}
+                src={auction.owner?.username.slice(0, 1) || "/placeholder.svg"}
+                alt="user-image"
               />
               <AvatarFallback className="bg-primary/20 text-primary text-xs">
                 {auction.owner?.username.charAt(0)}
@@ -62,10 +62,9 @@ export function AuctionCard({ auction }: AuctionCardProps) {
 
           {/* Bid Info */}
           <div>
-            <p className="text-xs text-muted-foreground">Current Bid</p>
+            <p className="text-xs text-muted-foreground">intial amount</p>
             <p className="text-lg font-bold text-primary">
-              {/* ${currentBid.toLocaleString()} */}
-              $26
+              ${auction.product?.initialPrice}
             </p>
           </div>
         </div>

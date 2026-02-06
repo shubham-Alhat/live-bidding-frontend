@@ -6,9 +6,12 @@ import { BidAction } from "@/components/live-auction/bid-action";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
+import api, { getErrorMessage } from "@/utils/api";
+import { ApiResponse, Auction } from "@/types/api";
 
 // Mock auction data
 const auctionData = {
@@ -103,6 +106,25 @@ export default function LiveAuctionPage({
 }) {
   const { id } = React.use(params);
   console.log("id - ", id);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getAuctionById = async () => {
+      try {
+        const res = await api.get<ApiResponse<Auction>>(
+          `/auction/get-auction-by-id/${id}`,
+        );
+
+        console.log(res.data.data);
+      } catch (error) {
+        console.log(error);
+        toast.error(getErrorMessage(error));
+      }
+    };
+    getAuctionById();
+  }, [id]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
