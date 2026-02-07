@@ -6,15 +6,23 @@ import { Card } from "./ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import Image from "next/image";
 import { Auction } from "@/types/api";
+import useAuctionStore from "@/store/auctionStore";
 
 interface AuctionCardProps {
   auction: Auction;
 }
 
 export function AuctionCard({ auction }: AuctionCardProps) {
+  const { setSelectedAuction } = useAuctionStore();
+  const handleClickAuction = (auction: Auction) => {
+    setSelectedAuction(auction);
+  };
   return (
     <Link href={`/home/live/${auction.id}`}>
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card border-border">
+      <Card
+        onClick={() => handleClickAuction(auction)}
+        className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-card border-border"
+      >
         {/* Image Container */}
         <div className="relative overflow-hidden bg-muted h-48">
           <Image

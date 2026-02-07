@@ -30,7 +30,7 @@ export function CustomBidDialog({
   const [error, setError] = useState<string>("");
   const [open, setOpen] = useState(false);
 
-  const minimumBid = currentBid + 0.01;
+  const minimumBid = currentBid + 1.0;
 
   const handleBidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -93,7 +93,7 @@ export function CustomBidDialog({
                 <Input
                   id="bid-amount"
                   type="number"
-                  step="0.01"
+                  step="1"
                   min={minimumBid}
                   placeholder={minimumBid.toFixed(2)}
                   value={bidAmount}
