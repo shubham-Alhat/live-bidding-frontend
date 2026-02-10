@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Product } from "@/types/api";
+import { Auction, Product } from "@/types/api";
+import useAuctionStore from "@/store/auctionStore";
 
 interface BidLog {
   id: string;
@@ -14,14 +15,10 @@ interface BidLog {
 }
 
 interface LiveProductPageProps {
-  product: Product;
-  id: string;
+  auction: Auction;
 }
 
-export default function LiveProductsPage({
-  product,
-  id,
-}: LiveProductPageProps) {
+export default function LiveProductsPage({ auction }: LiveProductPageProps) {
   const [bids, setBids] = useState<BidLog[]>([
     {
       id: "1",
@@ -43,30 +40,36 @@ export default function LiveProductsPage({
     },
   ]);
 
-  const [timeLeft, setTimeLeft] = useState(360); // 6 minutes in seconds
+  const { setSelectedAuction, selectedAuction } = useAuctionStore();
+
+  const [timeLeft, setTimeLeft] = useState(auction.auctionDuration);
   const [highestBid, setHighestBid] = useState(175);
   const [winnerUsername, setWinnerUsername] = useState("Mike_Johnson");
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // Simulate live bid updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newBid: BidLog = {
-        id: Date.now().toString(),
-        username: ["Alice_Brown", "Bob_Wilson", "Carol_Davis", "David_Lee"][
-          Math.floor(Math.random() * 4)
-        ],
-        amount: highestBid + Math.floor(Math.random() * 50) + 5,
-        timestamp: Date.now(),
-      };
+    setSelectedAuction(auction);
+  }, []);
 
-      setBids((prev) => [...prev, newBid]);
-      setHighestBid(newBid.amount);
-      setWinnerUsername(newBid.username);
-    }, 3000);
+  // Simulate live bid updates
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const newBid: BidLog = {
+  //       id: Date.now().toString(),
+  //       username: ["Alice_Brown", "Bob_Wilson", "Carol_Davis", "David_Lee"][
+  //         Math.floor(Math.random() * 4)
+  //       ],
+  //       amount: highestBid + Math.floor(Math.random() * 50) + 5,
+  //       timestamp: Date.now(),
+  //     };
 
-    return () => clearInterval(interval);
-  }, [highestBid]);
+  //     setBids((prev) => [...prev, newBid]);
+  //     setHighestBid(newBid.amount);
+  //     setWinnerUsername(newBid.username);
+  //   }, 3000);
+
+  //   return () => clearInterval(interval);
+  // }, [highestBid]);
 
   // Auto-scroll to latest bid
   useEffect(() => {
@@ -88,6 +91,14 @@ export default function LiveProductsPage({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  useEffect(() => {
+    const createdAtMs = new Date(auction.createdAt).getTime();
+    const nowMs = Date.now();
+    const elaspedTimeInSeconds = Math.floor((nowMs - createdAtMs) / 1000);
+    const remainingSeconds = auction.auctionDuration - elaspedTimeInSeconds;
+    setTimeLeft(remainingSeconds);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl">
@@ -95,7 +106,7 @@ export default function LiveProductsPage({
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-foreground">
-              {product?.name}
+              {auction.product?.name}
             </h1>
             <div className="flex items-center gap-2">
               <div
@@ -115,7 +126,7 @@ export default function LiveProductsPage({
             </p>
             <div className="rounded-lg border border-primary bg-card px-4 py-2">
               <p className="font-mono text-2xl font-bold text-primary">
-                {formatTime(product.durationInSeconds)}
+                {formatTime(timeLeft)}
               </p>
             </div>
           </div>

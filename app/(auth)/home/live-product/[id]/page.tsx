@@ -1,5 +1,5 @@
 import LiveProductsPage from "@/components/live-product";
-import { ApiRes, ApiResponse, Product } from "@/types/api";
+import { ApiRes, ApiResponse, Auction, Product } from "@/types/api";
 import api from "@/utils/api";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -13,13 +13,16 @@ async function LiveProductStatus({
   const cookieStore = cookies();
   const token = (await cookieStore).get("accessToken")?.value;
 
-  const getProduct = async () => {
+  const getAuction = async () => {
     try {
-      const res = await api.get<ApiRes<Product>>(`/product/${id}`, {
-        headers: {
-          Cookie: `accessToken=${token}`,
+      const res = await api.get<ApiRes<Auction>>(
+        `/auction/get-by-productId/${id}`,
+        {
+          headers: {
+            Cookie: `accessToken=${token}`,
+          },
         },
-      });
+      );
 
       return res.data.data;
     } catch (error) {
@@ -28,11 +31,11 @@ async function LiveProductStatus({
     }
   };
 
-  const product = await getProduct();
+  const auction = await getAuction();
 
   return (
     <>
-      <LiveProductsPage product={product} id={id} />
+      <LiveProductsPage auction={auction} />
     </>
   );
 }
