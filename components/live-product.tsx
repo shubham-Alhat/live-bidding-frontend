@@ -40,7 +40,12 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
     },
   ]);
 
-  const { setSelectedAuction, selectedAuction } = useAuctionStore();
+  const {
+    setSelectedAuction,
+    selectedAuction,
+    isAuctionEnded,
+    setIsAuctionEnded,
+  } = useAuctionStore();
 
   const [timeLeft, setTimeLeft] = useState(auction.auctionDuration);
   const [highestBid, setHighestBid] = useState(175);
@@ -77,13 +82,13 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
   }, [bids]);
 
   // Countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+  //   }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+  //   return () => clearInterval(timer);
+  // }, []);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -97,7 +102,25 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
     const elaspedTimeInSeconds = Math.floor((nowMs - createdAtMs) / 1000);
     const remainingSeconds = auction.auctionDuration - elaspedTimeInSeconds;
     setTimeLeft(remainingSeconds);
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 0) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (timeLeft === 0) setIsAuctionEnded(true);
+
+    return () => setIsAuctionEnded(false);
+  }, [timeLeft]);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -126,7 +149,11 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
             </p>
             <div className="rounded-lg border border-primary bg-card px-4 py-2">
               <p className="font-mono text-2xl font-bold text-primary">
-                {formatTime(timeLeft)}
+                {isAuctionEnded ? (
+                  <span>Auction Ended..</span>
+                ) : (
+                  formatTime(timeLeft)
+                )}
               </p>
             </div>
           </div>

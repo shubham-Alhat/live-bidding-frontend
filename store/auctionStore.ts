@@ -7,7 +7,7 @@ interface AuctionStoreState {
   selectedAuction: Auction | null;
   setSelectedAuction: (clickedAuction: Auction) => void;
   isAuctionEnded: boolean;
-  setIsAuctionEnded: () => void;
+  setIsAuctionEnded: (value: boolean) => void;
 }
 
 const useAuctionStore = create<AuctionStoreState>((set) => ({
@@ -20,8 +20,8 @@ const useAuctionStore = create<AuctionStoreState>((set) => ({
     set({ selectedAuction: clickedAuction });
   },
   isAuctionEnded: false,
-  setIsAuctionEnded: () => {
-    set({ isAuctionEnded: true });
+  setIsAuctionEnded: (value) => {
+    set({ isAuctionEnded: value });
   },
 }));
 
