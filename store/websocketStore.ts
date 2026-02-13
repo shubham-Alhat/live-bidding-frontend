@@ -3,41 +3,42 @@ import { create } from "zustand";
 interface WebSocketStoreState {
   ws: null | WebSocket;
   isConnected: boolean;
-  setWs: (ws: WebSocket | null) => void;
-  setIsConnected: (value: boolean) => void;
   connectToWsServer: (userId: string) => void;
+  disconnectToWsServer: () => void;
 }
 
 const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   ws: null,
   isConnected: false,
-  setWs: (ws) => {
-    set({ ws: ws });
-  },
-  setIsConnected: (value) => {
-    set({ isConnected: value });
-  },
+
   connectToWsServer: (userId) => {
     const { ws } = get();
 
-    if (ws) return;
+    if (ws && ws.readyState === WebSocket.OPEN) return;
 
     const newSocket = new WebSocket("ws://localhost:8000/ws");
 
     newSocket.onopen = () => {
-      get().setWs(newSocket);
-      get().setIsConnected(true);
+      set({ ws: newSocket, isConnected: true });
       newSocket.send(
-        JSON.stringify({ type: "user_on_homepage", userId: userId }),
+        JSON.stringify({ type: "user_connected", userId: userId }),
       );
     };
 
-    newSocket.onerror = () => {
-      if (newSocket.OPEN && ws) {
-        get().setWs(null);
-        get().setIsConnected(false);
-      }
+    newSocket.onclose = () => {
+      set({ ws: null, isConnected: false });
     };
+
+    newSocket.onerror = (err) => {
+      console.log(err);
+    };
+  },
+  disconnectToWsServer: () => {
+    const { ws } = get();
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.close();
+      set({ ws: null, isConnected: false });
+    }
   },
 }));
 

@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import api, { getErrorMessage } from "@/utils/api";
 import { toast } from "sonner";
 import { AuctionCardSkeleton } from "./auction-card-skeleton";
+import useWebsocketStore from "@/store/websocketStore";
+import { Button } from "./ui/button";
 
 interface AllAuctionsProps {
   allAuctions: Auction[] | [];
@@ -17,6 +19,7 @@ function HomeClient() {
   const { authUser } = useAuthStore();
   const { liveAuctions, setLiveAuctions } = useAuctionStore();
   const [loading, setLoading] = useState(true);
+  const { connectToWsServer, disconnectToWsServer } = useWebsocketStore();
 
   useEffect(() => {
     const getAllAuctions = async () => {
@@ -34,10 +37,21 @@ function HomeClient() {
     getAllAuctions();
   }, []);
 
+  useEffect(() => {
+    if (authUser?.id) {
+      connectToWsServer(authUser.id);
+    }
+
+    return () => {
+      disconnectToWsServer();
+    };
+  }, [authUser?.id]);
+
   return (
     <>
       <div className="min-h-screen bg-background">
         <Navigation />
+
         <div className="flex">
           <main className="flex-1 p-6 md:p-8">
             <div className="mb-8">
