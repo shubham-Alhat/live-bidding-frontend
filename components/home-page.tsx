@@ -15,7 +15,11 @@ interface AllAuctionsProps {
   allAuctions: Auction[] | [];
 }
 
-function HomeClient() {
+interface TokenState {
+  token: string | undefined;
+}
+
+function HomeClient({ token }: TokenState) {
   const { authUser } = useAuthStore();
   const { liveAuctions, setLiveAuctions } = useAuctionStore();
   const [loading, setLoading] = useState(true);
@@ -39,7 +43,7 @@ function HomeClient() {
 
   useEffect(() => {
     if (authUser?.id) {
-      connectToWsServer(authUser.id);
+      connectToWsServer(authUser.id, token);
     }
 
     return () => {

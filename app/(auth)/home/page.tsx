@@ -4,9 +4,11 @@ import api from "@/utils/api";
 import { cookies } from "next/headers";
 
 async function Home() {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get("accessToken")?.value;
   return (
     <>
-      <HomeClient />
+      <HomeClient token={token} />
     </>
   );
 }
