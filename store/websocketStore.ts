@@ -14,7 +14,24 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   connectToWsServer: (userId, token) => {
     const { ws } = get();
 
-    if (ws && ws.readyState === WebSocket.OPEN) return;
+    // Check if already connected or connecting
+    if (ws) {
+      if (ws.readyState === WebSocket.OPEN) {
+        console.log("Already connected to WebSocket");
+        return;
+      }
+      if (ws.readyState === WebSocket.CONNECTING) {
+        console.log("WebSocket connection in progress");
+        return;
+      }
+      // If CLOSING or CLOSED, clean up before creating new connection
+      if (
+        ws.readyState === WebSocket.CLOSING ||
+        ws.readyState === WebSocket.CLOSED
+      ) {
+        set({ ws: null, isConnected: false });
+      }
+    }
 
     const newSocket = new WebSocket(`ws://localhost:8000/ws?token=${token}`);
     console.log("send a conn req..");
@@ -38,8 +55,13 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   },
   disconnectToWsServer: () => {
     const { ws } = get();
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.close();
+
+    if (ws) {
+      if (
+        ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING
+      )
+        ws.close();
       set({ ws: null, isConnected: false });
     }
   },

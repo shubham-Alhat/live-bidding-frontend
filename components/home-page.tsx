@@ -4,7 +4,7 @@ import { Navigation } from "./navigation";
 import { AuctionCard } from "./auction-card";
 import { ApiRes, ApiResponse, Auction, Product } from "@/types/api";
 import useAuctionStore from "@/store/auctionStore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api, { getErrorMessage } from "@/utils/api";
 import { toast } from "sonner";
 import { AuctionCardSkeleton } from "./auction-card-skeleton";
@@ -23,7 +23,8 @@ function HomeClient({ token }: TokenState) {
   const { authUser } = useAuthStore();
   const { liveAuctions, setLiveAuctions } = useAuctionStore();
   const [loading, setLoading] = useState(true);
-  const { connectToWsServer, disconnectToWsServer } = useWebsocketStore();
+  const { connectToWsServer, disconnectToWsServer, ws, isConnected } =
+    useWebsocketStore();
 
   useEffect(() => {
     const getAllAuctions = async () => {
@@ -31,6 +32,10 @@ function HomeClient({ token }: TokenState) {
         const res = await api.get<ApiRes<Auction[] | []>>("/auction/get-all");
 
         setLiveAuctions(res.data.data);
+
+        if (!ws && !isConnected) {
+          if (authUser) connectToWsServer(authUser.id, token);
+        }
       } catch (error) {
         console.log(error);
         toast.error(getErrorMessage(error));
@@ -39,17 +44,11 @@ function HomeClient({ token }: TokenState) {
       }
     };
     getAllAuctions();
-  }, []);
-
-  useEffect(() => {
-    if (authUser?.id) {
-      connectToWsServer(authUser.id, token);
-    }
 
     return () => {
       disconnectToWsServer();
     };
-  }, [authUser?.id]);
+  }, [authUser]);
 
   return (
     <>
