@@ -38,8 +38,7 @@ export interface Auction {
   biddings?: Bid[];
   productId: string;
   product?: Product;
-  startTime?: string | null;
-  endTime?: string | null;
+  startTime: string;
   auctionDuration: number;
   startingPrice: number;
   finalBidPrice?: number | null;
