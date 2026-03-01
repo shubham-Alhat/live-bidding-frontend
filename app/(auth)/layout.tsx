@@ -19,12 +19,13 @@ interface AuthApiResponse<T> {
 const getUser = async (): Promise<AuthUser> => {
   const cookieStore = cookies();
   const token = (await cookieStore).get("accessToken")?.value;
-
   if (!token) {
+    console.log("not token found");
     redirect("/login");
   }
 
   try {
+    console.log("/auth/getuser called");
     const res = await api.get<AuthApiResponse<AuthUser>>("/auth/get-user", {
       headers: {
         Cookie: `accessToken=${token}`,
@@ -46,9 +47,12 @@ export default async function AuthLayout({
 }) {
   const user = await getUser();
 
+  const cookieStore = cookies();
+  const token = (await cookieStore).get("accessToken")?.value;
+
   return (
     <>
-      <UserStoreIntializer user={user} />
+      <UserStoreIntializer user={user} token={token} />
       {children}
     </>
   );

@@ -11,13 +11,15 @@ export type User = {
 
 interface AuthState {
   authUser: User | null;
-  setAuthUser: (user: User | null) => void;
+  token: string | undefined;
+  setAuthUser: (user: User | null, token: string | undefined) => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
   authUser: null,
-  setAuthUser: (user) => {
-    set({ authUser: user });
+  token: undefined,
+  setAuthUser: (user, token) => {
+    set({ authUser: user, token: token });
   },
 }));
 

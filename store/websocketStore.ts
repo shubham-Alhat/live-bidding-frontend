@@ -38,7 +38,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
 
     newSocket.onopen = () => {
       set({ ws: newSocket, isConnected: true });
-      console.log("connected to server..");
+      console.log("connected to WS server..");
       newSocket.send(
         JSON.stringify({ type: "user_connected", userId: userId }),
       );
@@ -46,7 +46,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
 
     newSocket.onclose = () => {
       set({ ws: null, isConnected: false });
-      console.log("disconnect to server");
+      console.log("disconnect to WS server");
     };
 
     newSocket.onerror = (err) => {
@@ -61,7 +61,8 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
         ws.readyState === WebSocket.OPEN ||
         ws.readyState === WebSocket.CONNECTING
       )
-        ws.close();
+        console.log("diconnect to server called and ws.close()");
+      ws.close();
       set({ ws: null, isConnected: false });
     }
   },

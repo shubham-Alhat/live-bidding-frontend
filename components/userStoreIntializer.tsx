@@ -3,11 +3,17 @@ import useAuthStore from "@/store/authStore";
 import { User } from "@/types/api";
 import { useEffect } from "react";
 
-function UserStoreIntializer({ user }: { user: User }) {
+function UserStoreIntializer({
+  user,
+  token,
+}: {
+  user: User;
+  token: string | undefined;
+}) {
   const { setAuthUser } = useAuthStore();
 
   useEffect(() => {
-    setAuthUser(user);
+    setAuthUser(user, token);
   }, []);
 
   return null;
