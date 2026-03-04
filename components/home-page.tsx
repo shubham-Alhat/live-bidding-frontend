@@ -8,13 +8,15 @@ import { useEffect, useRef, useState } from "react";
 import api, { getErrorMessage } from "@/utils/api";
 import { toast } from "sonner";
 import { AuctionCardSkeleton } from "./auction-card-skeleton";
-import useWebsocketStore from "@/store/websocketStore";
+import useWebsocketStore, { RawDataState } from "@/store/websocketStore";
 import { Button } from "./ui/button";
 
 function HomeClient() {
   const { authUser } = useAuthStore();
   const { liveAuctions, setLiveAuctions } = useAuctionStore();
   const [loading, setLoading] = useState(true);
+  const { sendWsMessage, isConnected, ws, liveAuctionsViewerCount } =
+    useWebsocketStore();
 
   useEffect(() => {
     const getAllAuctions = async () => {
@@ -31,6 +33,24 @@ function HomeClient() {
     };
     getAllAuctions();
   }, [authUser]);
+
+  useEffect(() => {
+    if (authUser && ws) {
+      // send get-live-auction-state to ws
+      const data: RawDataState = {
+        type: "get_live_auction_feed",
+        payload: {
+          userId: authUser.id,
+        },
+      };
+
+      console.log("control comes here.. -------");
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log("sendMessage called...");
+        sendWsMessage(data);
+      }
+    }
+  }, [isConnected]);
 
   return (
     <>

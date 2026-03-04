@@ -12,6 +12,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Auction } from "@/types/api";
+import useWebsocketStore from "@/store/websocketStore";
+import useAuthStore from "@/store/authStore";
+import useAuctionStore from "@/store/auctionStore";
+import { Fascinate } from "next/font/google";
+import { AuctionNotFound } from "@/components/auction-not-found";
+import { LiveProductsSkeleton } from "@/components/live-product-skeleton";
 
 // Mock auction data
 const auctionData = {
@@ -108,6 +114,11 @@ export default function LiveAuctionPage({
   console.log("id - ", id);
 
   const [loading, setLoading] = useState(true);
+  const [isAuctionExists, setIsAuctionExists] = useState(true);
+  const { ws, sendWsMessage, selectedLiveAuction } = useWebsocketStore();
+  const { authUser } = useAuthStore();
+  const { setSelectedAuction, selectedAuction } = useAuctionStore();
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     const getAuctionById = async () => {
@@ -117,13 +128,89 @@ export default function LiveAuctionPage({
         );
 
         console.log(res.data.data);
+        if (res.data.data) {
+          setSelectedAuction(res.data.data);
+        } else {
+          setIsAuctionExists(false);
+          return;
+        }
+
+        // send ws event - user joined auction
+        if (authUser) {
+          const rawData = {
+            type: "user_joined_auction_room",
+            payload: {
+              username: authUser.username,
+              auctionId: id,
+            },
+          };
+
+          console.log("User joined auction event send...");
+          sendWsMessage(rawData);
+        }
       } catch (error) {
         console.log(error);
         toast.error(getErrorMessage(error));
+      } finally {
+        setLoading(false);
       }
     };
     getAuctionById();
+
+    return () => {
+      console.log("start return..");
+      if (authUser && id) {
+        console.log("if else passssed...");
+        const rawData = {
+          type: "leave_auction",
+          payload: {
+            username: authUser.username,
+            auctionId: id,
+          },
+        };
+        console.log("leave event callled..");
+        sendWsMessage(rawData);
+      }
+    };
   }, [id]);
+
+  // format time
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  useEffect(() => {
+    if (!selectedLiveAuction) return;
+    const { endTime } = selectedLiveAuction;
+    const endTimeMs = endTime * 1000; // convert back to ms
+
+    // set the time very initially
+    setTimeLeft(Math.max(0, Math.floor((endTimeMs - Date.now()) / 1000)));
+
+    const timer = setInterval(() => {
+      const secondsLeft = Math.floor((endTimeMs - Date.now()) / 1000);
+      if (secondsLeft <= 0) {
+        // auction ended
+        clearInterval(timer);
+        setTimeLeft(0);
+        return;
+      }
+
+      setTimeLeft(secondsLeft);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [selectedLiveAuction]);
+
+  if (loading) {
+    return <LiveProductsSkeleton />;
+  }
+
+  if (!isAuctionExists) {
+    return <AuctionNotFound />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -140,16 +227,17 @@ export default function LiveAuctionPage({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage
+                    {/* <AvatarImage
                       src={auctionData.seller.avatar || "/placeholder.svg"}
-                    />
+                    /> */}
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      {auctionData.seller.name[0].toUpperCase()}
+                      {selectedAuction?.owner?.username[0].toUpperCase() ||
+                        "NA"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <p className="font-semibold text-foreground">
-                      {auctionData.seller.name}
+                      {selectedAuction?.owner?.username || "XYZ"}
                     </p>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-accent">
@@ -166,15 +254,15 @@ export default function LiveAuctionPage({
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                   </span>
-                  {auctionData.seller.followers}
+                  {selectedLiveAuction?.viewerCount ?? 0}
                 </Badge>
               </div>
 
               {/* Large Product Image - Main Focus */}
               <Card className="bg-black rounded-3xl overflow-hidden w-full aspect-video relative">
                 <img
-                  src={auctionData.image || "/placeholder.svg"}
-                  alt={auctionData.title}
+                  src={selectedAuction?.product?.image || "/placeholder.svg"}
+                  alt={selectedAuction?.product?.name || "product name"}
                   className="w-full h-full object-cover"
                 />
 
@@ -216,20 +304,20 @@ export default function LiveAuctionPage({
                 <div className="absolute bottom-4 left-4">
                   <Card className="bg-black/80 backdrop-blur border border-white/10 p-3">
                     <div className="flex items-start gap-3">
-                      <img
+                      {/* <img
                         src={auctionData.image || "/placeholder.svg"}
                         alt="product"
                         className="w-12 h-12 rounded object-cover flex-shrink-0"
-                      />
+                      /> */}
                       <div className="flex-1 min-w-0">
                         <Badge className="bg-destructive text-white text-xs mb-1">
                           {auctionData.leadingBidder} is Winning!
                         </Badge>
                         <p className="text-xs font-semibold text-white">
-                          {auctionData.title}
+                          {selectedAuction?.product?.name || "product-name"}
                         </p>
                         <p className="text-xs text-gray-300">
-                          {auctionData.numberOfBids} Bids
+                          {selectedLiveAuction?.bids.length || 0} Bids
                         </p>
                       </div>
                     </div>
@@ -242,7 +330,7 @@ export default function LiveAuctionPage({
                     ${auctionData.currentBid}
                   </p>
                   <p className="text-sm font-semibold text-destructive">
-                    {auctionData.timeRemaining}
+                    {formatTime(timeLeft)}
                   </p>
                 </div>
               </Card>
@@ -251,10 +339,10 @@ export default function LiveAuctionPage({
               <div className="space-y-3">
                 <div>
                   <h1 className="text-xl font-bold text-foreground">
-                    {auctionData.title}
+                    {selectedAuction?.product?.name || "product-name"}
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    {auctionData.description}
+                    {auctionData.description || "description of product"}
                   </p>
                 </div>
 
@@ -279,7 +367,7 @@ export default function LiveAuctionPage({
                       Time Left
                     </p>
                     <p className="text-lg font-bold text-destructive">
-                      {auctionData.timeRemaining}
+                      {formatTime(timeLeft)}
                     </p>
                   </div>
                 </div>

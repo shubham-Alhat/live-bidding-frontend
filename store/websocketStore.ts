@@ -1,16 +1,48 @@
 import { create } from "zustand";
 
+export interface RawDataState {
+  type: string;
+  payload: object;
+}
+
+export interface AuctionBid {
+  userId: string;
+  amount: number;
+  timestamp: number;
+  userName: string;
+}
+
+export interface AuctionState {
+  auctionId: string;
+  viewerCount: number;
+  bids: AuctionBid[];
+  currentHighestBid: AuctionBid | null;
+  startTime: number;
+  endTime: number;
+  remainingTime: number;
+  status: "pending" | "active" | "ended";
+  participants: {
+    userId: string;
+    username: string;
+    joinedAt: number;
+  }[];
+}
+
 interface WebSocketStoreState {
   ws: null | WebSocket;
   isConnected: boolean;
+  selectedLiveAuction: AuctionState | null;
+  liveAuctionsViewerCount: AuctionState[];
   connectToWsServer: (userId: string, token: string | undefined) => void;
   disconnectToWsServer: () => void;
+  sendWsMessage: (data: RawDataState) => void;
 }
 
 const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   ws: null,
   isConnected: false,
-
+  liveAuctionsViewerCount: [],
+  selectedLiveAuction: null,
   connectToWsServer: (userId, token) => {
     const { ws } = get();
 
@@ -39,9 +71,24 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     newSocket.onopen = () => {
       set({ ws: newSocket, isConnected: true });
       console.log("connected to WS server..");
-      newSocket.send(
-        JSON.stringify({ type: "user_connected", userId: userId }),
-      );
+      // newSocket.send(
+      //   JSON.stringify({ type: "user_connected", userId: userId }),
+      // );
+    };
+
+    newSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      console.log("------  ws data ----------");
+      console.log(data);
+
+      switch (data.type) {
+        case "live_auctions_feed":
+          set({ liveAuctionsViewerCount: data.payload.liveAuctions });
+          break;
+        case "new_user_joined":
+          set({ selectedLiveAuction: data.payload.auctionState });
+      }
     };
 
     newSocket.onclose = () => {
@@ -64,6 +111,16 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
         console.log("diconnect to server called and ws.close()");
       ws.close();
       set({ ws: null, isConnected: false });
+    }
+  },
+
+  sendWsMessage: (data) => {
+    const { ws } = get();
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(data));
+    } else {
+      console.log("Websocket not connected, cant send messages..");
     }
   },
 }));

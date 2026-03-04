@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import Image from "next/image";
 import { Auction } from "@/types/api";
 import useAuctionStore from "@/store/auctionStore";
+import useWebsocketStore from "@/store/websocketStore";
 
 interface AuctionCardProps {
   auction: Auction;
@@ -14,6 +15,13 @@ interface AuctionCardProps {
 
 export function AuctionCard({ auction }: AuctionCardProps) {
   const { setSelectedAuction } = useAuctionStore();
+  const { liveAuctionsViewerCount } = useWebsocketStore();
+
+  const liveState = liveAuctionsViewerCount.find(
+    (a) => a.auctionId === auction.id,
+  );
+  const viewCount = liveState?.viewerCount ?? 0;
+
   const handleClickAuction = (auction: Auction) => {
     setSelectedAuction(auction);
   };
@@ -35,7 +43,7 @@ export function AuctionCard({ auction }: AuctionCardProps) {
           {/* Live Badge */}
           <div className="absolute top-3 right-3">
             <Badge className="bg-destructive text-destructive-foreground animate-pulse">
-              Live · {23}
+              Live · {viewCount}
             </Badge>
           </div>
         </div>
