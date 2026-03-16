@@ -37,12 +37,12 @@ export function AuctionNotFound() {
 
         {/* Actions */}
         <div className="flex flex-col gap-2 pt-4">
-          <Link href="/live-products">
+          <Link href="/home">
             <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
               Browse Live Auctions
             </Button>
           </Link>
-          <Link href="/">
+          <Link href="/home">
             <Button
               variant="outline"
               className="w-full border-border text-foreground hover:bg-muted"

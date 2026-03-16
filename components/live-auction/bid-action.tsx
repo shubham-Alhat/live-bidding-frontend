@@ -8,20 +8,45 @@ import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import useAuctionStore from "@/store/auctionStore";
 import { ApiResponse, Bid } from "@/types/api";
+import useWebsocketStore from "@/store/websocketStore";
+import useAuthStore from "@/store/authStore";
 
-interface BidActionProps {
-  currentBid: number;
-  minimumBid: number;
-}
-
-export function BidAction({ currentBid, minimumBid }: BidActionProps) {
-  const [bidAmount, setBidAmount] = useState(minimumBid.toString());
+export function BidAction() {
   const { selectedAuction } = useAuctionStore();
+  const { selectedLiveAuction, ws, sendWsMessage } = useWebsocketStore();
+  const { authUser } = useAuthStore();
+  const [newBidAmount, setNewBidAmount] = useState(
+    selectedLiveAuction?.startingPrice,
+  );
 
   const handleDirectBid = async () => {
+    console.log("auction data:", selectedLiveAuction);
+
+    if (selectedLiveAuction?.currentHighestBid?.amount) {
+      setNewBidAmount(selectedLiveAuction.currentHighestBid.amount + 1);
+    } else {
+      setNewBidAmount(
+        selectedLiveAuction?.startingPrice
+          ? selectedLiveAuction.startingPrice + 1
+          : 1,
+      );
+    }
     try {
+      const rawData = {
+        type: "new_bid",
+        payload: {
+          userId: authUser,
+          username: authUser?.username,
+          bidAmount: selectedLiveAuction?.nextBidAmount,
+          timestamp: Date.now(),
+          auctionId: selectedLiveAuction?.auctionId,
+        },
+      };
+
+      console.log("rawData checks please..", rawData);
+      sendWsMessage(rawData);
       const res = await api.post<ApiResponse<Bid>>("/bid/create", {
-        price: bidAmount,
+        price: newBidAmount,
         auctionId: selectedAuction?.id,
       });
 
@@ -39,12 +64,16 @@ export function BidAction({ currentBid, minimumBid }: BidActionProps) {
         onClick={handleDirectBid}
         className="w-full bg-primary hover:bg-primary/80 cursor-pointer text-background h-16 text-lg font-bold rounded-full"
       >
-        Bid: ${bidAmount || minimumBid}
+        Bid: $
+        {/* {selectedLiveAuction?.currentHighestBid?.amount != null
+          ? selectedLiveAuction.currentHighestBid.amount + 1
+          : (selectedLiveAuction?.startingPrice ?? 0) + 1} */}
+        {selectedLiveAuction?.nextBidAmount ?? 1}
       </Button>
 
       {/* Custom Option */}
 
-      <CustomBidDialog currentBid={currentBid} />
+      {/* <CustomBidDialog currentBid={currentBid} /> */}
     </div>
   );
 }

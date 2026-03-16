@@ -6,6 +6,7 @@ export interface RawDataState {
 }
 
 export interface AuctionBid {
+  id: number;
   userId: string;
   amount: number;
   timestamp: number;
@@ -16,6 +17,8 @@ export interface AuctionState {
   auctionId: string;
   viewerCount: number;
   bids: AuctionBid[];
+  startingPrice: number;
+  nextBidAmount: number;
   currentHighestBid: AuctionBid | null;
   startTime: number;
   endTime: number;
@@ -32,6 +35,9 @@ interface WebSocketStoreState {
   ws: null | WebSocket;
   isConnected: boolean;
   selectedLiveAuction: AuctionState | null;
+  isSelectedLiveAuctionEnded: boolean;
+
+  setIsSelectedLiveAuctionEnded: (value: boolean) => void;
   liveAuctionsViewerCount: AuctionState[];
   connectToWsServer: (userId: string, token: string | undefined) => void;
   disconnectToWsServer: () => void;
@@ -42,6 +48,12 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   ws: null,
   isConnected: false,
   liveAuctionsViewerCount: [],
+  currentHighestBid: 0,
+
+  isSelectedLiveAuctionEnded: false,
+  setIsSelectedLiveAuctionEnded: (value) => {
+    set({ isSelectedLiveAuctionEnded: value });
+  },
   selectedLiveAuction: null,
   connectToWsServer: (userId, token) => {
     const { ws } = get();
@@ -88,6 +100,23 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           break;
         case "new_user_joined":
           set({ selectedLiveAuction: data.payload.auctionState });
+
+          if (data.payload.auctionState.status === "ended") {
+            set({ isSelectedLiveAuctionEnded: true });
+          }
+          break;
+        case "new_bid_placed":
+          set({ selectedLiveAuction: data.payload.auctionState });
+
+        case "user_leave_auction":
+          set({ selectedLiveAuction: data.payload.auctionState });
+          break;
+        case "auction_ended":
+          set({ selectedLiveAuction: data.payload.auctionState });
+          if (data.payload.auctionState.status === "ended") {
+            set({ isSelectedLiveAuctionEnded: true });
+          }
+          break;
       }
     };
 

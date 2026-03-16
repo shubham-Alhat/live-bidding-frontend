@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useWebsocketStore from "@/store/websocketStore";
 
 interface CustomBidDialogProps {
   currentBid: number;
@@ -30,7 +31,9 @@ export function CustomBidDialog({
   const [error, setError] = useState<string>("");
   const [open, setOpen] = useState(false);
 
-  const minimumBid = currentBid + 1.0;
+  const { selectedLiveAuction } = useWebsocketStore();
+
+  const minimumBid = selectedLiveAuction?.currentHighestBid?.amount! + 1.0;
 
   const handleBidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

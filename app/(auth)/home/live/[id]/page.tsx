@@ -111,68 +111,64 @@ export default function LiveAuctionPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = React.use(params);
-  console.log("id - ", id);
+  // console.log("id - ", id);
 
   const [loading, setLoading] = useState(true);
   const [isAuctionExists, setIsAuctionExists] = useState(true);
-  const { ws, sendWsMessage, selectedLiveAuction } = useWebsocketStore();
+  const {
+    ws,
+    sendWsMessage,
+    selectedLiveAuction,
+    isConnected,
+    setIsSelectedLiveAuctionEnded,
+  } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
   const [timeLeft, setTimeLeft] = useState(0);
 
+  // 1. Fetch auction from db
   useEffect(() => {
     const getAuctionById = async () => {
       try {
         const res = await api.get<ApiResponse<Auction>>(
           `/auction/get-auction-by-id/${id}`,
         );
-
-        console.log(res.data.data);
         if (res.data.data) {
           setSelectedAuction(res.data.data);
+          if (res.data.data.status === "ENDED")
+            setIsSelectedLiveAuctionEnded(true);
         } else {
           setIsAuctionExists(false);
-          return;
-        }
-
-        // send ws event - user joined auction
-        if (authUser) {
-          const rawData = {
-            type: "user_joined_auction_room",
-            payload: {
-              username: authUser.username,
-              auctionId: id,
-            },
-          };
-
-          console.log("User joined auction event send...");
-          sendWsMessage(rawData);
         }
       } catch (error) {
-        console.log(error);
         toast.error(getErrorMessage(error));
+        setIsAuctionExists(false);
       } finally {
         setLoading(false);
       }
     };
     getAuctionById();
+  }, [id]);
+
+  // 2. Join ws room
+  useEffect(() => {
+    if (!ws || !authUser || !id) return;
+    // Only join if socket is open
+    if (ws.readyState !== WebSocket.OPEN) return;
+
+    const rawData = {
+      type: "user_joined_auction_room",
+      payload: { username: authUser.username, auctionId: id },
+    };
+    sendWsMessage(rawData);
 
     return () => {
-      console.log("start return..");
-      if (authUser && id) {
-        console.log("if else passssed...");
-        const rawData = {
-          type: "leave_auction",
-          payload: {
-            username: authUser.username,
-            auctionId: id,
-          },
-        };
-        console.log("leave event callled..");
-        sendWsMessage(rawData);
-      }
+      sendWsMessage({
+        type: "leave_auction",
+        payload: { username: authUser.username, auctionId: id },
+      });
     };
-  }, [id]);
+  }, [isConnected, authUser, id]);
 
   // format time
   const formatTime = (seconds: number) => {
@@ -180,6 +176,13 @@ export default function LiveAuctionPage({
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
+
+  function formatRelativeTime(date: number) {
+    const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+    if (diff < 60) return "just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)} mins ago`;
+    return `${Math.floor(diff / 3600)} hrs ago`;
+  }
 
   useEffect(() => {
     if (!selectedLiveAuction) return;
@@ -300,7 +303,7 @@ export default function LiveAuctionPage({
                   </button>
                 </div>
 
-                {/* Winning Status - Bottom Left */}
+                {/* participants - Bottom Left */}
                 <div className="absolute bottom-4 left-4">
                   <Card className="bg-black/80 backdrop-blur border border-white/10 p-3">
                     <div className="flex items-start gap-3">
@@ -311,13 +314,15 @@ export default function LiveAuctionPage({
                       /> */}
                       <div className="flex-1 min-w-0">
                         <Badge className="bg-destructive text-white text-xs mb-1">
-                          {auctionData.leadingBidder} is Winning!
+                          {selectedLiveAuction
+                            ? `${selectedLiveAuction.participants[selectedLiveAuction.participants.length - 1].username} joined ${formatRelativeTime(selectedLiveAuction.participants[selectedLiveAuction.participants.length - 1].joinedAt)}!`
+                            : "no participants yet.."}
                         </Badge>
                         <p className="text-xs font-semibold text-white">
                           {selectedAuction?.product?.name || "product-name"}
                         </p>
                         <p className="text-xs text-gray-300">
-                          {selectedLiveAuction?.bids.length || 0} Bids
+                          {selectedLiveAuction?.bids.length ?? 0} Bids
                         </p>
                       </div>
                     </div>
@@ -327,7 +332,7 @@ export default function LiveAuctionPage({
                 {/* Price & Timer - Bottom Right */}
                 <div className="absolute bottom-6 right-6 text-white text-right">
                   <p className="text-4xl font-bold">
-                    ${auctionData.currentBid}
+                    ${selectedLiveAuction?.currentHighestBid?.amount ?? 0}
                   </p>
                   <p className="text-sm font-semibold text-destructive">
                     {formatTime(timeLeft)}
@@ -353,13 +358,13 @@ export default function LiveAuctionPage({
                       Current Bid
                     </p>
                     <p className="text-lg font-bold text-primary">
-                      ${auctionData.currentBid}
+                      ${selectedLiveAuction?.currentHighestBid?.amount ?? 0}
                     </p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3 border border-border">
                     <p className="text-xs text-muted-foreground mb-1">Bids</p>
                     <p className="text-lg font-bold text-foreground">
-                      {auctionData.numberOfBids}
+                      {selectedLiveAuction?.bids.length ?? 0}
                     </p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3 border border-border">
@@ -374,32 +379,24 @@ export default function LiveAuctionPage({
               </div>
 
               {/* Bid Action - Mobile Only */}
-              <div className="lg:hidden">
+              {/* <div className="lg:hidden">
                 <BidAction
                   currentBid={auctionData.currentBid}
                   minimumBid={auctionData.minimumBid}
                 />
-              </div>
+              </div> */}
             </div>
 
             {/* Right Column - Bid Logs + Bid Action */}
             <div className="lg:col-span-2 flex flex-col space-y-4">
               {/* Bid Logs Container */}
               <Card className="bg-card border border-border rounded-lg flex-1 flex flex-col">
-                <BidLogs
-                  currentWinner={auctionData.leadingBidder}
-                  currentWinnerAvatar={auctionData.leadingBidderAvatar}
-                  currentBidAmount={auctionData.minimumBid}
-                  bidHistory={auctionData.bidHistory}
-                />
+                <BidLogs />
               </Card>
 
               {/* Bid Action - Desktop Only */}
               <div className="hidden lg:block">
-                <BidAction
-                  currentBid={auctionData.currentBid}
-                  minimumBid={auctionData.minimumBid}
-                />
+                <BidAction />
               </div>
             </div>
           </div>
