@@ -36,7 +36,8 @@ interface WebSocketStoreState {
   isConnected: boolean;
   selectedLiveAuction: AuctionState | null;
   isSelectedLiveAuctionEnded: boolean;
-
+  token: string | undefined;
+  setToken: (token: string) => void;
   setIsSelectedLiveAuctionEnded: (value: boolean) => void;
   liveAuctionsViewerCount: AuctionState[];
   connectToWsServer: (userId: string, token: string | undefined) => void;
@@ -44,12 +45,24 @@ interface WebSocketStoreState {
   sendWsMessage: (data: RawDataState) => void;
 }
 
+let reconnectAttempts = 0;
+let reconnectTimeout: NodeJS.Timeout | null = null;
+
+const MAX_RETRIES = 10;
+
+const getBackoffTime = (attempt: number) => {
+  return Math.min(1000 * 2 ** attempt, 10000);
+};
+
 const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   ws: null,
   isConnected: false,
   liveAuctionsViewerCount: [],
   currentHighestBid: 0,
-
+  token: undefined,
+  setToken: (token: string) => {
+    set({ token: token });
+  },
   isSelectedLiveAuctionEnded: false,
   setIsSelectedLiveAuctionEnded: (value) => {
     set({ isSelectedLiveAuctionEnded: value });
@@ -83,9 +96,6 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     newSocket.onopen = () => {
       set({ ws: newSocket, isConnected: true });
       console.log("connected to WS server..");
-      // newSocket.send(
-      //   JSON.stringify({ type: "user_connected", userId: userId }),
-      // );
     };
 
     newSocket.onmessage = (event) => {
@@ -107,6 +117,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           break;
         case "new_bid_placed":
           set({ selectedLiveAuction: data.payload.auctionState });
+          break;
 
         case "user_leave_auction":
           set({ selectedLiveAuction: data.payload.auctionState });
@@ -123,6 +134,12 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     newSocket.onclose = () => {
       set({ ws: null, isConnected: false });
       console.log("disconnect to WS server");
+      // reconnection logic
+      if (reconnectAttempts < MAX_RETRIES) {
+        const delay = getBackoffTime(reconnectAttempts);
+        reconnectAttempts++;
+        reconnectTimeout = setTimeout(() => {}, delay);
+      }
     };
 
     newSocket.onerror = (err) => {
