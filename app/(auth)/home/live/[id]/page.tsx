@@ -376,6 +376,13 @@ export default function LiveAuctionPage({
                     <p className="text-lg font-bold text-destructive">
                       {formatTime(timeLeft)}
                     </p>
+                    <span>
+                      {isSelectedLiveAuctionEnded ? (
+                        <p>Auction Ended</p>
+                      ) : (
+                        <span></span>
+                      )}
+                    </span>
                   </div>
                 </div>
               </div>
