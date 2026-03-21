@@ -41,7 +41,8 @@ export function SignupForm() {
         password,
       });
 
-      setAuthUser(res.data.data);
+      console.log(res.data.data);
+
       router.push("/login");
     } catch (error) {
       console.log(error);

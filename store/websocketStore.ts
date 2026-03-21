@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import useAuthStore from "./authStore";
 
 export interface RawDataState {
   type: string;
@@ -46,7 +47,7 @@ interface WebSocketStoreState {
 }
 
 let reconnectAttempts = 0;
-let reconnectTimeout: NodeJS.Timeout | null = null;
+let reconnectTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
 const MAX_RETRIES = 10;
 
@@ -94,8 +95,25 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     console.log("send a conn req..");
 
     newSocket.onopen = () => {
+      reconnectAttempts = 0;
+      clearTimeout(reconnectTimeout);
       set({ ws: newSocket, isConnected: true });
       console.log("connected to WS server..");
+
+      // if selectedLiveAuction is there, send event to rejoin auction
+      const { selectedLiveAuction } = get();
+      if (selectedLiveAuction) {
+        newSocket.send(
+          JSON.stringify({
+            type: "rejoin_auction",
+            payload: {
+              auctionId: selectedLiveAuction.auctionId,
+              userId: userId,
+              username: useAuthStore.getState().authUser?.username,
+            },
+          }),
+        );
+      }
     };
 
     newSocket.onmessage = (event) => {
@@ -118,6 +136,9 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
         case "new_bid_placed":
           set({ selectedLiveAuction: data.payload.auctionState });
           break;
+        case "rejoin_auction_state":
+          set({ selectedLiveAuction: data.payload.auctionState });
+          break;
 
         case "user_leave_auction":
           set({ selectedLiveAuction: data.payload.auctionState });
@@ -138,7 +159,10 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
       if (reconnectAttempts < MAX_RETRIES) {
         const delay = getBackoffTime(reconnectAttempts);
         reconnectAttempts++;
-        reconnectTimeout = setTimeout(() => {}, delay);
+        reconnectTimeout = setTimeout(() => {
+          console.log(`Reconnecting... attempt ${reconnectAttempts}`);
+          get().connectToWsServer(userId, token);
+        }, delay);
       }
     };
 
@@ -147,16 +171,19 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     };
   },
   disconnectToWsServer: () => {
+    clearTimeout(reconnectTimeout);
+    reconnectAttempts = MAX_RETRIES;
     const { ws } = get();
 
     if (ws) {
       if (
         ws.readyState === WebSocket.OPEN ||
         ws.readyState === WebSocket.CONNECTING
-      )
+      ) {
         console.log("diconnect to server called and ws.close()");
-      ws.close();
-      set({ ws: null, isConnected: false });
+        ws.close();
+        set({ ws: null, isConnected: false });
+      }
     }
   },
 
