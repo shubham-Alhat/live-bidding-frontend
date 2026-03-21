@@ -61,6 +61,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   liveAuctionsViewerCount: [],
   currentHighestBid: 0,
   token: undefined,
+
   setToken: (token: string) => {
     set({ token: token });
   },
