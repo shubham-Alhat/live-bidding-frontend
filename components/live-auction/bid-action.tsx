@@ -13,7 +13,8 @@ import useAuthStore from "@/store/authStore";
 
 export function BidAction() {
   const { selectedAuction } = useAuctionStore();
-  const { selectedLiveAuction, ws, sendWsMessage } = useWebsocketStore();
+  const { selectedLiveAuction, ws, sendWsMessage, isSelectedLiveAuctionEnded } =
+    useWebsocketStore();
   const { authUser } = useAuthStore();
   const [newBidAmount, setNewBidAmount] = useState(
     selectedLiveAuction?.startingPrice,
@@ -62,6 +63,7 @@ export function BidAction() {
       {/* Main Bid Button - Large and Prominent */}
       <Button
         onClick={handleDirectBid}
+        disabled={isSelectedLiveAuctionEnded}
         className="w-full bg-primary hover:bg-primary/80 cursor-pointer text-background h-16 text-lg font-bold rounded-full"
       >
         Bid: $

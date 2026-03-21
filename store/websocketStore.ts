@@ -40,6 +40,7 @@ interface WebSocketStoreState {
   token: string | undefined;
   setToken: (token: string) => void;
   setIsSelectedLiveAuctionEnded: (value: boolean) => void;
+  winner: string | undefined;
   liveAuctionsViewerCount: AuctionState[];
   connectToWsServer: (userId: string, token: string | undefined) => void;
   disconnectToWsServer: () => void;
@@ -61,7 +62,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   liveAuctionsViewerCount: [],
   currentHighestBid: 0,
   token: undefined,
-
+  winner: undefined,
   setToken: (token: string) => {
     set({ token: token });
   },
@@ -148,6 +149,9 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           set({ selectedLiveAuction: data.payload.auctionState });
           if (data.payload.auctionState.status === "ended") {
             set({ isSelectedLiveAuctionEnded: true });
+            set({
+              winner: data.payload.auctionState.currentHighestBid.userName,
+            });
           }
           break;
       }

@@ -121,6 +121,8 @@ export default function LiveAuctionPage({
     selectedLiveAuction,
     isConnected,
     setIsSelectedLiveAuctionEnded,
+    isSelectedLiveAuctionEnded,
+    winner,
   } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
@@ -399,6 +401,11 @@ export default function LiveAuctionPage({
                 <BidAction />
               </div>
             </div>
+          </div>
+          <div className="text-2xl font-medium">
+            {winner && isSelectedLiveAuctionEnded
+              ? `Winner - ${selectedLiveAuction?.currentHighestBid?.userName}`
+              : ""}
           </div>
         </div>
       </div>
