@@ -26,11 +26,7 @@ import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Product } from "@/types/api";
 import useProductStore from "@/store/productStore";
 
-interface CreateProductFormProps {
-  onAddProduct: (product: Omit<Product, "id" | "createdAt">) => void;
-}
-
-export function CreateProductForm({ onAddProduct }: CreateProductFormProps) {
+export function CreateProductForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [productName, setProductName] = useState("");

@@ -65,21 +65,6 @@ export function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  // const handleLaunch = async () => {
-  //   setIsLaunching(true);
-  //   try {
-  //     await new Promise((resolve) => setTimeout(resolve, 500));
-  //     onLaunch();
-  //   } catch (error) {
-  //   } finally {
-  //     setIsLaunching(false);
-  //   }
-  // };
-
-  // const handleDelete = () => {
-  //   onDelete();
-  // };
-
   const handleLiveStatus = (id: string) => {
     const url = `/home/live-product/${id}`;
     window.open(url, "_blank", "noopener,noreferrer");

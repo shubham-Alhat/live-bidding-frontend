@@ -5,17 +5,16 @@ import { BidLogs } from "@/components/live-auction/bid-logs";
 import { BidAction } from "@/components/live-auction/bid-action";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import React, { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Auction } from "@/types/api";
 import useWebsocketStore from "@/store/websocketStore";
 import useAuthStore from "@/store/authStore";
 import useAuctionStore from "@/store/auctionStore";
-import { Fascinate } from "next/font/google";
+
 import { AuctionNotFound } from "@/components/auction-not-found";
 import { LiveProductsSkeleton } from "@/components/live-product-skeleton";
 

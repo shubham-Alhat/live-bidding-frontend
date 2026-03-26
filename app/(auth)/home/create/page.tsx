@@ -17,7 +17,7 @@ export default function Create() {
   const urlError = searchParams.get("error");
   const [isFetching, setIsFetching] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
-  const { setProductList } = useProductStore();
+  const { setProductList, productList } = useProductStore();
 
   useEffect(() => {
     console.log(urlError);
@@ -27,25 +27,6 @@ export default function Create() {
       }, 200);
     }
   }, []);
-
-  const addProduct = (product: Omit<Product, "id" | "createdAt">) => {
-    const newProduct: Product = {
-      ...product,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toString(),
-    };
-    setProducts([newProduct, ...products]);
-  };
-
-  const launchProduct = (id: string) => {
-    setProducts(
-      products.map((p) => (p.id === id ? { ...p, isLaunched: true } : p)),
-    );
-  };
-
-  const deleteProduct = (id: string) => {
-    setProducts(products.filter((p) => p.id !== id));
-  };
 
   useEffect(() => {
     const getAllProducts = async () => {
@@ -84,16 +65,12 @@ export default function Create() {
 
         {/* Create Product Section */}
         <div className="mb-12">
-          <CreateProductForm onAddProduct={addProduct} />
+          <CreateProductForm />
         </div>
 
         {/* Products List Section */}
         {isFetching ? <div>fetching...</div> : ""}
-        <ProductList
-          products={products}
-          onLaunch={launchProduct}
-          onDelete={deleteProduct}
-        />
+        <ProductList />
       </div>
     </main>
   );

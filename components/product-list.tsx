@@ -7,18 +7,7 @@ import { Product } from "@/types/api";
 import useProductStore from "@/store/productStore";
 import { EmptyOutline } from "./empty-box";
 
-interface ProductListProps {
-  products: Product[];
-  onLaunch: (id: string) => void;
-  onDelete: (id: string) => void;
-}
-
-export function ProductList({
-  products,
-  onLaunch,
-  onDelete,
-}: ProductListProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+export function ProductList() {
   const { productList } = useProductStore();
 
   if (productList.length === 0) {
