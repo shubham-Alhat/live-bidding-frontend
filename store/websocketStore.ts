@@ -93,7 +93,9 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
       }
     }
 
-    const newSocket = new WebSocket(`ws://localhost:8000/ws?token=${token}`);
+    const newSocket = new WebSocket(
+      `${process.env.NEXT_PUBLIC_WS_URL}?token=${token}`,
+    );
     console.log("send a conn req..");
 
     newSocket.onopen = () => {
