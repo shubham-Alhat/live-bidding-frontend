@@ -20,7 +20,7 @@ export function LoginForm() {
 
   const router = useRouter();
 
-  const { setAuthUser } = useAuthStore();
+  const { setAuthUser, token } = useAuthStore();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +38,7 @@ export function LoginForm() {
         password,
       });
 
-      setAuthUser(res.data.data);
+      setAuthUser(res.data.data, token);
       router.push("/home");
     } catch (error) {
       console.log(error);
