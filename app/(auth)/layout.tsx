@@ -19,10 +19,10 @@ interface AuthApiResponse<T> {
 const getUser = async (): Promise<AuthUser> => {
   const cookieStore = cookies();
   const token = (await cookieStore).get("accessToken")?.value;
-  if (!token) {
-    console.log("not token found");
-    redirect("/login");
-  }
+  // if (!token) {
+  //   console.log("not token found");
+  //   redirect("/login");
+  // }
 
   try {
     console.log("/auth/getuser called");
