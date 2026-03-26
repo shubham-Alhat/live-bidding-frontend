@@ -19,92 +19,6 @@ import { Fascinate } from "next/font/google";
 import { AuctionNotFound } from "@/components/auction-not-found";
 import { LiveProductsSkeleton } from "@/components/live-product-skeleton";
 
-// Mock auction data
-const auctionData = {
-  id: "1",
-  title: "Fragrance #114",
-  image: "/placeholder.jpg",
-  description: "No cancellations. 100 ML brand new",
-  currentBid: 10,
-  minimumBid: 11,
-  numberOfBids: 11,
-  timeRemaining: "00:05",
-  seller: {
-    name: "socalsales",
-    avatar: "/placeholder-user.jpg",
-    rating: 4.6,
-    followers: 36,
-  },
-  leadingBidder: "vv34662",
-  leadingBidderAvatar: "/placeholder-user.jpg",
-  bidHistory: [
-    {
-      id: "1",
-      bidder: "vv34662",
-      avatar: "/placeholder-user.jpg",
-      amount: 11,
-      timestamp: "Just now",
-      isWinning: true,
-    },
-    {
-      id: "2",
-      bidder: "CollectorPro",
-      avatar: "/placeholder-user.jpg",
-      amount: 10,
-      timestamp: "2 min ago",
-    },
-    {
-      id: "3",
-      bidder: "FragranceHunter",
-      avatar: "/placeholder-user.jpg",
-      amount: 9,
-      timestamp: "5 min ago",
-    },
-    {
-      id: "455",
-      bidder: "LuxeWatcher",
-      avatar: "/placeholder-user.jpg",
-      amount: 8,
-      timestamp: "8 min ago",
-    },
-    {
-      id: "456",
-      bidder: "LuxeWatcher",
-      avatar: "/placeholder-user.jpg",
-      amount: 8,
-      timestamp: "8 min ago",
-    },
-    {
-      id: "433",
-      bidder: "LuxeWatcher",
-      avatar: "/placeholder-user.jpg",
-      amount: 8,
-      timestamp: "8 min ago",
-    },
-    {
-      id: "422",
-      bidder: "LuxeWatcher",
-      avatar: "/placeholder-user.jpg",
-      amount: 8,
-      timestamp: "8 min ago",
-    },
-    {
-      id: "411",
-      bidder: "LuxeWatcher",
-      avatar: "/placeholder-user.jpg",
-      amount: 8,
-      timestamp: "8 min ago",
-    },
-    {
-      id: "400",
-      bidder: "LuxeWatcher",
-      avatar: "/placeholder-user.jpg",
-      amount: 8,
-      timestamp: "8 min ago",
-    },
-  ],
-};
-
 export default function LiveAuctionPage({
   params,
 }: {
@@ -245,9 +159,7 @@ export default function LiveAuctionPage({
                       {selectedAuction?.owner?.username || "XYZ"}
                     </p>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-accent">
-                        ★ {auctionData.seller.rating}
-                      </span>
+                      <span className="text-sm text-accent">★ {"5"}</span>
                       <Badge className="bg-accent text-accent-foreground text-xs h-6">
                         Follow
                       </Badge>
@@ -349,7 +261,7 @@ export default function LiveAuctionPage({
                     {selectedAuction?.product?.name || "product-name"}
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    {auctionData.description || "description of product"}
+                    {"description of product"}
                   </p>
                 </div>
 
@@ -386,14 +298,6 @@ export default function LiveAuctionPage({
                   </div>
                 </div>
               </div>
-
-              {/* Bid Action - Mobile Only */}
-              {/* <div className="lg:hidden">
-                <BidAction
-                  currentBid={auctionData.currentBid}
-                  minimumBid={auctionData.minimumBid}
-                />
-              </div> */}
             </div>
 
             {/* Right Column - Bid Logs + Bid Action */}

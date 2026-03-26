@@ -84,7 +84,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
         console.log("WebSocket connection in progress");
         return;
       }
-      // If CLOSING or CLOSED, clean up before creating new connection
+
       if (
         ws.readyState === WebSocket.CLOSING ||
         ws.readyState === WebSocket.CLOSED
