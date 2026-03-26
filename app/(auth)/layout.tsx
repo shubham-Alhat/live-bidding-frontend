@@ -19,18 +19,21 @@ interface AuthApiResponse<T> {
 const getUser = async (): Promise<AuthUser> => {
   const cookieStore = cookies();
   const token = (await cookieStore).get("accessToken")?.value;
-  // if (!token) {
-  //   console.log("not token found");
-  //   redirect("/login");
-  // }
+  if (!token) {
+    console.log("not token found");
+    redirect("/login");
+  }
 
   try {
     console.log("/auth/getuser called");
-    const res = await api.get<AuthApiResponse<AuthUser>>("/auth/get-user", {
-      headers: {
-        Cookie: `accessToken=${token}`,
+    const res = await api.get<AuthApiResponse<AuthUser>>(
+      "https://live-bidding-backend-kbv1.onrender.com/api/v1/auth/get-user",
+      {
+        headers: {
+          Cookie: `accessToken=${token}`,
+        },
       },
-    });
+    );
 
     return res.data.data;
   } catch (error) {
