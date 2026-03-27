@@ -153,11 +153,8 @@ export function ProductCard({ product }: ProductCardProps) {
           if (product.status === "LIVE") {
             return (
               <>
-                <Button
-                  onClick={() => handleLiveStatus(product.id)}
-                  className="flex-1 cursor-pointer"
-                >
-                  See live status
+                <Button disabled className="flex-1 cursor-pointer">
+                  Your product is live.
                   <ExternalLink />
                 </Button>
               </>
