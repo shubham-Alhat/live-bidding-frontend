@@ -11,6 +11,7 @@ async function LiveProductStatus({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  console.log("product id", id);
   const cookieStore = cookies();
   const token = (await cookieStore).get("accessToken")?.value;
 
@@ -25,9 +26,11 @@ async function LiveProductStatus({
         },
       );
 
+      console.log(token, "---token--");
+
       return res.data.data;
     } catch (error) {
-      console.log(error);
+      console.log(error, "error in catch");
       redirect("/home/create?error=product_not_found");
     }
   };
