@@ -22,10 +22,6 @@ export interface Bid {
   updatedAt: string;
 }
 
-// shubham bhai
-// shubham bhai
-// shubham bhai
-
 // Auction interface
 export interface Auction {
   id: string;

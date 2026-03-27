@@ -41,7 +41,7 @@ export default function LiveAuctionPage({
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
   const [timeLeft, setTimeLeft] = useState(0);
 
-  // 1. Fetch auction from db
+  // Fetch live auction from db
   useEffect(() => {
     const getAuctionById = async () => {
       try {
@@ -65,10 +65,9 @@ export default function LiveAuctionPage({
     getAuctionById();
   }, [id]);
 
-  // 2. Join ws room
+  // Join ws room
   useEffect(() => {
     if (!ws || !authUser || !id) return;
-    // Only join if socket is open
     if (ws.readyState !== WebSocket.OPEN) return;
 
     const rawData = {

@@ -66,8 +66,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const handleLiveStatus = (id: string) => {
-    const url = `/home/live-product/${id}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    router.push(`/home/live-product/${id}`);
   };
 
   const handleDelete = async (productId: string) => {

@@ -1,3 +1,4 @@
+import { AuctionNotFound } from "@/components/auction-not-found";
 import LiveProductsPage from "@/components/live-product";
 import { ApiRes, ApiResponse, Auction, Product } from "@/types/api";
 import api from "@/utils/api";
@@ -32,6 +33,10 @@ async function LiveProductStatus({
   };
 
   const auction = await getAuction();
+
+  if (!auction || auction.status === "ENDED") {
+    return <AuctionNotFound />;
+  }
 
   return (
     <>

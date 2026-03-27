@@ -6,89 +6,45 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Auction, Product } from "@/types/api";
 import useAuctionStore from "@/store/auctionStore";
-
-interface BidLog {
-  id: string;
-  username: string;
-  amount: number;
-  timestamp: number;
-}
+import useWebsocketStore from "@/store/websocketStore";
+import useAuthStore from "@/store/authStore";
 
 interface LiveProductPageProps {
   auction: Auction;
 }
 
 export default function LiveProductsPage({ auction }: LiveProductPageProps) {
-  const [bids, setBids] = useState<BidLog[]>([
-    {
-      id: "1",
-      username: "John_Doe",
-      amount: 150,
-      timestamp: 42526228292 - 5000,
-    },
-    {
-      id: "2",
-      username: "Jane_Smith",
-      amount: 160,
-      timestamp: 20286463963 - 3000,
-    },
-    {
-      id: "3",
-      username: "Mike_Johnson",
-      amount: 175,
-      timestamp: 6729647443 - 1000,
-    },
-  ]);
-
   const {
-    setSelectedAuction,
-    selectedAuction,
-    isAuctionEnded,
-    setIsAuctionEnded,
-  } = useAuctionStore();
+    selectedLiveAuction,
+    isSelectedLiveAuctionEnded,
+    ws,
+    sendWsMessage,
+    isConnected,
+  } = useWebsocketStore();
+  const { authUser } = useAuthStore();
 
-  const [timeLeft, setTimeLeft] = useState(auction.auctionDuration);
-  const [highestBid, setHighestBid] = useState(175);
-  const [winnerUsername, setWinnerUsername] = useState("Mike_Johnson");
+  const [timeLeft, setTimeLeft] = useState(0);
+
   const logsEndRef = useRef<HTMLDivElement>(null);
 
+  // Join ws room
   useEffect(() => {
-    setSelectedAuction(auction);
-  }, []);
+    if (!ws || !authUser || auction.id) return;
+    if (ws.readyState !== WebSocket.OPEN) return;
 
-  // Simulate live bid updates
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const newBid: BidLog = {
-  //       id: Date.now().toString(),
-  //       username: ["Alice_Brown", "Bob_Wilson", "Carol_Davis", "David_Lee"][
-  //         Math.floor(Math.random() * 4)
-  //       ],
-  //       amount: highestBid + Math.floor(Math.random() * 50) + 5,
-  //       timestamp: Date.now(),
-  //     };
+    const rawData = {
+      type: "user_joined_auction_room",
+      payload: { username: authUser.username, auctionId: auction.id },
+    };
+    sendWsMessage(rawData);
 
-  //     setBids((prev) => [...prev, newBid]);
-  //     setHighestBid(newBid.amount);
-  //     setWinnerUsername(newBid.username);
-  //   }, 3000);
-
-  //   return () => clearInterval(interval);
-  // }, [highestBid]);
-
-  // Auto-scroll to latest bid
-  useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [bids]);
-
-  // Countdown timer
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-  //   }, 1000);
-
-  //   return () => clearInterval(timer);
-  // }, []);
+    return () => {
+      sendWsMessage({
+        type: "leave_auction",
+        payload: { username: authUser.username, auctionId: auction.id },
+      });
+    };
+  }, [isConnected, authUser, auction.id]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -97,30 +53,28 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
   };
 
   useEffect(() => {
-    const createdAtMs = new Date(auction.createdAt).getTime();
-    const nowMs = Date.now();
-    const elaspedTimeInSeconds = Math.floor((nowMs - createdAtMs) / 1000);
-    const remainingSeconds = auction.auctionDuration - elaspedTimeInSeconds;
-    setTimeLeft(remainingSeconds);
+    if (!selectedLiveAuction) return;
+    const { endTime } = selectedLiveAuction;
+    // convert back to ms
+    const endTimeMs = endTime * 1000;
+
+    // set the time very initially
+    setTimeLeft(Math.max(0, Math.floor((endTimeMs - Date.now()) / 1000)));
 
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 0) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
+      const secondsLeft = Math.floor((endTimeMs - Date.now()) / 1000);
+      if (secondsLeft <= 0) {
+        // auction ended
+        clearInterval(timer);
+        setTimeLeft(0);
+        return;
+      }
+
+      setTimeLeft(secondsLeft);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (timeLeft === 0) setIsAuctionEnded(true);
-
-    return () => setIsAuctionEnded(false);
-  }, [timeLeft]);
+  }, [selectedLiveAuction]);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -149,7 +103,7 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
             </p>
             <div className="rounded-lg border border-primary bg-card px-4 py-2">
               <p className="font-mono text-2xl font-bold text-primary">
-                {isAuctionEnded ? (
+                {isSelectedLiveAuctionEnded ? (
                   <span>Auction Ended..</span>
                 ) : (
                   formatTime(timeLeft)
@@ -170,22 +124,26 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
 
               {/* Scrollable Logs Container */}
               <ScrollArea className="h-80 overflow-y-auto rounded-lg border border-border bg-background p-4 scroll-smooth">
-                <div className="space-y-2">
-                  {bids.map((bid) => (
-                    <div
-                      key={bid.id}
-                      className="flex items-center justify-between rounded-md bg-muted/50 p-3 transition-colors hover:bg-muted"
-                    >
-                      <span className="font-medium text-foreground">
-                        {bid.username}
-                      </span>
-                      <Badge variant="secondary" className="ml-auto">
-                        ${bid.amount.toLocaleString()}
-                      </Badge>
-                    </div>
-                  ))}
-                  <div ref={logsEndRef} />
-                </div>
+                {selectedLiveAuction?.bids.length === 0 ? (
+                  <div>bidding not yet started..</div>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedLiveAuction?.bids.map((bid) => (
+                      <div
+                        key={bid.id}
+                        className="flex items-center justify-between rounded-md bg-muted/50 p-3 transition-colors hover:bg-muted"
+                      >
+                        <span className="font-medium text-foreground">
+                          {bid.userName}
+                        </span>
+                        <Badge variant="secondary" className="ml-auto">
+                          ${bid.amount.toLocaleString()}
+                        </Badge>
+                      </div>
+                    ))}
+                    <div ref={logsEndRef} />
+                  </div>
+                )}
               </ScrollArea>
             </div>
 
@@ -195,12 +153,22 @@ export default function LiveProductsPage({ auction }: LiveProductPageProps) {
                 Current Highest Bid
               </p>
               <div className="flex items-center justify-between">
-                <p className="text-lg font-semibold text-foreground">
-                  Sold for ${highestBid.toLocaleString()} to {winnerUsername}
-                </p>
-                <p className="text-sm text-primary animate-pulse bg-red-600 rounded-3xl px-2.5 py-1 font-semibold">
-                  winning...
-                </p>
+                {selectedLiveAuction?.currentHighestBid ? (
+                  <p className="text-lg font-semibold text-foreground">
+                    Sold for $
+                    {selectedLiveAuction?.currentHighestBid?.amount.toLocaleString()}{" "}
+                    to {selectedLiveAuction?.currentHighestBid?.userName}
+                  </p>
+                ) : (
+                  <p>bidding not yet started..</p>
+                )}
+                {selectedLiveAuction?.currentHighestBid ? (
+                  <p className="text-sm text-primary animate-pulse bg-red-600 rounded-3xl px-2.5 py-1 font-semibold">
+                    winning...
+                  </p>
+                ) : (
+                  <span></span>
+                )}
               </div>
             </div>
           </div>
