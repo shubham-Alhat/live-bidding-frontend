@@ -105,8 +105,8 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     console.log("send a conn req..");
 
     newSocket.onopen = () => {
-      reconnectAttempts = 0;
-      clearTimeout(reconnectTimeout);
+      // reconnectAttempts = 0;
+      // clearTimeout(reconnectTimeout);
       set({ ws: newSocket, isConnected: true });
       console.log("connected to WS server..");
 
@@ -170,16 +170,16 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
 
     newSocket.onclose = () => {
       set({ ws: null, isConnected: false });
-      console.log("disconnect to WS server");
-      // reconnection logic
-      if (reconnectAttempts < MAX_RETRIES) {
-        const delay = getBackoffTime(reconnectAttempts);
-        reconnectAttempts++;
-        reconnectTimeout = setTimeout(() => {
-          console.log(`Reconnecting... attempt ${reconnectAttempts}`);
-          get().connectToWsServer(userId, token);
-        }, delay);
-      }
+      // console.log("disconnect to WS server");
+      // // reconnection logic
+      // if (reconnectAttempts < MAX_RETRIES) {
+      //   const delay = getBackoffTime(reconnectAttempts);
+      //   reconnectAttempts++;
+      //   reconnectTimeout = setTimeout(() => {
+      //     console.log(`Reconnecting... attempt ${reconnectAttempts}`);
+      //     get().connectToWsServer(userId, token);
+      //   }, delay);
+      // }
     };
 
     newSocket.onerror = (err) => {
