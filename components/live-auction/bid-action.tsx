@@ -13,14 +13,21 @@ import useAuthStore from "@/store/authStore";
 
 export function BidAction() {
   const { selectedAuction } = useAuctionStore();
-  const { selectedLiveAuction, ws, sendWsMessage, isSelectedLiveAuctionEnded } =
-    useWebsocketStore();
+  const {
+    selectedLiveAuction,
+    ws,
+    sendWsMessage,
+    isSelectedLiveAuctionEnded,
+    isBidProcessing,
+    setIsBidProcessing,
+  } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const [newBidAmount, setNewBidAmount] = useState(
     selectedLiveAuction?.startingPrice,
   );
 
   const handleDirectBid = async () => {
+    setIsBidProcessing(true);
     console.log("auction data:", selectedLiveAuction);
 
     if (selectedLiveAuction?.currentHighestBid?.amount) {
@@ -46,6 +53,7 @@ export function BidAction() {
 
       console.log("rawData checks please..", rawData);
       sendWsMessage(rawData);
+
       const res = await api.post<ApiResponse<Bid>>("/bid/create", {
         price: newBidAmount,
         auctionId: selectedAuction?.id,
@@ -63,7 +71,7 @@ export function BidAction() {
       {/* Main Bid Button - Large and Prominent */}
       <Button
         onClick={handleDirectBid}
-        disabled={isSelectedLiveAuctionEnded}
+        disabled={isSelectedLiveAuctionEnded || isBidProcessing}
         className="w-full bg-primary hover:bg-primary/80 cursor-pointer text-background h-16 text-lg font-bold rounded-full"
       >
         Bid: $

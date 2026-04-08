@@ -35,6 +35,8 @@ export interface AuctionState {
 interface WebSocketStoreState {
   ws: null | WebSocket;
   isConnected: boolean;
+  isBidProcessing: boolean;
+  setIsBidProcessing: (value: boolean) => void;
   selectedLiveAuction: AuctionState | null;
   isSelectedLiveAuctionEnded: boolean;
   token: string | undefined;
@@ -59,6 +61,10 @@ const getBackoffTime = (attempt: number) => {
 const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   ws: null,
   isConnected: false,
+  isBidProcessing: false,
+  setIsBidProcessing(value) {
+    set({ isBidProcessing: value });
+  },
   liveAuctionsViewerCount: [],
   currentHighestBid: 0,
   token: undefined,
@@ -139,6 +145,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           break;
         case "new_bid_placed":
           set({ selectedLiveAuction: data.payload.auctionState });
+          set({ isBidProcessing: false });
           break;
         case "rejoin_auction_state":
           set({ selectedLiveAuction: data.payload.auctionState });
@@ -156,6 +163,8 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
             });
           }
           break;
+        default:
+          set({ isBidProcessing: false });
       }
     };
 
