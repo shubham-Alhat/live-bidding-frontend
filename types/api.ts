@@ -6,6 +6,19 @@ export interface User {
   updatedAt?: string;
 }
 
+export interface AuthUser {
+  id: string;
+  username: string;
+  email: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AuthApiResponse<T> {
+  message: string;
+  data: T;
+}
+
 // Enum for Auction status
 type AuctionStatus = "ACTIVE" | "ENDED";
 

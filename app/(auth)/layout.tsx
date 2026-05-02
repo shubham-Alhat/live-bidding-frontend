@@ -1,20 +1,8 @@
 import UserStoreIntializer from "@/components/userStoreIntializer";
+import { AuthApiResponse, AuthUser } from "@/types/api";
 import api from "@/utils/api";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-interface AuthUser {
-  id: string;
-  username: string;
-  email: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface AuthApiResponse<T> {
-  message: string;
-  data: T;
-}
 
 const getUser = async (): Promise<AuthUser> => {
   const cookieStore = cookies();
@@ -27,7 +15,7 @@ const getUser = async (): Promise<AuthUser> => {
   try {
     console.log("/auth/getuser called");
     const res = await api.get<AuthApiResponse<AuthUser>>(
-      "https://live-bidding-backend-kbv1.onrender.com/api/v1/auth/get-user",
+      `${process.env.INTERNAL_API_URL}/auth/get-user`,
       {
         headers: {
           Cookie: `accessToken=${token}`,

@@ -76,6 +76,8 @@ export function ProductCard({ product }: ProductCardProps) {
         `/product/${productId}`,
       );
 
+      console.log("full res.data:", res);
+
       deleteProduct(productId);
 
       toast.success(res.data.message);
