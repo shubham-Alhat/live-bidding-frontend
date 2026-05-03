@@ -27,6 +27,14 @@ export function getErrorMessage(error: unknown): string {
   return "An unexpected error occurred";
 }
 
+const refreshInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
@@ -54,18 +62,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest.isRetry) {
       originalRequest.isRetry = true;
 
+      console.log("og request", originalRequest);
+
       try {
-        await api.post("/auth/refresh");
+        await refreshInstance.post("/auth/refresh");
         console.log("refresh succeeded, retrying original request");
 
-        // these are identical
-        // api.post("/bids/create", data);
-        // api({ url: "/bids/create", method: "post", data: data });
-
-        // When axios makes a request, it builds a config object before sending. This config contains everything about that request
-        // When the request fails, axios attaches this config to the error object as error.config. So you have the complete blueprint of the original request sitting there.
-        // api is just an axios instance. And an axios instance is callable as a function — you can pass a config object directly to it
-        return api(originalRequest); // this is actually calling the OG request which failed.
+        return api(originalRequest);
       } catch (error) {
         console.log(error);
         window.location.href = "/login";
