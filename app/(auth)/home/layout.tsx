@@ -23,7 +23,20 @@ export default function HomeLayout({
       console.log("layout unmounts return runs...");
       disconnectToWsServer();
     };
-  }, [authUser]);
+  }, [authUser, token]);
+
+  // useEffect(() => {
+  //   if (authUser && token) {
+  //     if (!isConnected) connectToWsServer(authUser.id, token);
+  //   }
+
+  //   console.log("useEFfect runs here..");
+
+  //   return () => {
+  //     console.log("cleanup runs here..");
+  //     disconnectToWsServer();
+  //   };
+  // }, [token]);
 
   return <>{children}</>;
 }

@@ -32,7 +32,7 @@ function HomeClient() {
       }
     };
     getAllAuctions();
-  }, [authUser]);
+  }, []);
 
   useEffect(() => {
     if (authUser && ws) {
