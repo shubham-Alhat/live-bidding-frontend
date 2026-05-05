@@ -25,18 +25,5 @@ export default function HomeLayout({
     };
   }, [authUser, token]);
 
-  // useEffect(() => {
-  //   if (authUser && token) {
-  //     if (!isConnected) connectToWsServer(authUser.id, token);
-  //   }
-
-  //   console.log("useEFfect runs here..");
-
-  //   return () => {
-  //     console.log("cleanup runs here..");
-  //     disconnectToWsServer();
-  //   };
-  // }, [token]);
-
   return <>{children}</>;
 }
