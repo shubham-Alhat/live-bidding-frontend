@@ -35,6 +35,11 @@ export interface Bid {
   updatedAt: string;
 }
 
+export interface liveAuctionsViewerCount {
+  auctionId: string;
+  viewerCount: number;
+}
+
 // Auction interface
 export interface Auction {
   id: string;

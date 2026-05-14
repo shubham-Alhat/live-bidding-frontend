@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import useAuthStore from "./authStore";
+import { liveAuctionsViewerCount } from "@/types/api";
 
 export interface RawDataState {
   type: string;
@@ -43,7 +44,7 @@ interface WebSocketStoreState {
   setToken: (token: string | undefined) => void;
   setIsSelectedLiveAuctionEnded: (value: boolean) => void;
   winner: string | undefined;
-  liveAuctionsViewerCount: AuctionState[];
+  liveAuctionsViewerCount: liveAuctionsViewerCount[];
   connectToWsServer: (userId: string, token: string | undefined) => void;
   disconnectToWsServer: () => void;
   sendWsMessage: (data: RawDataState) => void;
@@ -134,7 +135,9 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
 
       switch (data.type) {
         case "live_auctions_feed":
-          set({ liveAuctionsViewerCount: data.payload.liveAuctions });
+          set({
+            liveAuctionsViewerCount: data.payload.liveAuctionsViewerCount,
+          });
           break;
         case "new_user_joined":
           set({ selectedLiveAuction: data.payload.auctionState });
