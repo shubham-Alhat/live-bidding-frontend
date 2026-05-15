@@ -37,6 +37,7 @@ export default function LiveAuctionPage({
     isSelectedLiveAuctionEnded,
     winner,
     liveAuctionMembersCount,
+    liveAuctionParticipants,
   } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
@@ -227,8 +228,9 @@ export default function LiveAuctionPage({
                       /> */}
                       <div className="flex-1 min-w-0">
                         <Badge className="bg-destructive text-white text-xs mb-1">
-                          {selectedLiveAuction
-                            ? `${selectedLiveAuction.participants[selectedLiveAuction.participants.length - 1].username} joined ${formatRelativeTime(selectedLiveAuction.participants[selectedLiveAuction.participants.length - 1].joinedAt)}!`
+                          {liveAuctionParticipants &&
+                          liveAuctionParticipants.length > 0
+                            ? `${liveAuctionParticipants[0].username} joined ${formatRelativeTime(liveAuctionParticipants[0].joinedAt)}!`
                             : "no participants yet.."}
                         </Badge>
                         <p className="text-xs font-semibold text-white">

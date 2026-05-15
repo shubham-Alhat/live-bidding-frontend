@@ -35,6 +35,12 @@ export interface Bid {
   updatedAt: string;
 }
 
+export interface Participants {
+  userId: string;
+  username: string;
+  joinedAt: number;
+}
+
 export interface liveAuctionsViewerCount {
   auctionId: string;
   viewerCount: number;

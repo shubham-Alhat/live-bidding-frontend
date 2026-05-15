@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import useAuthStore from "./authStore";
-import { liveAuctionsViewerCount } from "@/types/api";
+import { liveAuctionsViewerCount, Participants } from "@/types/api";
 
 export interface RawDataState {
   type: string;
@@ -40,12 +40,13 @@ interface WebSocketStoreState {
   setIsBidProcessing: (value: boolean) => void;
   selectedLiveAuction: AuctionState | null;
   isSelectedLiveAuctionEnded: boolean;
+  liveAuctionsViewerCount: liveAuctionsViewerCount[];
   liveAuctionMembersCount: number;
+  liveAuctionParticipants: Participants[];
   token: string | undefined;
   setToken: (token: string | undefined) => void;
   setIsSelectedLiveAuctionEnded: (value: boolean) => void;
   winner: string | undefined;
-  liveAuctionsViewerCount: liveAuctionsViewerCount[];
   connectToWsServer: (userId: string, token: string | undefined) => void;
   disconnectToWsServer: () => void;
   sendWsMessage: (data: RawDataState) => void;
@@ -69,6 +70,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   },
   liveAuctionsViewerCount: [],
   liveAuctionMembersCount: 0,
+  liveAuctionParticipants: [],
   currentHighestBid: 0,
   token: undefined,
   winner: undefined,
@@ -142,7 +144,10 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           });
           break;
         case "new_user_joined":
-          set({ liveAuctionMembersCount: data.payload.viewerCount });
+          set({
+            liveAuctionMembersCount: data.payload.viewerCount,
+            liveAuctionParticipants: data.payload.participants,
+          });
 
           if (data.payload.auctionState.status === "ended") {
             set({ isSelectedLiveAuctionEnded: true });
@@ -157,7 +162,10 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           break;
 
         case "user_leave_auction":
-          set({ liveAuctionMembersCount: data.payload.viewerCount });
+          set({
+            liveAuctionMembersCount: data.payload.viewerCount,
+            liveAuctionParticipants: data.payload.participants,
+          });
           break;
         case "auction_ended":
           set({ selectedLiveAuction: data.payload.auctionState });
