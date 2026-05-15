@@ -36,6 +36,7 @@ export default function LiveAuctionPage({
     setIsSelectedLiveAuctionEnded,
     isSelectedLiveAuctionEnded,
     winner,
+    liveAuctionMembersCount,
   } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
@@ -169,7 +170,7 @@ export default function LiveAuctionPage({
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                   </span>
-                  {selectedLiveAuction?.viewerCount ?? 0}
+                  {liveAuctionMembersCount}
                 </Badge>
               </div>
 

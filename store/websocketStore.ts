@@ -40,6 +40,7 @@ interface WebSocketStoreState {
   setIsBidProcessing: (value: boolean) => void;
   selectedLiveAuction: AuctionState | null;
   isSelectedLiveAuctionEnded: boolean;
+  liveAuctionMembersCount: number;
   token: string | undefined;
   setToken: (token: string | undefined) => void;
   setIsSelectedLiveAuctionEnded: (value: boolean) => void;
@@ -67,6 +68,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     set({ isBidProcessing: value });
   },
   liveAuctionsViewerCount: [],
+  liveAuctionMembersCount: 0,
   currentHighestBid: 0,
   token: undefined,
   winner: undefined,
@@ -140,7 +142,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           });
           break;
         case "new_user_joined":
-          set({ selectedLiveAuction: data.payload.auctionState });
+          set({ liveAuctionMembersCount: data.payload.viewerCount });
 
           if (data.payload.auctionState.status === "ended") {
             set({ isSelectedLiveAuctionEnded: true });
@@ -155,7 +157,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           break;
 
         case "user_leave_auction":
-          set({ selectedLiveAuction: data.payload.auctionState });
+          set({ liveAuctionMembersCount: data.payload.viewerCount });
           break;
         case "auction_ended":
           set({ selectedLiveAuction: data.payload.auctionState });
