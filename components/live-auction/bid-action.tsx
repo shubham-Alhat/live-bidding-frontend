@@ -43,7 +43,7 @@ export function BidAction() {
       const rawData = {
         type: "new_bid",
         payload: {
-          userId: authUser,
+          userId: authUser?.id,
           username: authUser?.username,
           bidAmount: selectedLiveAuction?.nextBidAmount,
           timestamp: Date.now(),
@@ -83,7 +83,9 @@ export function BidAction() {
 
       {/* Custom Option */}
 
-      {/* <CustomBidDialog currentBid={currentBid} /> */}
+      <CustomBidDialog
+        currentBid={selectedLiveAuction?.currentHighestBid?.amount ?? 0}
+      />
     </div>
   );
 }

@@ -148,10 +148,10 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
             liveAuctionMembersCount: data.payload.viewerCount,
             liveAuctionParticipants: data.payload.participants,
           });
+          break;
+        case "current_auction_data":
+          console.log("set the states of this. i am going to sleep now");
 
-          if (data.payload.auctionState.status === "ended") {
-            set({ isSelectedLiveAuctionEnded: true });
-          }
           break;
         case "new_bid_placed":
           set({ selectedLiveAuction: data.payload.auctionState });

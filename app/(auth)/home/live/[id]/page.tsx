@@ -74,7 +74,11 @@ export default function LiveAuctionPage({
 
     const rawData = {
       type: "user_joined_auction_room",
-      payload: { username: authUser.username, auctionId: id },
+      payload: {
+        username: authUser.username,
+        userId: authUser.id,
+        auctionId: id,
+      },
     };
     sendWsMessage(rawData);
 
