@@ -43,6 +43,13 @@ interface WebSocketStoreState {
   liveAuctionsViewerCount: liveAuctionsViewerCount[];
   liveAuctionMembersCount: number;
   liveAuctionParticipants: Participants[];
+  bidCount: number;
+  currentHighestBidAmount: number;
+  currentHighestBidder: null | string;
+  nextMinBidAmount: number;
+  startTime: number;
+  endTime: number;
+  auctionStatus: "active" | "ended";
   token: string | undefined;
   setToken: (token: string | undefined) => void;
   setIsSelectedLiveAuctionEnded: (value: boolean) => void;
@@ -71,7 +78,13 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   liveAuctionsViewerCount: [],
   liveAuctionMembersCount: 0,
   liveAuctionParticipants: [],
-  currentHighestBid: 0,
+  bidCount: 0,
+  currentHighestBidAmount: 0,
+  currentHighestBidder: null,
+  nextMinBidAmount: 1,
+  startTime: 0,
+  endTime: 0,
+  auctionStatus: "active",
   token: undefined,
   winner: undefined,
   setToken: (token) => {
@@ -150,7 +163,15 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           });
           break;
         case "current_auction_data":
-          console.log("set the states of this. i am going to sleep now");
+          set({
+            bidCount: data.payload.bidCount,
+            currentHighestBidAmount: data.payload.currentHighestBidAmount,
+            currentHighestBidder: data.payload.currentHighestBidder,
+            nextMinBidAmount: data.payload.nextMinBidAmount,
+            startTime: data.payload.startTime,
+            endTime: data.payload.endTime,
+            auctionStatus: data.payload.auctionStatus,
+          });
 
           break;
         case "new_bid_placed":
