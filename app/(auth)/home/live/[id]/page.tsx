@@ -1,22 +1,19 @@
 "use client";
 
 import { Navigation } from "@/components/navigation";
-import { BidLogs } from "@/components/live-auction/bid-logs";
 import { BidAction } from "@/components/live-auction/bid-action";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import React, { useEffect, useState } from "react";
-
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Auction } from "@/types/api";
 import useWebsocketStore from "@/store/websocketStore";
 import useAuthStore from "@/store/authStore";
 import useAuctionStore from "@/store/auctionStore";
-
 import { AuctionNotFound } from "@/components/auction-not-found";
-import { LiveProductsSkeleton } from "@/components/live-product-skeleton";
+import { LiveAuctionSkeleton } from "@/components/live-product-skeleton";
 
 export default function LiveAuctionPage({
   params,
@@ -33,9 +30,11 @@ export default function LiveAuctionPage({
     sendWsMessage,
     selectedLiveAuction,
     isConnected,
-    setIsSelectedLiveAuctionEnded,
-    isSelectedLiveAuctionEnded,
-    winner,
+    setAuctionStatus,
+    auctionStatus,
+    currentHighestBidder,
+    currentHighestBidAmount,
+    bidCount,
     liveAuctionMembersCount,
     liveAuctionParticipants,
   } = useWebsocketStore();
@@ -52,8 +51,7 @@ export default function LiveAuctionPage({
         );
         if (res.data.data) {
           setSelectedAuction(res.data.data);
-          if (res.data.data.status === "ENDED")
-            setIsSelectedLiveAuctionEnded(true);
+          if (res.data.data.status === "ENDED") setAuctionStatus("ended");
         } else {
           setIsAuctionExists(false);
         }
@@ -106,7 +104,7 @@ export default function LiveAuctionPage({
 
   useEffect(() => {
     if (!selectedLiveAuction) return;
-    const { endTime } = selectedLiveAuction;
+    const endTime = selectedLiveAuction.endTime;
     const endTimeMs = endTime * 1000; // convert back to ms
 
     // set the time very initially
@@ -116,6 +114,7 @@ export default function LiveAuctionPage({
       const secondsLeft = Math.floor((endTimeMs - Date.now()) / 1000);
       if (secondsLeft <= 0) {
         // auction ended
+        setAuctionStatus("ended");
         clearInterval(timer);
         setTimeLeft(0);
         return;
@@ -128,7 +127,7 @@ export default function LiveAuctionPage({
   }, [selectedLiveAuction]);
 
   if (loading) {
-    return <LiveProductsSkeleton />;
+    return <LiveAuctionSkeleton />;
   }
 
   if (!isAuctionExists) {
@@ -136,195 +135,112 @@ export default function LiveAuctionPage({
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navigation />
+    <>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navigation />
 
-      {/* Main Content - Centered */}
-      <div className="flex-1 overflow-y-auto flex justify-center py-6">
-        <div className="w-full max-w-6xl px-4">
-          {/* Two Column Layout: Product (center) + Bid Logs (right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Product Section - 3 columns centered */}
-            <div className="lg:col-span-3 flex flex-col space-y-4">
-              {/* Seller Info Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12">
-                    {/* <AvatarImage
-                      src={auctionData.seller.avatar || "/placeholder.svg"}
-                    /> */}
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      {selectedAuction?.owner?.username[0].toUpperCase() ||
-                        "NA"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-semibold text-foreground">
-                      {selectedAuction?.owner?.username || "XYZ"}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-accent">★ {"5"}</span>
-                      <Badge className="bg-accent text-accent-foreground text-xs h-6">
-                        Follow
-                      </Badge>
+        {/* Main Content - Centered */}
+        <div className="flex-1 overflow-y-auto flex justify-center py-6">
+          <div className="w-full max-w-6xl px-4">
+            <div className="flex flex-col max-w-2xl mx-auto w-full">
+              <div className="flex flex-col space-y-4 w-full">
+                {/* Seller Info Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12">
+                      {/* <AvatarImage
+                          src={auctionData.seller.avatar || "/placeholder.svg"}
+                        /> */}
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {selectedAuction?.owner?.username[0].toUpperCase() ||
+                          "NA"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground">
+                        {selectedAuction?.owner?.username || "XYZ"}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-foreground">
+                          ⭐ {"4"}
+                        </span>
+                        <Badge className="bg-accent text-accent-foreground text-xs h-6">
+                          Follow
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <Badge className="bg-destructive text-white text-sm px-3 h-8 flex items-center gap-2">
-                  <span className="relative inline-flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                  </span>
-                  {liveAuctionMembersCount}
-                </Badge>
-              </div>
-
-              {/* Large Product Image - Main Focus */}
-              <Card className="bg-black rounded-3xl overflow-hidden w-full aspect-video relative">
-                <img
-                  src={selectedAuction?.product?.image || "/placeholder.svg"}
-                  alt={selectedAuction?.product?.name || "product name"}
-                  className="w-full h-full object-cover"
-                />
-
-                {/* Action Icons - Right Side */}
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4">
-                  <button className="bg-white/10 hover:bg-white/20 backdrop-blur rounded-full p-3 text-white transition">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  </button>
-                  <button className="bg-white/10 hover:bg-white/20 backdrop-blur rounded-full p-3 text-white transition">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
-                  </button>
+                  <Badge className="bg-destructive text-white text-sm px-3 h-8 flex items-center gap-2">
+                    <span className="relative inline-flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                    </span>
+                    {liveAuctionMembersCount}
+                  </Badge>
                 </div>
 
-                {/* participants - Bottom Left */}
-                <div className="absolute bottom-4 left-4">
-                  <Card className="bg-black/80 backdrop-blur border border-white/10 p-3">
-                    <div className="flex items-start gap-3">
-                      {/* <img
-                        src={auctionData.image || "/placeholder.svg"}
-                        alt="product"
-                        className="w-12 h-12 rounded object-cover flex-shrink-0"
-                      /> */}
+                {/* Large Product Image - Main Focus */}
+                <Card className="bg-black rounded-3xl overflow-hidden w-full aspect-video relative">
+                  <img
+                    src={selectedAuction?.product?.image || "/placeholder.svg"}
+                    alt={selectedAuction?.product?.name || "product name"}
+                    className="w-full h-full object-cover"
+                  />
+
+                  <div className="absolute top-3 right-3">
+                    <Card className="bg-black/80 backdrop-blur border border-white/10 p-2">
                       <div className="flex-1 min-w-0">
-                        <Badge className="bg-destructive text-white text-xs mb-1">
+                        <Badge className="bg-destructive text-white text-[10px]">
                           {liveAuctionParticipants &&
                           liveAuctionParticipants.length > 0
                             ? `${liveAuctionParticipants[0].username} joined ${formatRelativeTime(liveAuctionParticipants[0].joinedAt)}!`
                             : "no participants yet.."}
                         </Badge>
-                        <p className="text-xs font-semibold text-white">
-                          {selectedAuction?.product?.name || "product-name"}
-                        </p>
-                        <p className="text-xs text-gray-300">
-                          {selectedLiveAuction?.bids.length ?? 0} Bids
-                        </p>
                       </div>
-                    </div>
-                  </Card>
-                </div>
-
-                {/* Price & Timer - Bottom Right */}
-                <div className="absolute bottom-6 right-6 text-white text-right">
-                  <p className="text-4xl font-bold">
-                    ${selectedLiveAuction?.currentHighestBid?.amount ?? 0}
-                  </p>
-                  <p className="text-sm font-semibold text-destructive">
-                    {formatTime(timeLeft)}
-                  </p>
-                </div>
-              </Card>
-
-              {/* Product Details Below Image */}
-              <div className="space-y-3">
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">
-                    {selectedAuction?.product?.name || "product-name"}
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {"description of product"}
-                  </p>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Current Bid
-                    </p>
-                    <p className="text-lg font-bold text-primary">
-                      ${selectedLiveAuction?.currentHighestBid?.amount ?? 0}
-                    </p>
+                    </Card>
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <p className="text-xs text-muted-foreground mb-1">Bids</p>
-                    <p className="text-lg font-bold text-foreground">
-                      {selectedLiveAuction?.bids.length ?? 0}
-                    </p>
+                  {/* timer */}
+                  <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4">
+                    <Card className="bg-black/70 backdrop-blur border border-white/20 p-3">
+                      <p className="text-sm font-semibold text-destructive">
+                        {formatTime(timeLeft)}
+                      </p>
+                    </Card>
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Time Left
-                    </p>
-                    <p className="text-lg font-bold text-destructive">
-                      {formatTime(timeLeft)}
-                    </p>
-                    <span>
-                      {isSelectedLiveAuctionEnded ? (
-                        <p>Auction Ended</p>
+                  {/* Price & Bidder | Starting Price - Bottom Right */}
+                  <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 text-white text-right">
+                    <Card className="bg-black/70 backdrop-blur border border-white/20 px-2 py-1.5 sm:px-3 sm:py-2 flex flex-col items-center gap-0.5 sm:gap-1">
+                      <p className="text-lg sm:text-2xl font-semibold leading-none">
+                        $
+                        {currentHighestBidAmount ??
+                          selectedAuction?.startingPrice}
+                      </p>
+                      {currentHighestBidder && bidCount > 0 ? (
+                        <p className="text-[10px] sm:text-xs font-semibold">
+                          {`${currentHighestBidder} is `}
+                          <span className="text-destructive">Winning!</span>
+                        </p>
                       ) : (
-                        <span></span>
+                        <p className="text-[10px] sm:text-xs font-semibold">
+                          Starting Price
+                        </p>
                       )}
-                    </span>
+                    </Card>
                   </div>
+                </Card>
+
+                <div className="space-y-3">
+                  {/* BidActions */}
+                  <BidAction />
                 </div>
               </div>
-            </div>
 
-            {/* Right Column - Bid Logs + Bid Action */}
-            <div className="lg:col-span-2 flex flex-col space-y-4">
-              {/* Bid Logs Container */}
-              <Card className="bg-card border border-border rounded-lg flex-1 flex flex-col">
-                <BidLogs />
-              </Card>
-
-              {/* Bid Action - Desktop Only */}
-              <div className="hidden lg:block">
-                <BidAction />
-              </div>
+              {/* auction end and winner message */}
+              <div>Auction ended - winner shubham alhat</div>
             </div>
-          </div>
-          <div className="text-2xl font-medium">
-            {winner && isSelectedLiveAuctionEnded
-              ? `Winner - ${selectedLiveAuction?.currentHighestBid?.userName}`
-              : ""}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

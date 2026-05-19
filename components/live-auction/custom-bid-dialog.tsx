@@ -17,23 +17,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useWebsocketStore from "@/store/websocketStore";
+import useAuctionStore from "@/store/auctionStore";
 
-interface CustomBidDialogProps {
-  currentBid: number;
-  onBidSubmit?: (bidAmount: number) => void;
-}
-
-export function CustomBidDialog({
-  currentBid,
-  onBidSubmit,
-}: CustomBidDialogProps) {
+export function CustomBidDialog() {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [open, setOpen] = useState(false);
 
-  const { selectedLiveAuction } = useWebsocketStore();
+  const { selectedLiveAuction, currentHighestBidAmount, nextMinBidAmount } =
+    useWebsocketStore();
 
-  const minimumBid = selectedLiveAuction?.currentHighestBid?.amount! + 1.0;
+  const { selectedAuction } = useAuctionStore();
 
   const handleBidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -44,22 +38,21 @@ export function CustomBidDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const bidValue = parseFloat(bidAmount);
+    const bidValue = Number(bidAmount);
 
     if (!bidAmount || isNaN(bidValue)) {
       setError("Please enter a valid bid amount");
       return;
     }
 
-    if (bidValue <= currentBid) {
-      setError(`Bid must be greater than $${currentBid.toFixed(2)}`);
+    if (bidValue <= currentHighestBidAmount) {
+      setError(
+        `Bid must be greater than $${currentHighestBidAmount.toFixed(2)}`,
+      );
       return;
     }
 
-    // Call the callback if provided
-    if (onBidSubmit) {
-      onBidSubmit(bidValue);
-    }
+    // call to server
 
     // Reset and close
     setBidAmount("");
@@ -72,7 +65,7 @@ export function CustomBidDialog({
       <DialogTrigger asChild>
         <Button
           variant={"secondary"}
-          className="w-full rounded-2xl text-primary cursor-pointer border border-primary/40 hover:bg-background"
+          className="h-full rounded-2xl text-primary cursor-pointer border border-primary/40 hover:bg-background"
         >
           Custom
         </Button>
@@ -97,8 +90,8 @@ export function CustomBidDialog({
                   id="bid-amount"
                   type="number"
                   step="1"
-                  min={minimumBid}
-                  placeholder={minimumBid.toFixed(2)}
+                  min={nextMinBidAmount}
+                  placeholder={nextMinBidAmount.toFixed(2)}
                   value={bidAmount}
                   onChange={handleBidChange}
                   className="pl-6"
@@ -106,8 +99,8 @@ export function CustomBidDialog({
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Minimum bid: ${minimumBid.toFixed(2)} (Current bid: $
-                {currentBid.toFixed(2)})
+                Minimum bid: ${nextMinBidAmount.toFixed(2)} (Current bid: $
+                {currentHighestBidAmount.toFixed(2)})
               </p>
               {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
             </div>

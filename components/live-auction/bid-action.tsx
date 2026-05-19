@@ -17,75 +17,33 @@ export function BidAction() {
     selectedLiveAuction,
     ws,
     sendWsMessage,
-    isSelectedLiveAuctionEnded,
-    isBidProcessing,
-    setIsBidProcessing,
+
+    bidCount,
+    currentHighestBidAmount,
+    nextMinBidAmount,
   } = useWebsocketStore();
   const { authUser } = useAuthStore();
-  const [newBidAmount, setNewBidAmount] = useState(
-    selectedLiveAuction?.startingPrice,
-  );
-
-  const handleDirectBid = async () => {
-    setIsBidProcessing(true);
-    console.log("auction data:", selectedLiveAuction);
-
-    if (selectedLiveAuction?.currentHighestBid?.amount) {
-      setNewBidAmount(selectedLiveAuction.currentHighestBid.amount + 1);
-    } else {
-      setNewBidAmount(
-        selectedLiveAuction?.startingPrice
-          ? selectedLiveAuction.startingPrice + 1
-          : 1,
-      );
-    }
-    try {
-      const rawData = {
-        type: "new_bid",
-        payload: {
-          userId: authUser?.id,
-          username: authUser?.username,
-          bidAmount: selectedLiveAuction?.nextBidAmount,
-          timestamp: Date.now(),
-          auctionId: selectedLiveAuction?.auctionId,
-        },
-      };
-
-      console.log("rawData checks please..", rawData);
-      sendWsMessage(rawData);
-
-      const res = await api.post<ApiResponse<Bid>>("/bid/create", {
-        price: newBidAmount,
-        auctionId: selectedAuction?.id,
-      });
-
-      console.log(res.data.data);
-    } catch (error) {
-      console.log(error);
-      toast.error(getErrorMessage(error));
-    }
-  };
 
   return (
-    <div className="space-y-3 w-full">
-      {/* Main Bid Button - Large and Prominent */}
-      <Button
-        onClick={handleDirectBid}
-        disabled={isSelectedLiveAuctionEnded || isBidProcessing}
-        className="w-full bg-primary hover:bg-primary/80 cursor-pointer text-background h-16 text-lg font-bold rounded-full"
-      >
-        Bid: $
-        {/* {selectedLiveAuction?.currentHighestBid?.amount != null
-          ? selectedLiveAuction.currentHighestBid.amount + 1
-          : (selectedLiveAuction?.startingPrice ?? 0) + 1} */}
-        {selectedLiveAuction?.nextBidAmount ?? 1}
-      </Button>
-
-      {/* Custom Option */}
-
-      <CustomBidDialog
-        currentBid={selectedLiveAuction?.currentHighestBid?.amount ?? 0}
-      />
-    </div>
+    <>
+      <div className="grid grid-cols-[auto_1fr_auto] gap-2 h-10">
+        <CustomBidDialog />
+        <Button
+          onClick={}
+          disabled={}
+          className="bg-primary h-full hover:bg-primary/80 cursor-pointer text-background font-bold rounded-full"
+        >
+          Bid: $
+          {/* {selectedLiveAuction?.currentHighestBid?.amount != null
+                ? selectedLiveAuction.currentHighestBid.amount + 1
+                : (selectedLiveAuction?.startingPrice ?? 0) + 1} */}
+          {/* {selectedLiveAuction?.nextBidAmount ?? 1} */}
+          {"33"}
+        </Button>
+        <div className="h-full px-3 flex items-center justify-center rounded-2xl text-primary border border-primary/30">
+          {`${bidCount} bids`}
+        </div>
+      </div>
+    </>
   );
 }

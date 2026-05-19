@@ -1,57 +1,60 @@
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function LiveProductsSkeleton() {
+export function LiveAuctionSkeleton() {
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="mx-auto max-w-4xl">
-        {/* Header Skeleton */}
-        <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-black p-6">
+      <div className="mx-auto max-w-3xl">
+        {/* Header: avatar + name/stars + follow | viewer count */}
+        <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Skeleton className="h-10 w-72" />
-            <Skeleton className="h-6 w-16" />
+            {/* Avatar */}
+            <Skeleton className="h-10 w-10 rounded-sm" />
+            <div className="flex flex-col gap-1.5">
+              {/* Username */}
+              <Skeleton className="h-4 w-32" />
+              {/* Stars + Follow */}
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            </div>
           </div>
 
-          {/* Timer Skeleton */}
-          <div className="flex flex-col items-center gap-2">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-12 w-24" />
+          {/* Live viewer count pill */}
+          <Skeleton className="h-8 w-16 rounded-full" />
+        </div>
+
+        {/* Image area with overlays */}
+        <div className="relative w-full overflow-hidden rounded-xl">
+          {/* Main image placeholder */}
+          <Skeleton className="h-[420px] w-full rounded-xl" />
+
+          {/* Join toast - top right */}
+          <div className="absolute right-4 top-4">
+            <Skeleton className="h-7 w-48 rounded-full" />
+          </div>
+
+          {/* Timer - bottom left */}
+          <div className="absolute bottom-4 left-4">
+            <Skeleton className="h-10 w-20 rounded-md" />
+          </div>
+
+          {/* Bid + winner - bottom right */}
+          <div className="absolute bottom-4 right-4 flex flex-col items-end gap-1">
+            <Skeleton className="h-8 w-16" />
+            <Skeleton className="h-4 w-32" />
           </div>
         </div>
 
-        {/* Main Card Skeleton */}
-        <Card className="border-border bg-card">
-          <div className="p-6">
-            {/* Bid Logs Section Skeleton */}
-            <div className="mb-6">
-              <Skeleton className="mb-4 h-6 w-40" />
+        {/* Bottom controls: Custom | Bid input | Bids count */}
+        <div className="mt-4 flex items-center gap-2">
+          <Skeleton className="h-12 w-24 rounded-full" />
+          <Skeleton className="h-12 flex-1 rounded-full" />
+          <Skeleton className="h-12 w-20 rounded-full" />
+        </div>
 
-              {/* Scrollable Logs Container Skeleton */}
-              <div className="h-80 rounded-lg border border-border bg-background p-4">
-                <div className="space-y-2">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between rounded-md bg-muted/50 p-3"
-                    >
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-6 w-24" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Winner Section Skeleton */}
-            <div className="rounded-lg border border-border bg-muted/30 p-4">
-              <Skeleton className="mb-3 h-4 w-32" />
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-6 w-48" />
-                <Skeleton className="h-4 w-40" />
-              </div>
-            </div>
-          </div>
-        </Card>
+        {/* Auction ended text */}
+        <Skeleton className="mt-3 h-4 w-56" />
       </div>
     </div>
   );

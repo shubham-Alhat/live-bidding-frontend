@@ -35,8 +35,14 @@ function formatRelativeTime(date: number) {
   return `${Math.floor(diff / 3600)} hrs ago`;
 }
 
+const selectedLiveAuction = {
+  auctionId: "102002",
+  currentHighestBid: { userName: "milisha", amount: 22 },
+  bids: [],
+};
+
 export function BidLogs() {
-  const { selectedLiveAuction } = useWebsocketStore();
+  // const { selectedLiveAuction } = useWebsocketStore();
   return (
     <div className="space-y-3 h-full flex flex-col">
       {/* Header */}
@@ -79,7 +85,7 @@ export function BidLogs() {
       </div>
 
       {/* Previous Bids */}
-      {selectedLiveAuction?.bids ? (
+      {selectedLiveAuction?.bids.length > 0 ? (
         <div>
           <p className="text-xs text-muted-foreground font-medium mb-2">
             Previous Bids
@@ -88,12 +94,12 @@ export function BidLogs() {
             <div className="p-3 space-y-2">
               {selectedLiveAuction.bids.map((bid) => (
                 <div
-                  key={bid.id}
-                  className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                    bid.userId === selectedLiveAuction.currentHighestBid?.userId
-                      ? "bg-accent/5 border border-accent/20"
-                      : "hover:bg-muted/50"
-                  }`}
+                  key={1}
+                  // className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
+                  //   bid.userId === selectedLiveAuction.currentHighestBid?.userId
+                  //     ? "bg-accent/5 border border-accent/20"
+                  //     : "hover:bg-muted/50"
+                  // }`}
                 >
                   <Avatar className="h-8 w-8 flex-shrink-0">
                     {/* <AvatarImage
@@ -101,19 +107,23 @@ export function BidLogs() {
                       alt={bid.bidder}
                     /> */}
                     <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
-                      {bid.userName.slice(0, 1).toUpperCase()}
+                      {/* {bid.userName.slice(0, 1).toUpperCase()} */}
+                      {"SA"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
-                      {bid.userName}
+                      {/* {bid.userName} */}
+                      {"shubham"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {`${formatRelativeTime(bid.timestamp)}`}
+                      {/* {`${formatRelativeTime(bid.timestamp)}`} */}
+                      {"1 min ago.."}
                     </p>
                   </div>
                   <p className="text-sm font-bold text-primary flex-shrink-0">
-                    ${bid.amount}
+                    {/* ${bid.amount} */}
+                    {"$25"}
                   </p>
                 </div>
               ))}

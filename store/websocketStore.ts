@@ -17,29 +17,15 @@ export interface AuctionBid {
 
 export interface AuctionState {
   auctionId: string;
-  viewerCount: number;
-  bids: AuctionBid[];
-  startingPrice: number;
-  nextBidAmount: number;
-  currentHighestBid: AuctionBid | null;
+  status: "active" | "ended";
   startTime: number;
   endTime: number;
-  remainingTime: number;
-  status: "pending" | "active" | "ended";
-  participants: {
-    userId: string;
-    username: string;
-    joinedAt: number;
-  }[];
 }
 
 interface WebSocketStoreState {
   ws: null | WebSocket;
   isConnected: boolean;
-  isBidProcessing: boolean;
-  setIsBidProcessing: (value: boolean) => void;
   selectedLiveAuction: AuctionState | null;
-  isSelectedLiveAuctionEnded: boolean;
   liveAuctionsViewerCount: liveAuctionsViewerCount[];
   liveAuctionMembersCount: number;
   liveAuctionParticipants: Participants[];
@@ -50,10 +36,9 @@ interface WebSocketStoreState {
   startTime: number;
   endTime: number;
   auctionStatus: "active" | "ended";
+  setAuctionStatus: (status: "active" | "ended") => void;
   token: string | undefined;
   setToken: (token: string | undefined) => void;
-  setIsSelectedLiveAuctionEnded: (value: boolean) => void;
-  winner: string | undefined;
   connectToWsServer: (userId: string, token: string | undefined) => void;
   disconnectToWsServer: () => void;
   sendWsMessage: (data: RawDataState) => void;
@@ -71,10 +56,6 @@ const getBackoffTime = (attempt: number) => {
 const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   ws: null,
   isConnected: false,
-  isBidProcessing: false,
-  setIsBidProcessing(value) {
-    set({ isBidProcessing: value });
-  },
   liveAuctionsViewerCount: [],
   liveAuctionMembersCount: 0,
   liveAuctionParticipants: [],
@@ -85,15 +66,14 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   startTime: 0,
   endTime: 0,
   auctionStatus: "active",
+  setAuctionStatus: (status: "active" | "ended") => {
+    set({ auctionStatus: status });
+  },
   token: undefined,
-  winner: undefined,
   setToken: (token) => {
     set({ token: token });
   },
-  isSelectedLiveAuctionEnded: false,
-  setIsSelectedLiveAuctionEnded: (value) => {
-    set({ isSelectedLiveAuctionEnded: value });
-  },
+
   selectedLiveAuction: null,
   connectToWsServer: (userId, token) => {
     const { ws } = get();
@@ -173,10 +153,19 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
             auctionStatus: data.payload.auctionStatus,
           });
 
+          set({
+            selectedLiveAuction: {
+              auctionId: data.payload.auctionId,
+              status: data.payload.auctionStatus,
+              startTime: data.payload.startTime,
+              endTime: data.payload.endTime,
+            },
+          });
+
           break;
         case "new_bid_placed":
           set({ selectedLiveAuction: data.payload.auctionState });
-          set({ isBidProcessing: false });
+
           break;
         case "rejoin_auction_state":
           set({ selectedLiveAuction: data.payload.auctionState });
@@ -189,31 +178,21 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           });
           break;
         case "auction_ended":
-          set({ selectedLiveAuction: data.payload.auctionState });
-          if (data.payload.auctionState.status === "ended") {
-            set({ isSelectedLiveAuctionEnded: true });
-            set({
-              winner: data.payload.auctionState.currentHighestBid.userName,
-            });
-          }
+          // set({ selectedLiveAuction: data.payload.auctionState });
+          // if (data.payload.auctionState.status === "ended") {
+          //   set({ isSelectedLiveAuctionEnded: true });
+          //   set({
+          //     winner: data.payload.auctionState.currentHighestBid.userName,
+          //   });
+          // }
           break;
         default:
-          set({ isBidProcessing: false });
+        // set({ isBidProcessing: false });
       }
     };
 
     newSocket.onclose = () => {
       set({ ws: null, isConnected: false });
-      // console.log("disconnect to WS server");
-      // // reconnection logic
-      // if (reconnectAttempts < MAX_RETRIES) {
-      //   const delay = getBackoffTime(reconnectAttempts);
-      //   reconnectAttempts++;
-      //   reconnectTimeout = setTimeout(() => {
-      //     console.log(`Reconnecting... attempt ${reconnectAttempts}`);
-      //     get().connectToWsServer(userId, token);
-      //   }, delay);
-      // }
     };
 
     newSocket.onerror = (err) => {
@@ -221,8 +200,6 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     };
   },
   disconnectToWsServer: () => {
-    clearTimeout(reconnectTimeout);
-    reconnectAttempts = MAX_RETRIES;
     const { ws } = get();
 
     if (ws) {
