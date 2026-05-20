@@ -164,7 +164,13 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
 
           break;
         case "new_bid_placed":
-          set({ selectedLiveAuction: data.payload.auctionState });
+          set({
+            currentHighestBidAmount: data.payload.bidAmount,
+            currentHighestBidder: data.payload.username,
+            bidCount: data.payload.bidCount,
+            nextMinBidAmount: data.payload.nextMinBid,
+          });
+          console.log("new bid placed - ", Date.now());
 
           break;
         case "rejoin_auction_state":

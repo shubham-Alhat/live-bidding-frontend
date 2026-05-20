@@ -18,16 +18,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useWebsocketStore from "@/store/websocketStore";
 import useAuctionStore from "@/store/auctionStore";
+import useAuthStore from "@/store/authStore";
 
 export function CustomBidDialog() {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [open, setOpen] = useState(false);
 
-  const { selectedLiveAuction, currentHighestBidAmount, nextMinBidAmount } =
-    useWebsocketStore();
+  const {
+    selectedLiveAuction,
+    currentHighestBidAmount,
+    nextMinBidAmount,
+    sendWsMessage,
+  } = useWebsocketStore();
 
   const { selectedAuction } = useAuctionStore();
+  const { authUser } = useAuthStore();
 
   const handleBidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -53,6 +59,18 @@ export function CustomBidDialog() {
     }
 
     // call to server
+    // console.log(bidValue);
+    const rawData = {
+      type: "new_bid",
+      payload: {
+        username: authUser?.username,
+        bidAmount: bidValue,
+        auctionId: selectedLiveAuction?.auctionId ?? selectedAuction?.id,
+      },
+    };
+
+    sendWsMessage(rawData);
+    console.log("raw data send 02 - ", Date.now());
 
     // Reset and close
     setBidAmount("");

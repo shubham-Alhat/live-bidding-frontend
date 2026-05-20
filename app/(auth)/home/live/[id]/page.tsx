@@ -104,8 +104,7 @@ export default function LiveAuctionPage({
 
   useEffect(() => {
     if (!selectedLiveAuction) return;
-    const endTime = selectedLiveAuction.endTime;
-    const endTimeMs = endTime * 1000; // convert back to ms
+    const endTimeMs = selectedLiveAuction.endTime;
 
     // set the time very initially
     setTimeLeft(Math.max(0, Math.floor((endTimeMs - Date.now()) / 1000)));
