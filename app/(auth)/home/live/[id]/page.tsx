@@ -37,6 +37,7 @@ export default function LiveAuctionPage({
     bidCount,
     liveAuctionMembersCount,
     liveAuctionParticipants,
+    errorMessage,
   } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
@@ -235,7 +236,11 @@ export default function LiveAuctionPage({
               </div>
 
               {/* auction end and winner message */}
-              <div>Auction ended - winner shubham alhat</div>
+              {errorMessage && (
+                <div className="w-full flex items-center text-[15px] mt-1 justify-center text-center text-destructive">
+                  {errorMessage}
+                </div>
+              )}
             </div>
           </div>
         </div>

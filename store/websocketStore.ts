@@ -7,14 +7,6 @@ export interface RawDataState {
   payload: object;
 }
 
-export interface AuctionBid {
-  id: number;
-  userId: string;
-  amount: number;
-  timestamp: number;
-  userName: string;
-}
-
 export interface AuctionState {
   auctionId: string;
   status: "active" | "ended";
@@ -36,6 +28,9 @@ interface WebSocketStoreState {
   startTime: number;
   endTime: number;
   auctionStatus: "active" | "ended";
+  errorMessage: string;
+  errorTimer: ReturnType<typeof setTimeout> | null;
+  setErrorMessage: (value: string) => void;
   setAuctionStatus: (status: "active" | "ended") => void;
   token: string | undefined;
   setToken: (token: string | undefined) => void;
@@ -43,15 +38,6 @@ interface WebSocketStoreState {
   disconnectToWsServer: () => void;
   sendWsMessage: (data: RawDataState) => void;
 }
-
-let reconnectAttempts = 0;
-let reconnectTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
-
-const MAX_RETRIES = 10;
-
-const getBackoffTime = (attempt: number) => {
-  return Math.min(1000 * 2 ** attempt, 10000);
-};
 
 const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   ws: null,
@@ -68,6 +54,18 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   auctionStatus: "active",
   setAuctionStatus: (status: "active" | "ended") => {
     set({ auctionStatus: status });
+  },
+  errorMessage: "",
+  errorTimer: null as ReturnType<typeof setTimeout> | null,
+  setErrorMessage: (value) => {
+    const { errorTimer } = get();
+    if (errorTimer) clearTimeout(errorTimer);
+
+    const timer = setTimeout(() => {
+      set({ errorMessage: "", errorTimer: null });
+    }, 5000);
+
+    set({ errorMessage: value, errorTimer: timer });
   },
   token: undefined,
   setToken: (token) => {
@@ -103,8 +101,6 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
     console.log("send a conn req..");
 
     newSocket.onopen = () => {
-      // reconnectAttempts = 0;
-      // clearTimeout(reconnectTimeout);
       set({ ws: newSocket, isConnected: true });
       console.log("connected to WS server..");
 
@@ -173,10 +169,17 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           console.log("new bid placed - ", Date.now());
 
           break;
-        case "rejoin_auction_state":
-          set({ selectedLiveAuction: data.payload.auctionState });
+        case "AUCTION_NOT_FOUND":
+          get().setErrorMessage("Auction not found..!");
           break;
-
+        case "AUCTION_ENDED":
+          get().setErrorMessage("Auction Ended..");
+          break;
+        case "BID_TOO_LOW":
+          get().setErrorMessage(
+            `Bid too low — Place at least $${data.payload.nextMinBid} to compete!`,
+          );
+          break;
         case "user_leave_auction":
           set({
             liveAuctionMembersCount: data.payload.viewerCount,
