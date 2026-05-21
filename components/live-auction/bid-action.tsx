@@ -8,8 +8,13 @@ import useAuthStore from "@/store/authStore";
 
 export function BidAction() {
   const { selectedAuction } = useAuctionStore();
-  const { selectedLiveAuction, sendWsMessage, bidCount, nextMinBidAmount } =
-    useWebsocketStore();
+  const {
+    selectedLiveAuction,
+    sendWsMessage,
+    bidCount,
+    nextMinBidAmount,
+    auctionStatus,
+  } = useWebsocketStore();
   const { authUser } = useAuthStore();
 
   return (
@@ -32,7 +37,7 @@ export function BidAction() {
             sendWsMessage(rawData);
             console.log("raw data send - ", Date.now());
           }}
-          // disabled={}
+          disabled={auctionStatus === "ended"}
           className="bg-primary h-full hover:bg-primary/80 cursor-pointer text-background font-bold rounded-full"
         >
           {`Bid: $${nextMinBidAmount}`}

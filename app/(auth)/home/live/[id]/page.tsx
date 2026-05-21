@@ -202,8 +202,13 @@ export default function LiveAuctionPage({
                   {/* timer */}
                   <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4">
                     <Card className="bg-black/70 backdrop-blur border border-white/20 p-3">
-                      <p className="text-sm font-semibold text-destructive">
+                      <p className="text-sm font-semibold flex flex-col items-center justify-center text-destructive">
                         {formatTime(timeLeft)}
+                        {auctionStatus === "ended" && (
+                          <p className="text-xs text-foreground">
+                            Auction ended
+                          </p>
+                        )}
                       </p>
                     </Card>
                   </div>
@@ -233,6 +238,13 @@ export default function LiveAuctionPage({
                   {/* BidActions */}
                   <BidAction />
                 </div>
+                {true ? (
+                  <p className="w-full flex justify-center items-center text-center">
+                    🎉 xyz won this auction for $1,240
+                  </p>
+                ) : (
+                  ""
+                )}
               </div>
 
               {/* auction end and winner message */}

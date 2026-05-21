@@ -30,6 +30,7 @@ export function CustomBidDialog() {
     currentHighestBidAmount,
     nextMinBidAmount,
     sendWsMessage,
+    auctionStatus,
   } = useWebsocketStore();
 
   const { selectedAuction } = useAuctionStore();
@@ -82,6 +83,7 @@ export function CustomBidDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
+          disabled={auctionStatus === "ended"}
           variant={"secondary"}
           className="h-full rounded-2xl text-primary cursor-pointer border border-primary/40 hover:bg-background"
         >
