@@ -205,9 +205,9 @@ export default function LiveAuctionPage({
                       <p className="text-sm font-semibold flex flex-col items-center justify-center text-destructive">
                         {formatTime(timeLeft)}
                         {auctionStatus === "ended" && (
-                          <p className="text-xs text-foreground">
+                          <div className="text-xs text-foreground">
                             Auction ended
-                          </p>
+                          </div>
                         )}
                       </p>
                     </Card>

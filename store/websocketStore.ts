@@ -158,6 +158,8 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
             },
           });
 
+          if (data.payload.auctionStatus === "ended")
+            set({ auctionStatus: "ended" });
           break;
         case "new_bid_placed":
           set({
