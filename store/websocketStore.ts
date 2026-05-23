@@ -191,12 +191,14 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           });
           break;
         case "auction_ended":
-          set({
-            currentHighestBidAmount: data.payload.currentHighestBidAmount,
-            currentHighestBidder: data.payload.currentHighestBidder,
-            auctionStatus: "ended",
-            showWinner: data.payload.hadBids,
-          });
+          if (data.payload.hadBids && data.payload.currentHighestBidder) {
+            set({
+              currentHighestBidAmount: data.payload.currentHighestBidAmount,
+              currentHighestBidder: data.payload.currentHighestBidder,
+              auctionStatus: "ended",
+              showWinner: data.payload.hadBids,
+            });
+          }
           break;
         default:
           // set({ isBidProcessing: false });
