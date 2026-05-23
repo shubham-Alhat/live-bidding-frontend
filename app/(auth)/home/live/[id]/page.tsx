@@ -38,6 +38,7 @@ export default function LiveAuctionPage({
     liveAuctionMembersCount,
     liveAuctionParticipants,
     errorMessage,
+    showWinner,
   } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
@@ -205,9 +206,9 @@ export default function LiveAuctionPage({
                       <p className="text-sm font-semibold flex flex-col items-center justify-center text-destructive">
                         {formatTime(timeLeft)}
                         {auctionStatus === "ended" && (
-                          <div className="text-xs text-foreground">
+                          <span className="text-xs text-foreground">
                             Auction ended
-                          </div>
+                          </span>
                         )}
                       </p>
                     </Card>
@@ -238,9 +239,9 @@ export default function LiveAuctionPage({
                   {/* BidActions */}
                   <BidAction />
                 </div>
-                {true ? (
+                {showWinner && auctionStatus === "ended" ? (
                   <p className="w-full flex justify-center items-center text-center">
-                    🎉 xyz won this auction for $1,240
+                    {`🎉 ${currentHighestBidder} won this auction for $${currentHighestBidAmount}`}
                   </p>
                 ) : (
                   ""

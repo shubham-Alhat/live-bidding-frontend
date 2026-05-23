@@ -32,6 +32,7 @@ interface WebSocketStoreState {
   errorTimer: ReturnType<typeof setTimeout> | null;
   setErrorMessage: (value: string) => void;
   setAuctionStatus: (status: "active" | "ended") => void;
+  showWinner: boolean;
   token: string | undefined;
   setToken: (token: string | undefined) => void;
   connectToWsServer: (userId: string, token: string | undefined) => void;
@@ -67,6 +68,7 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
 
     set({ errorMessage: value, errorTimer: timer });
   },
+  showWinner: false,
   token: undefined,
   setToken: (token) => {
     set({ token: token });
@@ -189,16 +191,16 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           });
           break;
         case "auction_ended":
-          // set({ selectedLiveAuction: data.payload.auctionState });
-          // if (data.payload.auctionState.status === "ended") {
-          //   set({ isSelectedLiveAuctionEnded: true });
-          //   set({
-          //     winner: data.payload.auctionState.currentHighestBid.userName,
-          //   });
-          // }
+          set({
+            currentHighestBidAmount: data.payload.currentHighestBidAmount,
+            currentHighestBidder: data.payload.currentHighestBidder,
+            auctionStatus: "ended",
+            showWinner: data.payload.hadBids,
+          });
           break;
         default:
-        // set({ isBidProcessing: false });
+          // set({ isBidProcessing: false });
+          console.log("other events");
       }
     };
 
