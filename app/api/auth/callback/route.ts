@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     sameSite: "lax",
     maxAge: 60 * 60 * 1000,
     path: "/",
+    domain: ".bidhub.in",
   });
 
   response.cookies.set("refreshToken", refreshToken, {
@@ -24,6 +25,7 @@ export async function GET(req: NextRequest) {
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
+    domain: ".bidhub.in",
   });
 
   return response;

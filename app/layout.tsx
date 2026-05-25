@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "bidding hub",
+  title: "Bidhub",
   description: "Find your next bid",
 };
 

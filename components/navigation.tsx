@@ -18,7 +18,7 @@ export function Navigation() {
             <Image src={"/logo.png"} fill alt="logo" />
           </div>
           <span className="hidden font-semibold text-foreground sm:inline">
-            Bidding hub
+            Bidhub
           </span>
         </Link>
 
