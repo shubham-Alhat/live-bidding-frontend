@@ -1,12 +1,10 @@
 "use client";
 
-import { Search, User } from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { DropdownMenuIcons } from "./dropdown-menu";
-import Image from "next/image";
 
 export function Navigation() {
   return (
