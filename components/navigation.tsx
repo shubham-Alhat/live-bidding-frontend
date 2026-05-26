@@ -14,15 +14,6 @@ export function Navigation() {
       <div className="flex items-center justify-between gap-4 px-6 py-4">
         {/* Logo */}
         <Link href="/home" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg  text-primary-foreground font-bold bg-primary relative">
-            <Image
-              src={
-                "https://res.cloudinary.com/diery17cm/image/upload/v1779783330/Doller_Icon_hpptyq.jpg"
-              }
-              fill
-              alt="logo"
-            />
-          </div>
           <span className="hidden font-semibold text-foreground sm:inline">
             Bidhub
           </span>
