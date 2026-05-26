@@ -29,7 +29,7 @@ export function DropdownMenuIcons() {
       toast.success(res.data.message);
       setToken(undefined);
       setAuthUser(null, undefined);
-      router.push("/login");
+      window.location.href = "/login";
     } catch (error) {
       console.log(error);
       toast.error(getErrorMessage(error));
