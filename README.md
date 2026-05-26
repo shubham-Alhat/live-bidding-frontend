@@ -10,8 +10,8 @@ Built to handle the core challenges of a live bidding system:
 - **BullMQ background workers** for async job processing.
 
 > [!Note]  
-> 🏗️ **_Architecture & Engineering_**  
-> For deep-dive into system design, architecture decisions, and engineering challenges solved (WebSocket state recovery, bid race conditions, auth flow, Redis design) — see the [Backend Repository →](https://github.com/your-username/bidhub-backend)
+> **Architecture & Engineering**  
+> For deep-dive into system design, architecture decisions, and engineering challenges solved (WebSocket state recovery, bid race conditions, auth flow, Redis design) — see the [Backend Repository →](https://github.com/shubham-Alhat/live-bidding-backend)
 
 ## 🎥 Project Demo
 
