@@ -17,7 +17,6 @@ Built to handle the core challenges of a live bidding system:
 
 https://github.com/user-attachments/assets/b4867c29-e3e0-4908-94fd-ede0b38fe728
 
-
 ## 🛠️ Tech Stack
 
 | Layer             | Technology                                                          |
