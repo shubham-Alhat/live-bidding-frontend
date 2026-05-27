@@ -2,20 +2,19 @@
 
 [BidHub](https://bidhub.in) is a real-time auction platform where users can join live auctions and place bids.
 
+> [!Note]  
+> The core backend challenges — real-time auction state, WebSocket architecture, race condition handling, and auth design — are documented in the [Backend Repository →](https://github.com/shubham-Alhat/live-bidding-backend)
+
+## 🎥 Project Demo
+
+https://github.com/user-attachments/assets/b4867c29-e3e0-4908-94fd-ede0b38fe728
+
 Built to handle the core challenges of a live bidding system:
 
 - Two token system (refresh and access tokens) - **Silent token refresh via axios interceptors (no login interruptions for users).**
 - **Redis-backed live auction state** with WebSocket room management.
 - **Atomic Lua scripts** for race-condition-proof bid validation.
 - **BullMQ background workers** for async job processing.
-
-> [!Note]  
-> **Architecture & Engineering**  
-> For deep-dive into system design, architecture decisions, and engineering challenges solved (WebSocket state recovery, bid race conditions, auth flow, Redis design) — see the [Backend Repository →](https://github.com/shubham-Alhat/live-bidding-backend)
-
-## 🎥 Project Demo
-
-https://github.com/user-attachments/assets/b4867c29-e3e0-4908-94fd-ede0b38fe728
 
 ## 🛠️ Tech Stack
 
