@@ -160,6 +160,8 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
             },
           });
 
+          console.log("clock skew (ms):", Date.now() - data.payload.serverNow);
+
           if (data.payload.auctionStatus === "ended")
             set({ auctionStatus: "ended" });
           break;
