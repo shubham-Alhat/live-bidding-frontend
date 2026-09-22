@@ -27,6 +27,8 @@ interface WebSocketStoreState {
   nextMinBidAmount: number;
   startTime: number;
   endTime: number;
+  clockOffset: number;
+  setClockOffset: (offset: number) => void;
   auctionStatus: "active" | "ended";
   errorMessage: string;
   errorTimer: ReturnType<typeof setTimeout> | null;
@@ -52,6 +54,10 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
   nextMinBidAmount: 1,
   startTime: 0,
   endTime: 0,
+  clockOffset: 0,
+  setClockOffset(offset) {
+    set({ clockOffset: offset });
+  },
   auctionStatus: "active",
   setAuctionStatus: (status: "active" | "ended") => {
     set({ auctionStatus: status });
@@ -161,6 +167,11 @@ const useWebsocketStore = create<WebSocketStoreState>((set, get) => ({
           });
 
           console.log("clock skew (ms):", Date.now() - data.payload.serverNow);
+
+          const t1 = Date.now();
+          const rtt = t1 - data.payload.t0;
+          const offset = data.payload.serverNow + rtt / 2 - t1; // serverTime - clientTime
+          set({ clockOffset: offset });
 
           if (data.payload.auctionStatus === "ended")
             set({ auctionStatus: "ended" });

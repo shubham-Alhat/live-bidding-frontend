@@ -39,6 +39,7 @@ export default function LiveAuctionPage({
     liveAuctionParticipants,
     errorMessage,
     showWinner,
+    clockOffset,
   } = useWebsocketStore();
   const { authUser } = useAuthStore();
   const { setSelectedAuction, selectedAuction } = useAuctionStore();
@@ -78,6 +79,7 @@ export default function LiveAuctionPage({
         username: authUser.username,
         userId: authUser.id,
         auctionId: id,
+        t0: Date.now(),
       },
     };
     sendWsMessage(rawData);
@@ -108,11 +110,15 @@ export default function LiveAuctionPage({
     if (!selectedLiveAuction) return;
     const endTimeMs = selectedLiveAuction.endTime;
 
+    const getCorrectedNow = () => Date.now() + clockOffset;
+
     // set the time very initially
-    setTimeLeft(Math.max(0, Math.floor((endTimeMs - Date.now()) / 1000)));
+    setTimeLeft(
+      Math.max(0, Math.floor((endTimeMs - getCorrectedNow()) / 1000)),
+    );
 
     const timer = setInterval(() => {
-      const secondsLeft = Math.floor((endTimeMs - Date.now()) / 1000);
+      const secondsLeft = Math.floor((endTimeMs - getCorrectedNow()) / 1000);
       if (secondsLeft <= 0) {
         // auction ended
         setAuctionStatus("ended");
@@ -125,7 +131,7 @@ export default function LiveAuctionPage({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [selectedLiveAuction]);
+  }, [selectedLiveAuction, clockOffset]);
 
   if (loading) {
     return <LiveAuctionSkeleton />;
