@@ -85,7 +85,7 @@ export default function SellerStudio() {
   const [title, setTitle] = useState("");
 
   return (
-    <main className="min-h-screen bg-muted/30 text-foreground">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto grid max-w-7xl gap-8 px-5 py-8 lg:grid-cols-[1fr_340px] lg:px-8">
         <div className="flex min-w-0 w-full flex-col gap-8">
           <section id="shows" aria-labelledby="show-heading">
@@ -206,7 +206,7 @@ export default function SellerStudio() {
               {/* sliding background indicator */}
               <div
                 className={cn(
-                  "absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-blue-400 transition-transform duration-300 ease-out",
+                  "absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-secondary transition-transform duration-300 ease-out",
                   activeTab === "shows" && "translate-x-full",
                 )}
               />
@@ -214,7 +214,9 @@ export default function SellerStudio() {
                 onClick={() => setActiveTab("products")}
                 className={cn(
                   "relative z-10 py-2 text-sm font-medium transition-colors cursor-pointer",
-                  activeTab === "products" ? "text-black" : "text-neutral-400",
+                  activeTab === "products"
+                    ? "text-secondary-foreground"
+                    : "text-neutral-400",
                 )}
               >
                 Products
@@ -223,7 +225,9 @@ export default function SellerStudio() {
                 onClick={() => setActiveTab("shows")}
                 className={cn(
                   "relative z-10 py-2 text-sm font-medium transition-colors cursor-pointer",
-                  activeTab === "shows" ? "text-black" : "text-neutral-400",
+                  activeTab === "shows"
+                    ? "text-secondary-foreground"
+                    : "text-neutral-400",
                 )}
               >
                 Shows
