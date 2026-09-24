@@ -9,7 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
-import { LogOutIcon, PlusCircle, SettingsIcon, UserIcon } from "lucide-react";
+import {
+  BadgeIndianRupee,
+  LogOutIcon,
+  PlusCircle,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
@@ -42,28 +48,38 @@ export function DropdownMenuIcons() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-8 w-8 cursor-pointer">
+        <Avatar className="h-9 w-9 cursor-pointer">
           <AvatarImage src="/placeholder-user.jpg" alt="User" />
-          <AvatarFallback className="bg-primary text-primary-foreground">
+          <AvatarFallback className="bg-primary text-primary-foreground font-bold">
             S
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">
           <UserIcon />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleCreateAuction}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={handleCreateAuction}
+        >
           <PlusCircle />
-          Auction
+          Products
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <SettingsIcon />
-          Settings
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => router.push("/home/seller/dashboard")}
+        >
+          <BadgeIndianRupee />
+          Seller Hub
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          variant="destructive"
+          onClick={handleLogout}
+        >
           <LogOutIcon />
           Log out
         </DropdownMenuItem>

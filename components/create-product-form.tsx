@@ -13,13 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
 import api, { getErrorMessage } from "@/utils/api";
@@ -30,11 +23,9 @@ export function CreateProductForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [productName, setProductName] = useState("");
+  const [productDescription, setProductDescription] = useState("");
   const [initialPrice, setInitialPrice] = useState("");
-  const [durationValue, setDurationValue] = useState("30");
-  const [durationUnit, setDurationUnit] = useState<"seconds" | "minutes">(
-    "minutes",
-  );
+
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,19 +64,6 @@ export function CreateProductForm() {
   //   }
   // };
 
-  const calculateDuration = (): number => {
-    const value = parseInt(durationValue, 10);
-    return durationUnit === "seconds" ? value : value * 60;
-  };
-
-  const formatDuration = (): string => {
-    const totalSeconds = calculateDuration();
-    if (durationUnit === "seconds") {
-      return `${durationValue}s`;
-    }
-    return `${durationValue}m ${totalSeconds % 60 || 0}s`;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -93,6 +71,14 @@ export function CreateProductForm() {
     if (!productName.trim()) {
       toast.error("Validation error", {
         description: "Please enter a product name",
+      });
+
+      return;
+    }
+
+    if (!productDescription.trim()) {
+      toast.error("Validation error", {
+        description: "Please enter a product description!",
       });
 
       return;
@@ -131,11 +117,9 @@ export function CreateProductForm() {
         return;
       }
 
-      const totalSeconds = calculateDuration();
-
-      formData.append("duration", totalSeconds.toString());
       formData.append("intialPrice", price.toString());
       formData.append("productName", productName.trim());
+      formData.append("productDescription", productDescription.trim());
 
       const res = await api.post<ApiResponse<Product>>(
         "/product/create",
@@ -153,8 +137,7 @@ export function CreateProductForm() {
       setInitialPrice("");
       setImagePreview(null);
       setImageFile(null);
-      setDurationValue("30");
-      setDurationUnit("minutes");
+      setProductDescription("");
 
       toast.success("Success!", {
         description: "Product created successfully",
@@ -240,6 +223,17 @@ export function CreateProductForm() {
               className="border-border"
               disabled={isLoading}
             />
+            <Label htmlFor="product-name" className="text-base font-semibold">
+              Product Description
+            </Label>
+            <Input
+              id="product-description"
+              placeholder="Enter product description"
+              value={productDescription}
+              onChange={(e) => setProductDescription(e.target.value)}
+              className="border-border"
+              disabled={isLoading}
+            />
           </div>
 
           {/* Initial Price */}
@@ -252,10 +246,10 @@ export function CreateProductForm() {
               <Input
                 id="initial-price"
                 type="number"
-                placeholder="0.00"
+                placeholder="0"
                 value={initialPrice}
                 onChange={(e) => setInitialPrice(e.target.value)}
-                step="0.01"
+                step="1"
                 min="0"
                 className="border-border"
                 disabled={isLoading}
@@ -264,7 +258,7 @@ export function CreateProductForm() {
           </div>
 
           {/* Auction Duration */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label className="text-base font-semibold">Auction Duration</Label>
             <div className="flex gap-2">
               <Input
@@ -295,7 +289,7 @@ export function CreateProductForm() {
                 {formatDuration()}
               </span>
             </p>
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <Button

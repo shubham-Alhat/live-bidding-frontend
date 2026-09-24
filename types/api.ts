@@ -70,13 +70,12 @@ export interface Auction {
 export interface Product {
   id: string;
   name: string;
+  description: string;
   image: string;
-  status: "NOTLIVE" | "LIVE" | "ARCHIVE";
   ownerId: string;
   owner?: User;
   auctions?: Auction[];
   initialPrice: number;
-  durationInSeconds: number;
   createdAt?: string;
   updatedAt?: string;
 }
