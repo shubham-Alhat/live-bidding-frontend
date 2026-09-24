@@ -80,12 +80,29 @@ export interface Product {
   updatedAt?: string;
 }
 
+export interface Show {
+  id: string;
+  name: string;
+  description: string;
+  thumbnail: string;
+  ownerId: string;
+  owner?: User;
+  status: "ENDED" | "ACTIVE" | "SCHEDULED";
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface ApiResponse<T> {
   message: string;
   data: T | null;
 }
 
 export interface getAllProductResponse<T> {
+  message: string;
+  data: T | [];
+}
+
+export interface getAllShowResponse<T> {
   message: string;
   data: T | [];
 }

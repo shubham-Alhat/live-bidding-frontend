@@ -1,18 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
   CircleArrowLeft,
   Clock3,
   ImagePlus,
   Package,
+  Play,
   Plus,
   Sparkles,
-  Upload,
+  X,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,59 +29,128 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-
-const products = [
-  {
-    name: "Tom Ford Oud Wood Eau de Parfum",
-    category: "Perfume & Cologne",
-    price: "$89.00",
-    stock: 12,
-    image:
-      "https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    name: "Maison Francis Kurkdjian Baccarat Rouge",
-    category: "Perfume & Cologne",
-    price: "$145.00",
-    stock: 8,
-    image:
-      "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    name: "Le Labo Santal 33",
-    category: "Perfume & Cologne",
-    price: "$120.00",
-    stock: 5,
-    image:
-      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    name: "Jo Malone Wood Sage & Sea Salt",
-    category: "Perfume & Cologne",
-    price: "$76.00",
-    stock: 16,
-    image:
-      "https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=600&q=85",
-  },
-  // {
-  //   name: "Le Labo Santal 33",
-  //   category: "Perfume & Cologne",
-  //   price: "$120.00",
-  //   stock: 5,
-  //   image:
-  //     "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=85",
-  // },
-];
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import api, { getErrorMessage } from "@/utils/api";
+import { ApiResponse, getAllShowResponse, Show } from "@/types/api";
+import useShowStore from "@/store/showStore";
 
 export default function SellerStudio() {
-  const [goLive, setGoLive] = useState(false);
-  const [activeTab, setActiveTab] = useState<"products" | "shows">("products");
-  const [cover, setCover] = useState(
-    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1200&q=85",
-  );
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const router = useRouter();
+
+  const { addNewShow, setShowList, showList } = useShowStore();
+
+  // handle image preview
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.warning("File too large", {
+          description: "Image size should be less than 5MB",
+        });
+
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCreateShow = async () => {
+    if (!title.trim()) {
+      toast.error("Validation error", {
+        description: "Please enter a show title",
+      });
+
+      return;
+    }
+
+    if (!description.trim()) {
+      toast.error("Validation error", {
+        description: "Please enter a show description!",
+      });
+
+      return;
+    }
+
+    if (!imagePreview) {
+      toast.error("Validation error", {
+        description: "Please upload a thumbnail for show",
+      });
+
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      } else {
+        toast.error("image file not found");
+        return;
+      }
+
+      formData.append("showTitle", title.trim());
+      formData.append("showDescription", description.trim());
+
+      const res = await api.post<ApiResponse<Show>>("/show/create", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
+
+      if (res.data.data) addNewShow(res.data.data);
+
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setImagePreview(null);
+      setImageFile(null);
+
+      toast.success("Success!", {
+        description: "Show created successfully",
+      });
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // fetch all shows of seller
+  useEffect(() => {
+    const getAllShows = async () => {
+      try {
+        const res =
+          await api.get<getAllShowResponse<Show[] | []>>("/show/get-all");
+
+        setShowList(res.data.data);
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+        console.log(error);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    getAllShows();
+  }, []);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -90,7 +158,11 @@ export default function SellerStudio() {
         <div className="flex min-w-0 w-full flex-col gap-8">
           <section id="shows" aria-labelledby="show-heading">
             <div className="mb-5 grid grid-cols-[auto_1fr_auto] items-center gap-4">
-              <CircleArrowLeft size={22} className="cursor-pointer" />
+              <CircleArrowLeft
+                onClick={() => router.push("/home")}
+                size={22}
+                className="cursor-pointer"
+              />
               <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 Seller studio
               </p>
@@ -103,42 +175,55 @@ export default function SellerStudio() {
                     Show thumbnail
                   </Label>
                   <label
-                    htmlFor="cover"
-                    className="group relative flex aspect-4/5 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-border bg-muted transition hover:border-primary/60"
+                    htmlFor="thumbnail"
+                    className="group relative flex aspect-4/5 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-border bg-muted transition duration-300"
                   >
-                    {false ? (
+                    {imagePreview ? (
                       <>
                         <Image
-                          src={cover}
+                          src={imagePreview || "/placeholder.svg"}
                           alt="Show cover preview"
                           fill
                           className="object-cover"
                           sizes="220px"
                         />
-                        <span className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-2 rounded-lg bg-background/90 px-3 py-2 text-xs font-medium shadow-sm">
-                          <Upload data-icon="inline-start" /> Change image
+                        <span
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setImagePreview(null);
+                            setImageFile(null);
+                          }}
+                          className="absolute right-2 top-2 rounded-full bg-destructive p-2 text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          <X className="h-3 w-3" strokeWidth={4} />
                         </span>
                       </>
                     ) : (
-                      <div className="flex flex-col items-center gap-2 px-4 text-center">
-                        <span className="grid size-12 place-items-center rounded-full bg-background text-muted-foreground transition group-hover:text-primary">
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex flex-col items-center gap-2 px-4 text-center"
+                      >
+                        <span className="grid size-12 place-items-center rounded-full bg-background text-muted-foreground transition">
                           <ImagePlus size={22} className="text-primary" />
                         </span>
-                        <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">
+                        <span className="text-xs font-medium text-muted-foreground">
                           Upload thumbnail
                         </span>
-                        <span className="text-[11px] text-muted-foreground/70">
+                        <span className="text-[11px] text-muted-foreground">
                           PNG or JPG, 4:5 recommended
                         </span>
                       </div>
                     )}
                   </label>
                   <input
-                    id="cover"
+                    id="thumbnail"
+                    onChange={handleImageChange}
                     type="file"
                     accept="image/*"
-                    className="sr-only"
-                    aria-label="Upload cover image"
+                    className="hidden"
+                    aria-label="Upload Thumbnail image"
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="flex min-w-0 w-full flex-col gap-4">
@@ -149,6 +234,7 @@ export default function SellerStudio() {
                       value={title}
                       onChange={(event) => setTitle(event.target.value)}
                       className="mt-2 h-11"
+                      disabled={isLoading}
                     />
                     <p className="mt-2 text-xs text-muted-foreground">
                       e.g. Fragrance Friday: designer scents
@@ -158,9 +244,10 @@ export default function SellerStudio() {
                     <Label htmlFor="description">Show description</Label>
                     <Input
                       id="description"
-                      value={title}
-                      onChange={(event) => setTitle(event.target.value)}
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
                       className="mt-2 h-11"
+                      disabled={isLoading}
                     />
                     <p className="mt-2 text-xs text-muted-foreground">
                       e.g. Selling designer fragrances - new drops every Friday
@@ -189,11 +276,20 @@ export default function SellerStudio() {
                     </div>
 
                     <Button
-                      size="lg"
-                      className="w-full sm:w-fit"
-                      disabled={!title.trim()}
+                      onClick={handleCreateShow}
+                      className="w-full sm:w-fit cursor-pointer"
+                      disabled={isLoading}
                     >
-                      <Plus data-icon="inline-start" /> Create show
+                      {isLoading ? (
+                        <>
+                          <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Plus data-icon="inline-start" /> Create show
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -201,50 +297,58 @@ export default function SellerStudio() {
             </Card>
           </section>
 
-          <section id="products-shows-section">
-            <div className="relative mb-5 grid grid-cols-2 rounded-lg bg-neutral-900 p-1">
-              {/* sliding background indicator */}
-              <div
-                className={cn(
-                  "absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-md bg-secondary transition-transform duration-300 ease-out",
-                  activeTab === "shows" && "translate-x-full",
-                )}
-              />
-              <button
-                onClick={() => setActiveTab("products")}
-                className={cn(
-                  "relative z-10 py-2 text-sm font-medium transition-colors cursor-pointer",
-                  activeTab === "products"
-                    ? "text-secondary-foreground"
-                    : "text-neutral-400",
-                )}
-              >
-                Products
-              </button>
-              <button
-                onClick={() => setActiveTab("shows")}
-                className={cn(
-                  "relative z-10 py-2 text-sm font-medium transition-colors cursor-pointer",
-                  activeTab === "shows"
-                    ? "text-secondary-foreground"
-                    : "text-neutral-400",
-                )}
-              >
-                Shows
-              </button>
+          <section id="shows" aria-labelledby="shows-heading">
+            <div className="mb-5 flex items-end justify-between">
+              <div>
+                <h2
+                  id="shows-heading"
+                  className="text-2xl font-bold tracking-tight"
+                >
+                  Your shows
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Start a show or manage your upcoming ones.
+                </p>
+              </div>
             </div>
+            <div className="relative grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {showList.map((show) => (
+                <Card
+                  key={show.id}
+                  className="group relative aspect-3/4 overflow-hidden border-border/70 shadow-sm"
+                >
+                  {/* Thumbnail fills the whole card */}
+                  <Image
+                    src={show.thumbnail}
+                    alt={show.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 640px) 50vw, 240px"
+                  />
 
-            {activeTab === "products" && (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {/* your product cards, unchanged */}
-              </div>
-            )}
+                  {/* Scrim so text stays readable over any image */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/10" />
 
-            {activeTab === "shows" && (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {/* shows cards */}
-              </div>
-            )}
+                  {/* Title, description, CTA pinned to the bottom of the card */}
+                  <CardContent className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-4">
+                    <p className="line-clamp-2 text-sm font-semibold leading-5 text-white">
+                      {show.name}
+                    </p>
+                    <p className="line-clamp-2 text-xs text-white/75">
+                      {show.description}
+                    </p>
+                    <Button
+                      size="sm"
+                      className="mt-2 h-8 w-full gap-1.5 bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                      // onClick={() => handleStartShow(show.id)}
+                    >
+                      <Play className="size-3.5" />
+                      Start show
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </section>
         </div>
         <aside className="hidden lg:flex lg:flex-col gap-5 lg:pt-16">
