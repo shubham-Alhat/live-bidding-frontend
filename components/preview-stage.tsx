@@ -3,7 +3,11 @@
 import { Button } from "./ui/button";
 
 import {
+  ChevronLeft,
+  ChevronRight,
   Gift,
+  MessageCircleMore,
+  MessageCircleOff,
   Plus,
   ShareIcon,
   ShoppingBag,
@@ -42,6 +46,7 @@ export default function PreviewStage({
 }) {
   // Parent component state
   const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isChatVisible, setIsChatVisible] = useState(true);
 
   return (
     <>
@@ -116,7 +121,7 @@ export default function PreviewStage({
                             <div className="flex items-center gap-1 bg-red-600 rounded-full px-2 py-1 text-white text-sm animate-pulse font-semibold">
                               <span className="size-1.5 rounded-full bg-white animate-pulse" />
                               {/* <Users size={16} className="animate-pulse" /> */}
-                              {29}
+                              {2}
                             </div>
                             {true && (
                               <div className="relative overflow-hidden w-fit rounded-2xl bg-black/50 px-4 py-3 text-white shadow-lg">
@@ -212,7 +217,7 @@ export default function PreviewStage({
 
                           <div
                             id="chat-box"
-                            className="pointer-events-auto flex flex-col gap-4 max-h-[40vh] max-w-8/12 overflow-y-auto px-4 pb-2 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden"
+                            className={`pointer-events-auto flex flex-col gap-4 max-h-[40vh] max-w-8/12 overflow-y-auto px-2 pb-2 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden transition-transform duration-300 ease-in-out ${isChatVisible ? "translate-x-0" : "-translate-x-[120%] pointer-events-none"}`}
                           >
                             {messages.map((msg) => (
                               <div
@@ -241,12 +246,26 @@ export default function PreviewStage({
                           </div>
 
                           {/* say something input — mobile only */}
-                          <div className="px-4 py-2 w-full lg:hidden pointer-events-auto">
-                            <input
-                              placeholder="Say something..."
-                              onChange={(e) => console.log(e.target.value)}
-                              className="w-full rounded-full bg-transparent border border-white text-white text-sm px-4 py-2 placeholder:text-white/80 focus:outline-none focus:ring-1 focus:ring-white drop-shadow-md"
-                            />
+                          <div className="px-2 py-2 w-full lg:hidden pointer-events-auto">
+                            <div className="flex items-center gap-2 w-full">
+                              <button
+                                type="button"
+                                aria-label="Open emoji picker"
+                                onClick={() =>
+                                  setIsChatVisible((prev) => !prev)
+                                }
+                                className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-white/70 text-white/90 hover:bg-white/10 transition-transform duration-300 ${isChatVisible ? "" : "rotate-90"}`}
+                              >
+                                <ChevronLeft />
+                              </button>
+
+                              {/* input — flexes to take all remaining space */}
+                              <input
+                                placeholder="Say something..."
+                                onChange={(e) => console.log(e.target.value)}
+                                className="flex-1 min-w-0 rounded-full bg-transparent border border-white text-white text-sm px-4 py-2 placeholder:text-white/80 focus:outline-none focus:ring-1 focus:ring-white drop-shadow-md"
+                              />
+                            </div>
                           </div>
 
                           {/* product card */}
