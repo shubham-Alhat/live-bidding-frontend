@@ -286,9 +286,7 @@ export default function SellerStudio() {
                           Creating...
                         </>
                       ) : (
-                        <>
-                          <Plus data-icon="inline-start" /> Create show
-                        </>
+                        "Create Show"
                       )}
                     </Button>
                   </div>
@@ -340,7 +338,9 @@ export default function SellerStudio() {
                     <Button
                       size="sm"
                       className="mt-2 h-8 w-full gap-1.5 bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                      // onClick={() => handleStartShow(show.id)}
+                      onClick={() =>
+                        router.push(`/home/seller/dashboard/live/${show.id}`)
+                      }
                     >
                       <Play className="size-3.5" />
                       Start show
