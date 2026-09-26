@@ -316,7 +316,7 @@ export default function PreviewStage({
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
-            className="flex justify-center px-4 pt-3 pb-5 border-b border rounded-t-2xl cursor-grab active:cursor-grabbing touch-none"
+            className="flex justify-center px-4 pt-3 pb-5 rounded-t-2xl cursor-grab active:cursor-grabbing touch-none"
           >
             <div className="w-14 h-1.5 rounded-full bg-muted" />
           </div>
