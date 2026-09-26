@@ -22,7 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Volume2 } from "lucide-react";
 import { VolumeX } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Show } from "@/types/api";
 import { Input } from "./ui/input";
 import ShowProductCard from "./show-product-card";
@@ -51,6 +51,61 @@ export default function PreviewStage({
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isChatVisible, setIsChatVisible] = useState(true);
 
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const startY = useRef(0);
+  const dragY = useRef(0);
+  const isDragging = useRef(false);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    isDragging.current = true;
+    startY.current = e.clientY;
+    dragY.current = 0;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+
+    if (drawerRef.current) {
+      drawerRef.current.style.transition = "none"; // kill transition while dragging
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current || !drawerRef.current) return;
+
+    const delta = e.clientY - startY.current;
+
+    if (delta > 0) {
+      // only allow downward movement, live-follow the finger
+      dragY.current = delta;
+      drawerRef.current.style.transform = `translateY(${delta}px)`;
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (!isDragging.current || !drawerRef.current) return;
+    isDragging.current = false;
+
+    // bring transition back for the settle/close animation
+    drawerRef.current.style.transition = "transform 300ms ease-out";
+
+    if (dragY.current > 0) {
+      // any downward drag at all -> close
+      drawerRef.current.style.transform = `translateY(100%)`;
+      setTimeout(() => {
+        setIsShopOpen(false);
+      }, 300); // match transition duration
+    } else {
+      // no movement -> snap back
+      drawerRef.current.style.transform = `translateY(0px)`;
+    }
+  };
+
+  // reset inline style whenever drawer re-opens, so the CSS class takes over cleanly
+  useEffect(() => {
+    if (isShopOpen && drawerRef.current) {
+      drawerRef.current.style.transition = "";
+      drawerRef.current.style.transform = "";
+    }
+  }, [isShopOpen]);
+
   return (
     <>
       <div>
@@ -74,7 +129,7 @@ export default function PreviewStage({
                       backgroundColor: "rgb(0,0,0)",
                     }}
                   >
-                    <div className={"h-full w-full overflow-hidden"}>
+                    <div className={"relative h-full w-full overflow-hidden"}>
                       <Image
                         src={show.thumbnail}
                         alt={show.name}
@@ -129,17 +184,17 @@ export default function PreviewStage({
                         </div>
 
                         {/* ---- RIGHT ICON RAIL ---- */}
-                        <div className="absolute right-4 bottom-1/3 flex flex-col gap-8 pointer-events-auto">
+                        <div className="absolute right-5 bottom-1/3 flex flex-col gap-8 pointer-events-auto">
                           <button
                             onClick={() => console.log("share")}
-                            className="size-10 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                            className="size-12 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
                           >
                             <ShareIcon className="size-7" />
                           </button>
                           {/* Shop trigger - mobile only, opens drawer */}
                           <button
                             onClick={() => setIsShopOpen(true)}
-                            className="lg:hidden relative size-10 rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                            className="lg:hidden relative size-12 rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
                           >
                             <Store className="size-7" />
                             <span className="absolute -top-1 -right-1 size-5 rounded-full bg-secondary text-secondary-foreground text-[11px] font-bold flex items-center justify-center">
@@ -247,21 +302,20 @@ export default function PreviewStage({
 
         {/* Drawer */}
         <div
+          ref={drawerRef}
           className={`fixed inset-x-0 bottom-0 z-50 h-[85svh] rounded-t-2xl bg-background flex flex-col lg:hidden transition-transform duration-300 ease-out ${
             isShopOpen ? "translate-y-0" : "translate-y-full"
           }`}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border">
-            <h2 className="text-foreground font-semibold text-base">
-              Your Products
-            </h2>
-            <button
-              onClick={() => setIsShopOpen(false)}
-              className="text-foreground"
-            >
-              <X className="size-5" />
-            </button>
+          {/* drawer closer - drag handler */}
+          <div
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            className="flex justify-center px-4 pt-3 pb-5 border-b border rounded-t-2xl cursor-grab active:cursor-grabbing touch-none"
+          >
+            <div className="w-14 h-1.5 rounded-full bg-muted" />
           </div>
 
           {/* Search */}
@@ -297,8 +351,8 @@ export default function PreviewStage({
           </div>
 
           {/* Floating add button */}
-          <button className="absolute bottom-4 right-4 size-12 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground">
-            <Plus className="size-5" strokeWidth={3} />
+          <button className="absolute bottom-7 right-7 size-12 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground">
+            <Plus className="size-5" strokeWidth={4} />
           </button>
         </div>
       </div>

@@ -62,24 +62,17 @@ export default function ShowProductCard() {
         </p>
 
         {/* Button Row */}
-        <div className="mt-auto flex items-center gap-2 pt-2">
-          <button className="h-8 sm:h-9 rounded-full bg-muted px-3 text-[12px] sm:text-[13px] font-semibold text-card-foreground/70 transition">
+        <div className="mt-auto flex items-center gap-4 pt-2">
+          <button className="rounded-full bg-muted px-4 py-1.5 text-[15px] font-semibold text-card-foreground/70 transition">
             Start Auction
-          </button>
-
-          <button
-            aria-label="More options"
-            className="hidden xs:grid size-8 sm:size-9 place-items-center rounded-full bg-muted text-card-foreground/70"
-          >
-            <MoreHorizontal className="size-4" />
           </button>
 
           <button
             aria-pressed={true}
             // onClick={() => setSaved(!saved)}
-            className="grid size-8 sm:size-9 place-items-center rounded-full bg-secondary text-secondary-foreground transition hover:bg-yellow-300"
+            className="grid size-9 place-items-center rounded-full bg-secondary text-secondary-foreground transition"
           >
-            <Pin className="size-4 rotate-45" strokeWidth={2} />
+            <Pin className="size-5 rotate-45" strokeWidth={2} />
           </button>
         </div>
       </div>
