@@ -109,6 +109,24 @@ export default function PreviewStage({
     }
   }, [isShopOpen]);
 
+  const handleShareShow = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "MDN Web Docs",
+          text: "Check out the Web Share API!",
+          url: "https://developer.mozilla.org",
+        });
+        console.log("Content shared successfully!");
+      } catch (error) {
+        console.log("Sharing failed or was canceled:", error);
+      }
+    } else {
+      // Fallback behavior for unsupported browsers
+      alert("Web Share API is not supported on this browser.");
+    }
+  };
+
   return (
     <>
       <div>
@@ -189,7 +207,7 @@ export default function PreviewStage({
                         {/* ---- RIGHT ICON RAIL ---- */}
                         <div className="absolute right-5 bottom-1/3 flex flex-col gap-8 pointer-events-auto">
                           <button
-                            onClick={() => console.log("share")}
+                            onClick={handleShareShow}
                             className="size-12 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
                           >
                             <ShareIcon className="size-7" />
