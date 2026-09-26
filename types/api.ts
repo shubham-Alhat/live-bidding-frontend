@@ -70,13 +70,24 @@ export interface Auction {
 export interface Product {
   id: string;
   name: string;
+  description: string;
   image: string;
-  status: "NOTLIVE" | "LIVE" | "ARCHIVE";
   ownerId: string;
   owner?: User;
   auctions?: Auction[];
   initialPrice: number;
-  durationInSeconds: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Show {
+  id: string;
+  name: string;
+  description: string;
+  thumbnail: string;
+  ownerId: string;
+  owner?: User;
+  status: "ENDED" | "ACTIVE" | "SCHEDULED";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -87,6 +98,11 @@ export interface ApiResponse<T> {
 }
 
 export interface getAllProductResponse<T> {
+  message: string;
+  data: T | [];
+}
+
+export interface getAllShowResponse<T> {
   message: string;
   data: T | [];
 }

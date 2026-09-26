@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     sameSite: "lax",
     maxAge: 60 * 60 * 1000,
     path: "/",
-    domain: ".bidhub.in",
+    domain: process.env.NEXT_ENV === "production" ? ".bidhub.in" : undefined,
   });
 
   response.cookies.set("refreshToken", refreshToken, {
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/",
-    domain: ".bidhub.in",
+    domain: process.env.NEXT_ENV === "production" ? ".bidhub.in" : undefined,
   });
 
   return response;

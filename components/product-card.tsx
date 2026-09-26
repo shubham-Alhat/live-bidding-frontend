@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -15,59 +14,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { ExternalLink, Rocket, Trash2 } from "lucide-react";
-import { ApiRes, ApiResponse, Product } from "@/types/api";
+import { Trash2 } from "lucide-react";
+import { ApiResponse, Product } from "@/types/api";
 import useProductStore from "@/store/productStore";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [isLaunching, setIsLaunching] = useState(false);
-  const { productList, deleteProduct } = useProductStore();
+  const { deleteProduct } = useProductStore();
   const [isDeleting, setIsDeleting] = useState(false);
-  const { updateLaunchedProduct } = useProductStore();
-  const router = useRouter();
-
-  const formatDuration = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    if (minutes > 0) {
-      return `${minutes}m ${secs}s`;
-    }
-    return `${secs}s`;
-  };
-
-  const handleLaunch = async (productId: string) => {
-    try {
-      setIsLaunching(true);
-      const res = await api.put<ApiRes<Product>>(
-        `/product/launch/${productId}`,
-      );
-
-      updateLaunchedProduct(res.data.data);
-      toast.success(res.data.message);
-    } catch (error) {
-      console.log(error);
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsLaunching(false);
-    }
-  };
-
-  const handleLiveStatus = (id: string) => {
-    router.push(`/home/live-product/${id}`);
-  };
 
   const handleDelete = async (productId: string) => {
     setIsDeleting(true);
@@ -76,10 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
         `/product/${productId}`,
       );
 
-      console.log("full res.data:", res);
-
       deleteProduct(productId);
-
       toast.success(res.data.message);
     } catch (error) {
       console.log(error);
@@ -90,153 +46,75 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Card className="flex flex-col overflow-hidden border-border transition-shadow hover:shadow-lg">
+    <Card className="flex flex-col overflow-hidden rounded-2xl border-border bg-card shadow-sm transition-shadow hover:shadow-md">
       {/* Product Image */}
-      <div className="relative h-48 w-full overflow-hidden bg-secondary">
+      <div className="relative m-3 h-48 overflow-hidden rounded-xl bg-secondary">
         <img
           src={product.image || "/placeholder.svg"}
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+          className="h-full w-full object-cover"
         />
       </div>
 
       {/* Card Content */}
-      <CardContent className="flex-1 space-y-3 pt-4">
-        {/* Status Badge */}
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="flex-1 text-lg font-semibold text-foreground line-clamp-2">
-            {product.name}
-          </h3>
-          {(() => {
-            if (product.status === "LIVE") {
-              return (
-                <Badge className="shrink-0 bg-muted text-primary-foreground">
-                  <span className="mr-1 inline-block text-destructive h-2 w-2 rounded-full bg-current animate-pulse" />
-                  <span className="text-white">Live</span>
-                </Badge>
-              );
-            } else if (product.status === "NOTLIVE") {
-              return (
-                <Badge variant="secondary" className="shrink-0">
-                  Not Launched
-                </Badge>
-              );
-            } else if (product.status === "ARCHIVE") {
-              return (
-                <Badge variant="outline" className="shrink-0">
-                  Archived
-                </Badge>
-              );
-            } else {
-              return null;
-            }
-          })()}
-        </div>
+      <CardContent className="flex flex-1 flex-col gap-1 px-4 pb-4 pt-0">
+        <h3 className="text-base font-semibold text-foreground line-clamp-1">
+          {product.name}
+        </h3>
 
-        {/* Price */}
-        <div>
-          <p className="text-2xl font-bold text-primary">
-            ${product.initialPrice}
+        {product.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {product.description}
           </p>
-          <p className="text-xs text-muted-foreground">Initial Price</p>
-        </div>
+        )}
 
-        {/* Duration */}
-        <div className="rounded-lg bg-secondary/50 px-3 py-2">
-          <p className="text-sm font-medium text-foreground">
-            Duration: {formatDuration(product.durationInSeconds)}
-          </p>
+        {/* Price + Delete row */}
+        <div className="mt-3 flex items-end justify-between">
+          <div>
+            <p className="text-xs text-muted-foreground">Initial Price</p>
+            <p className="text-xl font-bold text-primary">
+              ${product.initialPrice}
+            </p>
+          </div>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={isDeleting}
+                className="border-border bg-transparent hover:bg-destructive-foreground hover:text-destructive cursor-pointer"
+              >
+                {isDeleting ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete "{product.name}"? This action
+                  cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="flex gap-3">
+                <AlertDialogCancel className="border-border">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleDelete(product.id)}
+                  className="bg-destructive-foreground text-destructive hover:bg-destructive/90 cursor-pointer"
+                >
+                  Delete
+                </AlertDialogAction>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
-
-      {/* Card Footer - Actions */}
-      <CardFooter className="flex gap-2 border-t border-border">
-        {(() => {
-          if (product.status === "LIVE") {
-            return (
-              <>
-                <Button disabled className="flex-1 cursor-pointer">
-                  Your product is live.
-                  <ExternalLink />
-                </Button>
-              </>
-            );
-          } else if (product.status === "NOTLIVE") {
-            return (
-              <>
-                <Button
-                  onClick={() => handleLaunch(product.id)}
-                  disabled={isLaunching}
-                  className="flex-1 bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90"
-                >
-                  {isLaunching ? (
-                    <>
-                      <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                      Launching...
-                    </>
-                  ) : (
-                    <>
-                      <Rocket className="mr-2 h-4 w-4" />
-                      Launch
-                    </>
-                  )}
-                </Button>
-              </>
-            );
-          } else if (product.status === "ARCHIVE") {
-            return (
-              <>
-                <Button
-                  disabled
-                  className="flex-1 bg-muted text-muted-foreground"
-                >
-                  Archived
-                </Button>
-              </>
-            );
-          }
-        })()}
-
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={isDeleting}
-              className="border-border hover:bg-destructive-foreground hover:text-destructive bg-transparent cursor-pointer"
-            >
-              {/* <Trash2 className="h-4 w-4" /> */}
-              {isDeleting ? (
-                <>
-                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
-                </>
-              ) : (
-                <Trash2 className="h-4 w-4" />
-              )}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Product</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete "{product.name}"? This action
-                cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="flex gap-3">
-              <AlertDialogCancel className="border-border">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => handleDelete(product.id)}
-                className="bg-destructive-foreground text-destructive hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
-      </CardFooter>
     </Card>
   );
 }
