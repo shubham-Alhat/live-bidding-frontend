@@ -208,14 +208,14 @@ export default function PreviewStage({
                         <div className="absolute right-5 bottom-1/3 flex flex-col gap-8 pointer-events-auto">
                           <button
                             onClick={handleShareShow}
-                            className="size-12 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                            className="size-12 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto active:scale-95"
                           >
                             <ShareIcon className="size-7" />
                           </button>
                           {/* Shop trigger - mobile only, opens drawer */}
                           <button
                             onClick={() => setIsShopOpen(true)}
-                            className="lg:hidden relative size-12 rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                            className="lg:hidden relative size-12 rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto active:scale-95"
                           >
                             <Store className="size-7" />
                             <span className="absolute -top-1 -right-1 size-5 rounded-full bg-secondary text-secondary-foreground text-[11px] font-bold flex items-center justify-center">

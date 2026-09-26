@@ -48,6 +48,7 @@ export default function SellerStudio() {
 
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const { addNewShow, setShowList, showList } = useShowStore();
 
@@ -341,12 +342,13 @@ export default function SellerStudio() {
                       disabled={isPending}
                       className="mt-2 h-8 w-full gap-1.5 bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer active:scale-95 disabled:opacity-70"
                       onClick={() => {
+                        setLoadingId(show.id);
                         startTransition(() => {
                           router.push(`/home/seller/dashboard/live/${show.id}`);
                         });
                       }}
                     >
-                      {isPending ? (
+                      {isPending && loadingId === show.id ? (
                         <>
                           <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                           Starting...
