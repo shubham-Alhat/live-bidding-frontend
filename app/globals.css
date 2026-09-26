@@ -188,3 +188,7 @@
 .shine-sweep {
   animation: shine-sweep 4s ease-in-out infinite;
 }
+
+@theme {
+  --breakpoint-xs: 320px;
+}

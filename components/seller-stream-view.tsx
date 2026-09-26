@@ -12,7 +12,6 @@ import {
   ShareIcon,
   ShoppingBag,
   Star,
-  Store,
   VideoIcon,
   VideoOffIcon,
   X,
@@ -24,8 +23,6 @@ import { VolumeX } from "lucide-react";
 
 import { useState } from "react";
 import { Show } from "@/types/api";
-import { Input } from "./ui/input";
-import ShowProductCard from "./show-product-card";
 
 const messages = [
   { id: "01", text: "Hello world by whatnot", user: "Whatnot_user" },
@@ -40,7 +37,7 @@ const messages = [
   { id: "12", text: "Loving this stream today", user: "Whatnot_user" },
 ];
 
-export default function PreviewStage({
+export default function SellerStreamView({
   show,
   isMobile,
 }: {
@@ -74,22 +71,16 @@ export default function PreviewStage({
                       backgroundColor: "rgb(0,0,0)",
                     }}
                   >
-                    <div className={"h-full w-full overflow-hidden"}>
-                      <Image
-                        src={show.thumbnail}
-                        alt={show.name}
-                        fill
-                        className="object-cover lg:object-contain"
-                      />
+                    <div className={"h-full w-full"}>
                       {/* actual overlay component */}
                       {/* 1. scrim layer at top and bottom - gradient bg for visible text : DIVS are self closing */}
                       {/* <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none" />
-                      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/70 to-transparent z-10 pointer-events-none" /> */}
+                        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/70 to-transparent z-10 pointer-events-none" /> */}
                       {/* ---------------------------- */}
                       {/* master overlay */}
                       <div className="absolute inset-0 flex flex-col pointer-events-none">
                         {/* ---- TOP BAR ---- */}
-                        <div className="absolute top-0 inset-x-0 flex items-center justify-between p-4">
+                        <div className="absolute top-0 inset-x-0 flex items-start justify-between p-4">
                           {/* seller info - top left */}
                           <div className="flex items-center gap-3 pointer-events-auto">
                             <Avatar
@@ -114,37 +105,109 @@ export default function PreviewStage({
                                   <Star className="size-3 fill-yellow-400" />{" "}
                                   4.8
                                 </span>
+                                <Button
+                                  onClick={() => console.log("follow btn")}
+                                  size="sm"
+                                  className="h-6 rounded-full bg-blue-400 hover:bg-blue-500 text-black text-xs font-semibold px-3"
+                                >
+                                  Follow
+                                </Button>
                               </div>
                             </div>
                           </div>
 
                           {/* viewer count + giveaway - top right */}
                           <div className="flex flex-col items-end gap-4">
-                            <div className="flex items-center gap-1 bg-[#ff2c2c] rounded-full px-2 py-1 text-white text-sm font-semibold">
+                            <div className="flex items-center gap-1 bg-red-600 rounded-full px-2 py-1 text-white text-sm animate-pulse font-semibold">
                               <span className="size-1.5 rounded-full bg-white animate-pulse" />
-
-                              {1}
+                              {/* <Users size={16} className="animate-pulse" /> */}
+                              {2}
                             </div>
+                            {true && (
+                              <div className="relative overflow-hidden w-fit rounded-2xl bg-black/50 px-4 py-3 text-white shadow-lg">
+                                <div
+                                  className="shine-sweep pointer-events-none absolute inset-0 w-1/2 h-[300%] -top-[100%]"
+                                  style={{
+                                    background:
+                                      "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
+                                  }}
+                                />
+
+                                <p className="text-sm font-semibold mb-2">
+                                  Giveaway
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <div className="relative">
+                                    <Gift
+                                      className="size-5 text-white"
+                                      strokeWidth={1.75}
+                                    />
+                                    {/* sparkle marks */}
+                                    <span className="absolute -top-1 -left-1 h-1 w-1 rounded-full bg-white/70" />
+                                    <span className="absolute -top-1.5 left-2 h-[3px] w-[3px] rounded-full bg-white/70" />
+                                  </div>
+                                  <div className="flex flex-col leading-tight">
+                                    <span className="text-base font-bold">
+                                      {32}
+                                    </span>
+                                    <span className="text-[11px] text-white/60 -mt-0.5">
+                                      Entries
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
                         {/* ---- RIGHT ICON RAIL ---- */}
-                        <div className="absolute right-4 bottom-1/3 flex flex-col gap-8 pointer-events-auto">
-                          <button
-                            onClick={() => console.log("share")}
-                            className="size-10 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
-                          >
-                            <ShareIcon className="size-7" />
-                          </button>
+                        <div className="absolute right-3 top-1/3 flex flex-col gap-4 pointer-events-auto">
+                          {false && (
+                            <button
+                              // disabled={loading}
+                              // onClick={handleFlipCamera}
+                              className="size-9 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                            >
+                              <ShoppingBag className="size-5" />
+                            </button>
+                          )}
                           {/* Shop trigger - mobile only, opens drawer */}
                           <button
                             onClick={() => setIsShopOpen(true)}
-                            className="lg:hidden relative size-10 rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                            className="lg:hidden relative size-9 rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
                           >
-                            <Store className="size-7" />
-                            <span className="absolute -top-1 -right-1 size-5 rounded-full bg-secondary text-secondary-foreground text-[11px] font-bold flex items-center justify-center">
+                            <ShoppingBag className="size-5" />
+                            <span className="absolute -top-1 -right-1 size-4 rounded-full bg-yellow-400 text-black text-[10px] font-bold flex items-center justify-center">
                               2
                             </span>
+                          </button>
+                          <button
+                            // disabled={loading}
+                            // onClick={toggleCam}
+                            className="size-9 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                          >
+                            {true ? (
+                              <VideoIcon className="size-5" />
+                            ) : (
+                              <VideoOffIcon className="size-5" />
+                            )}
+                          </button>
+                          <button
+                            // disabled={loading}
+                            // onClick={toggleMic}
+                            className="size-9 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                          >
+                            {true ? (
+                              <Volume2 className="size-5" />
+                            ) : (
+                              <VolumeX className="size-5" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => console.log("share")}
+                            className="size-9 cursor-pointer rounded-full bg-black/50 flex items-center justify-center text-white pointer-events-auto"
+                          >
+                            <ShareIcon className="size-5" />
                           </button>
                         </div>
 
@@ -191,28 +254,78 @@ export default function PreviewStage({
                                 onClick={() =>
                                   setIsChatVisible((prev) => !prev)
                                 }
-                                className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-white/70 text-white/90 bg-black/30 transition-transform duration-300 ${isChatVisible ? "" : "rotate-90"}`}
+                                className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-white/70 text-white/90 hover:bg-white/10 transition-transform duration-300 ${isChatVisible ? "" : "rotate-90"}`}
                               >
                                 <ChevronLeft />
                               </button>
 
+                              {/* input — flexes to take all remaining space */}
                               <input
                                 placeholder="Say something..."
                                 onChange={(e) => console.log(e.target.value)}
-                                className="flex-1 min-w-0 rounded-full border border-white text-white text-sm px-4 py-2 placeholder:text-white/80 focus:outline-none focus:ring-1 focus:ring-white drop-shadow-md bg-black/30"
+                                className="flex-1 min-w-0 rounded-full bg-transparent border border-white text-white text-sm px-4 py-2 placeholder:text-white/80 focus:outline-none focus:ring-1 focus:ring-white drop-shadow-md"
                               />
                             </div>
                           </div>
 
                           {/* product card */}
 
+                          <div className="flex items-center justify-between gap-3 bg-black/50 rounded-xl p-2.5">
+                            {/* Left Section: Image + Text */}
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              {/* Image Thumbnail */}
+                              <div className="relative shrink-0 size-14 overflow-hidden rounded-lg border border-white/30">
+                                <Image
+                                  src="https://res.cloudinary.com/diery17cm/image/upload/v1779897446/tknlm9ocydjm3wpqofqa.jpg"
+                                  alt="Raymond watch"
+                                  width={56}
+                                  height={56}
+                                  className="size-full object-cover"
+                                  loading="lazy"
+                                />
+                              </div>
+
+                              {/* Details (Stacked Vertically) */}
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <p className="text-white text-[15px] font-bold truncate leading-tight">
+                                  Raymond watch
+                                </p>
+                                <p className="text-white text-sm truncate leading-tight mt-0.5">
+                                  this is tom cruise's watch
+                                </p>
+                                <p className="text-white text-[13px] leading-tight mt-1">
+                                  10 Bids
+                                </p>
+                                <p className="text-white/60 text-xs leading-tight mt-1">
+                                  Shipping + Taxes are extra
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Right Section: Price + Timer/Status */}
+                            <div className="flex flex-col items-end shrink-0 p-1.5">
+                              <span className="text-white font-bold text-base leading-tight">
+                                $29
+                              </span>
+                              <span className="text-red-500 font-semibold text-sm leading-tight mt-1">
+                                💀 00:09
+                              </span>
+                            </div>
+                          </div>
+
                           {/* bid buttons */}
                           <div className="flex gap-2 pointer-events-auto">
                             <button
-                              onClick={() => console.log("bid btn")}
-                              className="flex-1 rounded-full bg-primary text-black text-[16px] py-2.5 flex justify-center items-center font-bold cursor-pointer"
+                              onClick={() => console.log("custom btn")}
+                              className="flex-1 rounded-full bg-white/10 text-white text-sm font-semibold py-2"
                             >
-                              Start Show
+                              Custom
+                            </button>
+                            <button
+                              onClick={() => console.log("bid btn")}
+                              className="flex-[2] rounded-full bg-yellow-400 text-black text-sm font-bold py-2"
+                            >
+                              Bid: ${101}
                             </button>
                           </div>
                         </div>
@@ -247,58 +360,51 @@ export default function PreviewStage({
 
         {/* Drawer */}
         <div
-          className={`fixed inset-x-0 bottom-0 z-50 h-[85svh] rounded-t-2xl bg-background flex flex-col lg:hidden transition-transform duration-300 ease-out ${
+          className={`fixed inset-x-0 bottom-0 z-50 h-[85svh] rounded-t-2xl bg-neutral-900 flex flex-col lg:hidden transition-transform duration-300 ease-out ${
             isShopOpen ? "translate-y-0" : "translate-y-full"
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border">
-            <h2 className="text-foreground font-semibold text-base">
-              Your Products
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <h2 className="text-white font-semibold text-base">
+              Live Listings
             </h2>
-            <button
-              onClick={() => setIsShopOpen(false)}
-              className="text-foreground"
-            >
+            <button onClick={() => setIsShopOpen(false)} className="text-white">
               <X className="size-5" />
             </button>
           </div>
 
           {/* Search */}
           <div className="px-4 py-3">
-            <Input
+            <input
               placeholder="Search..."
-              className="w-full bg-input text-sm px-4 py-2 focus:outline-none"
+              className="w-full rounded-full bg-white/10 text-white text-sm px-4 py-2 placeholder:text-white/50 focus:outline-none"
             />
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-4 px-4 border-b border-white/10 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+            {["Auction", "Buy Now", "Giveaway", "Sold", "Offers", "Tips"].map(
+              (tab) => (
+                <span
+                  key={tab}
+                  className="text-white text-sm font-medium pb-2 whitespace-nowrap border-b-2 border-transparent first:border-white"
+                >
+                  {tab}
+                </span>
+              ),
+            )}
           </div>
 
           {/* List area */}
           <div className="flex-1 overflow-y-auto px-4 py-3">
-            <div className="flex flex-col gap-3">
-              {true ? (
-                <>
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                </>
-              ) : (
-                <p className="py-10 text-center text-sm text-zinc-500">
-                  No products found.
-                </p>
-              )}
-            </div>
+            {/* product rows go here later - placeholder for now */}
+            <p className="text-white/40 text-sm">product list</p>
           </div>
 
           {/* Floating add button */}
-          <button className="absolute bottom-4 right-4 size-12 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground">
-            <Plus className="size-5" strokeWidth={3} />
+          <button className="absolute bottom-4 right-4 size-12 rounded-full bg-yellow-400 flex items-center justify-center text-black">
+            <Plus className="size-5" />
           </button>
         </div>
       </div>
