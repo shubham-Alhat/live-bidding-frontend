@@ -72,6 +72,9 @@ export default function PreviewStage({
 
     const delta = e.clientY - startY.current;
 
+    const clampedDelta = Math.max(0, delta); // never negative, but always updates
+    dragY.current = clampedDelta;
+
     if (delta > 0) {
       // only allow downward movement, live-follow the finger
       dragY.current = delta;
