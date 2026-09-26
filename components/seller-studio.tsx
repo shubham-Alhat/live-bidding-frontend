@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import {
   CircleArrowLeft,
@@ -47,6 +47,7 @@ export default function SellerStudio() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const { addNewShow, setShowList, showList } = useShowStore();
 
@@ -337,13 +338,25 @@ export default function SellerStudio() {
                     </p>
                     <Button
                       size="sm"
-                      className="mt-2 h-8 w-full gap-1.5 bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                      onClick={() =>
-                        router.push(`/home/seller/dashboard/live/${show.id}`)
-                      }
+                      disabled={isPending}
+                      className="mt-2 h-8 w-full gap-1.5 bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer active:scale-95 disabled:opacity-70"
+                      onClick={() => {
+                        startTransition(() => {
+                          router.push(`/home/seller/dashboard/live/${show.id}`);
+                        });
+                      }}
                     >
-                      <Play className="size-3.5" />
-                      Start show
+                      {isPending ? (
+                        <>
+                          <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                          Starting...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="size-3.5" />
+                          Start show
+                        </>
+                      )}
                     </Button>
                   </CardContent>
                 </Card>
