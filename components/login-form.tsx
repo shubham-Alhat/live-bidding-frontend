@@ -10,15 +10,13 @@ import Link from "next/link";
 import api, { getErrorMessage } from "@/utils/api";
 import { toast } from "sonner";
 import useAuthStore from "@/store/authStore";
-import { ApiResponse, User } from "@/types/api";
+import { ApiResponse, AuthUser } from "@/types/api";
 import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const router = useRouter();
 
   const { setAuthUser, token } = useAuthStore();
 
@@ -33,13 +31,13 @@ export function LoginForm() {
     }
 
     try {
-      const res = await api.post<ApiResponse<User>>("/auth/login", {
+      await api.post<ApiResponse<AuthUser>>("/auth/login", {
         email,
         password,
       });
 
-      setAuthUser(res.data.data, token);
-      router.push("/home");
+      // console.log("login res : ", res);
+      window.location.href = "/";
     } catch (error) {
       console.log(error);
       toast.error(getErrorMessage(error));

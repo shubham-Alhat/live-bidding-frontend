@@ -19,22 +19,17 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
-import { ApiResponse, User } from "@/types/api";
-import useWebsocketStore from "@/store/websocketStore";
-import useAuthStore from "@/store/authStore";
+import { ApiResponse, AuthUser } from "@/types/api";
 
 export function DropdownMenuIcons() {
   const router = useRouter();
-  const { setToken } = useWebsocketStore();
-  const { setAuthUser } = useAuthStore();
 
   const handleLogout = async () => {
     try {
-      const res = await api.post<ApiResponse<User>>("/auth/logout");
+      const res = await api.post<ApiResponse<AuthUser>>("/auth/logout");
 
       toast.success(res.data.message);
-      setToken(undefined);
-      setAuthUser(null, undefined);
+
       window.location.href = "/login";
     } catch (error) {
       console.log(error);

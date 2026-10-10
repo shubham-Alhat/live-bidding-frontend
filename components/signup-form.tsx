@@ -9,8 +9,9 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import useAuthStore from "@/store/authStore";
-import { ApiResponse, User } from "@/types/api";
+import { ApiResponse, AuthUser } from "@/types/api";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function SignupForm() {
   const [username, setUsername] = useState("");
@@ -35,7 +36,7 @@ export function SignupForm() {
     }
 
     try {
-      const res = await api.post<ApiResponse<User>>("/auth/signup", {
+      const res = await api.post<ApiResponse<AuthUser>>("/auth/signup", {
         username,
         email,
         password,
@@ -163,9 +164,9 @@ export function SignupForm() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <a href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline">
             Sign in
-          </a>
+          </Link>
         </p>
       </CardContent>
     </Card>

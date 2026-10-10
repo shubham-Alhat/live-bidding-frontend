@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bidhub",
-  description: "Find your next bid",
+  title: "Leven",
+  description: "Find your next sale",
 };
 
 export default function RootLayout({

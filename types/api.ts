@@ -1,17 +1,23 @@
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 export interface AuthUser {
   id: string;
   username: string;
   email: string;
   createdAt?: string;
   updatedAt?: string;
+  isGuest?: false;
+}
+
+export type MainUser = {
+  id: string;
+  username: string;
+  isGuest: boolean;
+};
+
+export type GuestUser = { id: string; username: string; isGuest: true };
+
+export interface AuthCheckRes {
+  user: AuthUser | GuestUser;
+  token: string;
 }
 
 export interface AuthApiResponse<T> {
@@ -27,7 +33,7 @@ export interface Bid {
   id: string;
   price: number;
   bidderId: string;
-  bidder?: User;
+  bidder?: AuthUser;
   auctionId: string;
   auction?: Auction;
   winningAuction?: Auction;
@@ -50,9 +56,9 @@ export interface liveAuctionsViewerCount {
 export interface Auction {
   id: string;
   ownerId: string;
-  owner?: User;
+  owner?: AuthUser;
   winnerId?: string | null;
-  winner?: User | null;
+  winner?: AuthUser | null;
   winningBidId?: string | null;
   winningBid?: Bid | null;
   biddings?: Bid[];
@@ -73,7 +79,7 @@ export interface Product {
   description: string;
   image: string;
   ownerId: string;
-  owner?: User;
+  owner?: AuthUser;
   auctions?: Auction[];
   initialPrice: number;
   createdAt?: string;
@@ -86,7 +92,7 @@ export interface Show {
   description: string;
   thumbnail: string;
   ownerId: string;
-  owner?: User;
+  owner?: AuthUser;
   status: "ENDED" | "ACTIVE" | "SCHEDULED";
   createdAt?: string;
   updatedAt?: string;

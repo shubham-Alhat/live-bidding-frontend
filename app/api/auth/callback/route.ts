@@ -8,13 +8,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/login?error=auth_failed", req.url));
   }
 
-  const response = NextResponse.redirect(new URL("/home", req.url));
+  const response = NextResponse.redirect(new URL("/", req.url));
 
   response.cookies.set("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
-    maxAge: 60 * 60 * 1000,
+    maxAge: 60 * 60, // in nextjs cookies setting are in seconds
     path: "/",
     domain: process.env.NEXT_ENV === "production" ? ".bidhub.in" : undefined,
   });
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60, // in nextjs cookies setting are in seconds
     path: "/",
     domain: process.env.NEXT_ENV === "production" ? ".bidhub.in" : undefined,
   });

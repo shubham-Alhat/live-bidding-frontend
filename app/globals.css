@@ -11,7 +11,9 @@
   --popover-foreground: oklch(0.757 0 0);
   --primary: oklch(0 0 0);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.5899 0.2415 28.4505);
+  --secondary: oklch(
+    60.021% 0.23006 30.081
+  ); /* ≈ #E4651A, Star of India Orange */
   --secondary-foreground: oklch(0.9696 0 0);
   --muted: oklch(0.757 0 0);
   --muted-foreground: oklch(0.4278 0 0);
@@ -57,6 +59,114 @@
   --spacing: 0.25rem;
 }
 
+.phone-wrap {
+  position: relative;
+  justify-self: center;
+  width: min(82vw, 380px);
+  min-height: 560px;
+  display: grid;
+  place-items: center;
+}
+.phone-glow {
+  position: absolute;
+  inset: 12% -10%;
+  background: radial-gradient(
+    ellipse,
+    rgba(228, 101, 26, 0.35),
+    transparent 65%
+  );
+  filter: blur(28px);
+}
+.phone {
+  position: relative;
+  width: 255px;
+  height: 515px;
+  border: 8px solid #242424;
+  border-radius: 40px;
+  background: #111;
+  box-shadow:
+    0 0 0 1px #555,
+    0 28px 70px rgba(0, 0, 0, 0.8),
+    0 0 70px rgba(228, 101, 26, 0.2);
+  transform: rotate(5deg);
+}
+.phone-notch {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  z-index: 2;
+  width: 82px;
+  height: 20px;
+  transform: translateX(-50%);
+  border-radius: 20px;
+  background: #050505;
+}
+.phone-screen {
+  height: 100%;
+  overflow: hidden;
+  border-radius: 32px;
+  background: linear-gradient(145deg, #3f2415, #17100d 55%, #050505);
+  padding: 24px 16px 16px;
+}
+.seller-card {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  padding: 22px;
+  background: #111;
+  color: white;
+  font-weight: 800;
+}
+.seller-card span:last-child {
+  max-width: 150px;
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+.seller-orange {
+  background: var(--orange);
+  color: #000;
+  border-color: var(--orange);
+}
+.seller-tall {
+  grid-row: span 2;
+  min-height: 375px;
+  background: linear-gradient(145deg, #252525, #0b0b0b);
+}
+@media (max-width: 640px) {
+  .phone-wrap {
+    min-height: 500px;
+    transform: scale(0.9);
+    margin-top: -30px;
+    margin-bottom: -35px;
+  }
+  .seller-card {
+    min-height: 150px;
+    padding: 16px;
+  }
+  .seller-tall {
+    min-height: 315px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+}
+
 .dark {
   --background: oklch(0 0 0);
   --foreground: oklch(1 0 0);
@@ -66,7 +176,9 @@
   --popover-foreground: oklch(1 0 0);
   --primary: oklch(1 0 0);
   --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.5899 0.2415 28.4505);
+  --secondary: oklch(
+    60.021% 0.23006 30.081
+  ); /* ≈ #E4651A, Star of India Orange */
   --secondary-foreground: oklch(0.885 0.062 18.334);
   --muted: oklch(0.2156 0 0);
   --muted-foreground: oklch(0.4741 0 0);

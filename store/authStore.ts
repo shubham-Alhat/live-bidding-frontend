@@ -1,18 +1,10 @@
+import { MainUser } from "@/types/api";
 import { create } from "zustand";
 
-export type User = {
-  id: string;
-  username: string;
-  email: string;
-  password?: string;
-  updatedAt?: string;
-  createdAt?: string;
-};
-
 interface AuthState {
-  authUser: User | null;
+  authUser: MainUser | null;
   token: string | undefined;
-  setAuthUser: (user: User | null, token: string | undefined) => void;
+  setAuthUser: (user: MainUser | null, token: string | undefined) => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({

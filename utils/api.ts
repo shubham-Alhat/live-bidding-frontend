@@ -27,13 +27,13 @@ export function getErrorMessage(error: unknown): string {
   return "An unexpected error occurred";
 }
 
-const refreshInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// const refreshInstance = axios.create({
+//   baseURL: process.env.NEXT_PUBLIC_API_URL,
+//   withCredentials: true,
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -58,23 +58,23 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest.isRetry) {
-      originalRequest.isRetry = true;
+    // const originalRequest = error.config;
+    // if (error.response?.status === 401 && !originalRequest.isRetry) {
+    //   originalRequest.isRetry = true;
 
-      console.log("og request", originalRequest);
+    //   console.log("og request", originalRequest);
 
-      try {
-        await refreshInstance.post("/auth/refresh");
-        console.log("refresh succeeded, retrying original request");
+    //   try {
+    //     await refreshInstance.post("/auth/refresh");
+    //     console.log("refresh succeeded, retrying original request");
 
-        return api(originalRequest);
-      } catch (error) {
-        console.log(error);
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
-    }
+    //     return api(originalRequest);
+    //   } catch (error) {
+    //     console.log(error);
+    //     window.location.href = "/login";
+    //     return Promise.reject(error);
+    //   }
+    // }
 
     const customError: CustomError = {
       message:
