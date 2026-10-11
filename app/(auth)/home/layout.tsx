@@ -9,8 +9,8 @@ export default function HomeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { token, authUser } = useAuthStore();
-  const { ws, connectToWsServer, disconnectToWsServer, isConnected } =
+  const { authUser } = useAuthStore();
+  const { ws, connectToWsServer, disconnectToWsServer, isConnected, token } =
     useWebsocketStore();
 
   useEffect(() => {

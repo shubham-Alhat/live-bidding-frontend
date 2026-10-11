@@ -94,7 +94,7 @@ export default function Page() {
       <section className="hero-grid relative flex min-h-screen items-center px-5 pb-16 pt-32 sm:px-8 lg:px-12">
         <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[1fr_0.9fr]">
           <div className="relative z-10 max-w-2xl">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[var(--orange)]/40 bg-[var(--orange)]/10 px-3 py-1.5 text-xs font-bold text-[var(--orange)]">
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold">
               <span className="size-1.5 animate-pulse rounded-full bg-secondary" />
               India&apos;s live auction marketplace
             </div>
