@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, getAllShowResponse, Show } from "@/types/api";
 import useShowStore from "@/store/showStore";
+import DateTimePicker from "./date-time-picker";
 
 export default function SellerStudio() {
   const [title, setTitle] = useState("");
@@ -50,7 +51,25 @@ export default function SellerStudio() {
   const [isPending, startTransition] = useTransition();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
+  const [startsAt, setStartsAt] = useState<Date | null>(null);
+  const [minDate, setMinDate] = useState<Date>();
+  const [timeZone, setTimeZone] = useState("");
+
   const { addNewShow, setShowList, showList } = useShowStore();
+
+  // Browser-only values, set after mount so server and client HTML match
+  useEffect(() => {
+    setMinDate(new Date());
+    setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  }, []);
+
+  const payload = startsAt
+    ? {
+        title,
+        startsAt: startsAt.toISOString(), // UTC instant, e.g. "2026-10-22T09:19:00.000Z"
+        timeZone, // IANA name, e.g. "Asia/Kolkata" (optional, for display/audit)
+      }
+    : null;
 
   // handle image preview
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -256,6 +275,11 @@ export default function SellerStudio() {
                       !
                     </p>
                   </div>
+                  <DateTimePicker
+                    value={startsAt}
+                    onChange={setStartsAt}
+                    minDate={minDate}
+                  />
                   <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-2">
                     <div className="w-full sm:w-64">
                       <Label htmlFor="category">Category</Label>

@@ -45,6 +45,7 @@ function isBot(request: NextRequest) {
 }
 
 export async function proxy(request: NextRequest) {
+  console.log("proxy runs");
   const headers = new Headers(request.headers);
   headers.delete("x-auth-user");
   headers.delete("x-auth-token");

@@ -34,7 +34,9 @@ export function AuctionCard({ auction }: AuctionCardProps) {
         {/* Image Container */}
         <div className="relative overflow-hidden bg-muted h-48">
           <Image
-            src={auction.product?.image || "/image.jpg"}
+            src={
+              "https://res.cloudinary.com/diery17cm/image/upload/v1791629479/krqvmyyqqvsulmdi5e7c.jpg"
+            }
             alt="Image-Product"
             fill
             style={{ objectFit: "cover" }}

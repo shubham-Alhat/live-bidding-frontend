@@ -2,14 +2,15 @@
 import useAuthStore from "@/store/authStore";
 import { Navigation } from "./navigation";
 import { AuctionCard } from "./auction-card";
-import { ApiRes, ApiResponse, Auction, Product } from "@/types/api";
+import { ApiRes, Auction } from "@/types/api";
 import useAuctionStore from "@/store/auctionStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import api, { getErrorMessage } from "@/utils/api";
 import { toast } from "sonner";
 import { AuctionCardSkeleton } from "./auction-card-skeleton";
 import useWebsocketStore, { RawDataState } from "@/store/websocketStore";
-import { Button } from "./ui/button";
+import { CategoryTabs, Sidebar, streams } from "./feed-nav";
+import LivestreamGrid from "./live-stream-grid";
 
 function HomeClient() {
   const { authUser } = useAuthStore();
@@ -19,7 +20,7 @@ function HomeClient() {
     useWebsocketStore();
 
   useEffect(() => {
-    const getAllAuctions = async () => {
+    const getAllShows = async () => {
       try {
         const res = await api.get<ApiRes<Auction[] | []>>("/auction/get-all");
 
@@ -31,7 +32,7 @@ function HomeClient() {
         setLoading(false);
       }
     };
-    getAllAuctions();
+    getAllShows();
   }, []);
 
   useEffect(() => {
@@ -57,33 +58,11 @@ function HomeClient() {
       <div className="min-h-screen bg-background">
         <Navigation />
 
-        <div className="flex">
-          <main className="flex-1 p-6 md:p-8">
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                Live Auctions
-              </h1>
-              <p className="text-muted-foreground">
-                Explore and bid on premium items in real-time
-              </p>
-            </div>
-
-            {/* Grid of Auction Cards */}
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <AuctionCardSkeleton key={index} />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {liveAuctions.length === 0
-                  ? "Sorry no live auctions available"
-                  : liveAuctions.map((auction) => (
-                      <AuctionCard key={auction.id} auction={auction} />
-                    ))}
-              </div>
-            )}
+        <div className="mx-auto block max-w-[1440px] lg:grid lg:grid-cols-[320px_minmax(0,1fr)]">
+          <Sidebar />
+          <main className="min-w-0 px-4 pb-12 lg:px-6 lg:pb-16 lg:pt-8">
+            <CategoryTabs />
+            <LivestreamGrid streams={streams} />
           </main>
         </div>
       </div>

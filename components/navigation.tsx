@@ -20,6 +20,7 @@ import { Button } from "./ui/button";
 import { DropdownMenuIcons } from "./dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BrandMark } from "./landing-page";
 
 const buyerLinks = [
   { label: "Browse auctions", icon: Gavel },
@@ -38,21 +39,12 @@ export function Navigation() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [search, setSearch] = useState("");
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#050505]/95 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-black/65 backdrop-blur-xl">
       <nav
         className="mx-auto flex h-[72px] max-w-[1440px] items-center gap-4 px-4 sm:px-6 lg:px-8"
         aria-label="Main navigation"
       >
-        <Link
-          href="/home"
-          className="flex shrink-0 items-center gap-2 text-[20px] font-bold tracking-[-0.03em]"
-          aria-label="Leven home"
-        >
-          <span className="flex size-8 items-center justify-center rounded-[10px] bg-[#e7f0ff] text-[18px] font-black text-[#050505]">
-            L
-          </span>
-          <span>Leven</span>
-        </Link>
+        <BrandMark />
 
         <div className="hidden items-center gap-1 md:flex md:pl-8">
           <a
@@ -66,12 +58,6 @@ export function Navigation() {
             className="rounded-full px-4 py-2 text-sm font-medium text-white/65 transition hover:bg-white/10 hover:text-white"
           >
             Browse
-          </a>
-          <a
-            href="#how-it-works"
-            className="rounded-full px-4 py-2 text-sm font-medium text-white/65 transition hover:bg-white/10 hover:text-white"
-          >
-            How it works
           </a>
         </div>
 
