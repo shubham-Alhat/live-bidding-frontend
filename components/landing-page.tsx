@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Heart, Menu, Star, Store, X } from "lucide-react";
+import { ArrowRight, Heart, Star, Store } from "lucide-react";
 import Link from "next/link";
 
 const categories = ["Sneakers", "Collectibles", "Fashion", "Electronics"];
@@ -69,7 +68,6 @@ function LivePhone() {
 }
 
 export default function Page() {
-  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <main id="top" className="min-h-screen overflow-hidden bg-black text-white">
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-black/75 px-5 py-4 backdrop-blur-xl sm:px-8 lg:px-12">
@@ -85,7 +83,7 @@ export default function Page() {
             </a>
             <Link
               href={"/login"}
-              className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black"
+              className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black active:scale-95 transform duration-200 cursor-pointer"
             >
               Login
             </Link>
@@ -103,7 +101,7 @@ export default function Page() {
             <h1 className="text-balance text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-7xl lg:text-[6.5rem]">
               Live Shopping
               <br />
-              <span className="text-secondary">Is Here.</span>
+              <span className="text-secondary">Marketplace.</span>
             </h1>
             <p className="mt-7 max-w-lg text-lg leading-8 text-white/65 sm:text-xl">
               Shop. Sell. Live auctions that bring India&apos;s community
@@ -235,7 +233,7 @@ export default function Page() {
               <br />
               favourite thing.
             </h2>
-            <p className="max-w-sm text-lg leading-7 text-black/70">
+            <p className="max-w-sm text-lg leading-7 text-black/70 font-extrabold">
               From vintage treasures to today&apos;s hottest drops, there&apos;s
               a room for every kind of collector.
             </p>
