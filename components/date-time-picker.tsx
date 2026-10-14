@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCheck,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+} from "lucide-react";
 import WheelPicker from "./wheel-picker";
 
 const MONTHS = [
@@ -299,9 +305,6 @@ export default function DateTimePicker({ value, onChange }: Props) {
 
               {/* Time row */}
               <div className="mt-4 flex items-center justify-center border-t border-border px-1 pt-4">
-                {/* <span className="text-[10px] font-semibold">
-                  <Clock size={20} />
-                </span> */}
                 <button
                   type="button"
                   onClick={() => setTimeOpen((o) => !o)}
@@ -370,9 +373,9 @@ export default function DateTimePicker({ value, onChange }: Props) {
                 setOpen(false);
                 setTimeOpen(false);
               }}
-              className="touch-manipulation rounded-lg px-3 py-2 text-base font-medium text-primary transition hover:bg-accent"
+              className="touch-manipulation rounded-lg px-3 py-2 text-base font-medium text-primary transition hover:bg-accent cursor-pointer"
             >
-              Done
+              <CheckCheck size={20} />
             </button>
           </div>
         </div>
