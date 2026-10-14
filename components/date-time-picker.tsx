@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import WheelPicker from "./wheel-picker";
 
 const MONTHS = [
@@ -26,13 +26,18 @@ type Period = (typeof PERIODS)[number];
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
+const dateFormatter = new Intl.DateTimeFormat("en-IN", {
   month: "short",
   day: "numeric",
   year: "numeric",
   hour: "numeric",
   minute: "2-digit",
 });
+
+export const getMinDate = () => {
+  const now = new Date();
+  return now;
+};
 
 const startOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
 
@@ -41,31 +46,27 @@ const sameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
-/** Round up to the next whole minute, seconds zeroed. */
-function ceilToMinute(d: Date) {
-  const out = new Date(d);
-  if (out.getSeconds() || out.getMilliseconds())
-    out.setMinutes(out.getMinutes() + 1);
-  out.setSeconds(0, 0);
-  return out;
+/** Fallback start: now + 5 minutes, seconds and ms zeroed */
+function getSafeStart() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() + 5, 0, 0);
+  return d;
 }
 
-/** Next full hour from now (or minDate, whichever is later). */
-function defaultStart(minDate?: Date) {
+/** Next full hour from now */
+function defaultStart() {
   const d = new Date();
   d.setHours(d.getHours() + 1, 0, 0, 0);
-  return minDate && d < minDate ? ceilToMinute(minDate) : d;
+  return d;
 }
 
 type Props = {
   /** The selected moment. Store `value.toISOString()` (UTC) in your DB. */
   value: Date | null;
   onChange: (date: Date) => void;
-  /** Earliest selectable moment. Pass it from a useEffect to avoid SSR mismatch. */
-  minDate?: Date;
 };
 
-export default function DateTimePicker({ value, onChange, minDate }: Props) {
+export default function DateTimePicker({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
   const [viewDate, setViewDate] = useState<Date | null>(
@@ -86,9 +87,10 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
   const period: Period = value && value.getHours() >= 12 ? "PM" : "AM";
 
   const commit = (next: Date) => {
+    console.log("commit runs here");
     const d = new Date(next);
     d.setSeconds(0, 0);
-    onChange(minDate && d < minDate ? ceilToMinute(minDate) : d);
+    onChange(d < getMinDate() ? getSafeStart() : d);
   };
 
   const setTime = (parts: {
@@ -96,7 +98,7 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
     minute?: number;
     period?: Period;
   }) => {
-    const base = value ?? defaultStart(minDate);
+    const base = value ?? defaultStart();
     const h = parts.hour12 ?? (base.getHours() % 12 || 12);
     const m = parts.minute ?? base.getMinutes();
     const p = parts.period ?? (base.getHours() >= 12 ? "PM" : "AM");
@@ -107,7 +109,7 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
 
   const setDay = (day: number) => {
     if (!viewDate) return;
-    const base = value ?? defaultStart(minDate);
+    const base = value ?? defaultStart();
     commit(
       new Date(
         viewDate.getFullYear(),
@@ -123,7 +125,7 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
     if (open) {
       setTimeOpen(false);
     } else {
-      const base = value ?? defaultStart(minDate);
+      const base = value ?? defaultStart();
       if (!value) onChange(base);
       setViewDate(startOfMonth(base));
     }
@@ -171,10 +173,9 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
       ]
     : [];
 
-  const canGoPrev = !minDate || !viewDate || startOfMonth(viewDate) > minDate;
+  const canGoPrev = !viewDate || startOfMonth(viewDate) > getMinDate();
 
   const isDayDisabled = (day: number) =>
-    !!minDate &&
     !!viewDate &&
     new Date(
       viewDate.getFullYear(),
@@ -184,11 +185,11 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
       59,
       59,
       999,
-    ) < minDate;
+    ) < getMinDate();
 
   return (
     <div
-      className={`rounded-2xl bg-card p-2 text-card-foreground transition-shadow duration-300 sm:p-3.5 ${
+      className={`rounded-xl bg-card py-2 text-card-foreground transition-shadow duration-300 sm:py-3.5 ${
         open ? "shadow-2xl shadow-black/20" : ""
       }`}
     >
@@ -196,10 +197,10 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
         type="button"
         onClick={toggle}
         aria-expanded={open}
-        className="flex min-h-12 w-full touch-manipulation items-center justify-between gap-3 rounded-xl px-2 text-left outline-none transition hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex min-h-12 w-full touch-manipulation items-center justify-between gap-3 rounded-xl px-3 text-left outline-none transition focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
       >
         <span
-          className={`text-base font-medium tracking-tight ${
+          className={`text-primary font-medium tracking-tight ${
             value ? "" : "text-muted-foreground"
           }`}
         >
@@ -220,10 +221,10 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
       >
         <div className="min-h-0 overflow-hidden">
           {viewDate && (
-            <div className="rounded-xl bg-background p-3 sm:p-4">
+            <div className="bg-background p-3 sm:p-4">
               {/* Month header */}
               <div className="mb-3 flex items-center justify-between sm:mb-4">
-                <h2 className="text-xl font-semibold tracking-tight sm:text-[22px]">
+                <h2 className="text-[16px] font-semibold tracking-tight sm:text-[22px]">
                   {MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}
                 </h2>
                 <div className="flex items-center gap-1">
@@ -232,17 +233,17 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
                     onClick={() => changeMonth(-1)}
                     disabled={!canGoPrev}
                     aria-label="Previous month"
-                    className="grid size-10 touch-manipulation place-items-center rounded-full text-primary transition hover:bg-accent disabled:pointer-events-none disabled:text-muted-foreground/40"
+                    className="grid size-8 touch-manipulation place-items-center rounded-full text-primary transition hover:bg-accent disabled:pointer-events-none disabled:text-muted-foreground/40"
                   >
-                    <ChevronLeft className="size-6" />
+                    <ChevronLeft className="size-5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => changeMonth(1)}
                     aria-label="Next month"
-                    className="grid size-10 touch-manipulation place-items-center rounded-full text-primary transition hover:bg-accent"
+                    className="grid size-8 touch-manipulation place-items-center rounded-full text-primary transition hover:bg-accent"
                   >
-                    <ChevronRight className="size-6" />
+                    <ChevronRight className="size-5" />
                   </button>
                 </div>
               </div>
@@ -252,13 +253,15 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
                 {WEEKDAYS.map((d) => (
                   <span
                     key={d}
-                    className="pb-2 text-xs font-medium text-muted-foreground"
+                    className="pb-2 text-sm font-medium text-muted-foreground"
                   >
                     {d}
                   </span>
                 ))}
               </div>
               <div
+                // added key here to solve flash UI bug
+                key={viewKey}
                 ref={gridRef}
                 className="grid grid-cols-7 gap-y-1 text-center"
               >
@@ -282,7 +285,7 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
                       aria-label={date.toDateString()}
                       className={`mx-auto flex aspect-square w-full max-w-11 touch-manipulation items-center justify-center rounded-full text-lg transition-colors duration-200 disabled:pointer-events-none disabled:text-muted-foreground/40 sm:text-xl ${
                         active
-                          ? "bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/40"
+                          ? "bg-[#EA2412] font-semibold text-primary"
                           : isToday
                             ? "font-semibold text-primary hover:bg-accent"
                             : "text-foreground hover:bg-accent"
@@ -295,13 +298,15 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
               </div>
 
               {/* Time row */}
-              <div className="mt-4 flex items-center justify-between border-t border-border px-1 pt-4">
-                <span className="text-sm font-semibold">Time</span>
+              <div className="mt-4 flex items-center justify-center border-t border-border px-1 pt-4">
+                {/* <span className="text-[10px] font-semibold">
+                  <Clock size={20} />
+                </span> */}
                 <button
                   type="button"
                   onClick={() => setTimeOpen((o) => !o)}
                   aria-expanded={timeOpen}
-                  className={`touch-manipulation rounded-lg px-3 py-2 text-xl leading-none tabular-nums transition-colors ${
+                  className={`touch-manipulation rounded-lg px-2 py-1.5 text-xl leading-none tabular-nums transition-colors ${
                     timeOpen
                       ? "bg-accent text-primary"
                       : "bg-muted text-foreground"
@@ -320,34 +325,37 @@ export default function DateTimePicker({ value, onChange, minDate }: Props) {
                 }`}
               >
                 <div className="min-h-0 overflow-hidden">
-                  <div className="relative mx-auto mt-3 flex w-fit items-center gap-2 [mask-image:linear-gradient(to_bottom,transparent,black_28%,black_72%,transparent)]">
+                  <div className="relative mx-auto mt-3 flex w-full max-w-64 items-center gap-2 [mask-image:linear-gradient(to_bottom,transparent,black_28%,black_72%,transparent)]">
                     <div
                       aria-hidden
                       className="pointer-events-none absolute inset-x-0 top-1/2 h-9 -translate-y-1/2 rounded-lg bg-muted"
                     />
                     <WheelPicker
-                      className="w-20"
+                      className="min-w-0 flex-1"
                       label="Hour"
                       values={HOURS}
                       value={hour12 as (typeof HOURS)[number]}
                       onChange={(h) => setTime({ hour12: h })}
-                      loop
+                      loop={true}
+                      syncWith={value}
                     />
                     <WheelPicker
-                      className="w-20"
+                      className="min-w-0 flex-1"
                       label="Minutes"
                       values={MINUTES}
                       value={minute}
                       format={pad}
                       onChange={(m) => setTime({ minute: m })}
-                      loop
+                      loop={true}
+                      syncWith={value}
                     />
                     <WheelPicker
-                      className="w-20"
+                      className="min-w-0 flex-1"
                       label="AM or PM"
                       values={PERIODS}
                       value={period}
                       onChange={(p) => setTime({ period: p })}
+                      syncWith={value}
                     />
                   </div>
                 </div>

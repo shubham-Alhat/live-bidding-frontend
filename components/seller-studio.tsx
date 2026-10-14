@@ -8,7 +8,6 @@ import {
   ImagePlus,
   Package,
   Play,
-  Plus,
   Sparkles,
   X,
 } from "lucide-react";
@@ -62,14 +61,6 @@ export default function SellerStudio() {
     setMinDate(new Date());
     setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }, []);
-
-  const payload = startsAt
-    ? {
-        title,
-        startsAt: startsAt.toISOString(), // UTC instant, e.g. "2026-10-22T09:19:00.000Z"
-        timeZone, // IANA name, e.g. "Asia/Kolkata" (optional, for display/audit)
-      }
-    : null;
 
   // handle image preview
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -24,6 +24,9 @@ type Props<T extends string | number> = {
   loop?: boolean;
   label: string;
   className?: string;
+  /** The parent's committed Date object. Only its identity matters:
+   *  a new object means "the parent just committed, re-sync". */
+  syncWith?: unknown;
 };
 
 export default function WheelPicker<T extends string | number>({
@@ -34,6 +37,7 @@ export default function WheelPicker<T extends string | number>({
   loop = false,
   label,
   className = "",
+  syncWith,
 }: Props<T>) {
   const n = values.length;
   const copies = loop ? 3 : 1;
@@ -94,7 +98,10 @@ export default function WheelPicker<T extends string | number>({
     }
 
     const next = latest.current.values[realIdx];
-    if (next !== latest.current.value) latest.current.onChange(next);
+    if (next !== latest.current.value) {
+      console.log(`old = ${latest.current.value}, new = ${next}`);
+      latest.current.onChange(next);
+    }
   }, [loop, n, total, paint]);
 
   const armSettle = useCallback(() => {
@@ -136,7 +143,7 @@ export default function WheelPicker<T extends string | number>({
     if (first) el.scrollTop = target * ITEM_H;
     else el.scrollTo({ top: target * ITEM_H, behavior: "smooth" });
     paint();
-  }, [value, values, n, loop, paint]);
+  }, [value, values, n, loop, paint, syncWith]);
 
   useEffect(
     () => () => {
