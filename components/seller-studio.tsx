@@ -21,19 +21,23 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, getAllShowResponse, Show } from "@/types/api";
 import useShowStore from "@/store/showStore";
 import DateTimePicker from "./date-time-picker";
+
+const TAGS = [
+  "Fashion",
+  "Sneakers",
+  "Jewellery",
+  "Perfumes",
+  "Denim Jeans",
+  "Watches",
+  "Vintage",
+];
 
 export default function SellerStudio() {
   const [title, setTitle] = useState("");
@@ -51,16 +55,20 @@ export default function SellerStudio() {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const [startsAt, setStartsAt] = useState<Date | null>(null);
-  const [minDate, setMinDate] = useState<Date>();
-  const [timeZone, setTimeZone] = useState("");
+
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  };
 
   const { addNewShow, setShowList, showList } = useShowStore();
 
-  // Browser-only values, set after mount so server and client HTML match
   useEffect(() => {
-    setMinDate(new Date());
-    setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-  }, []);
+    console.log("value : ", startsAt);
+  }, [startsAt]);
 
   // handle image preview
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,35 +274,33 @@ export default function SellerStudio() {
                       !
                     </p>
                   </div>
-                  <DateTimePicker
-                    value={startsAt}
-                    onChange={setStartsAt}
-                    minDate={minDate}
-                  />
-                  <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-2">
-                    <div className="w-full sm:w-64">
-                      <Label htmlFor="category">Category</Label>
-                      <Select defaultValue="beauty">
-                        <SelectTrigger id="category" className="mt-2 h-11">
-                          <SelectValue placeholder="Choose a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="beauty">
-                            Beauty & Fragrance
-                          </SelectItem>
-                          <SelectItem value="fashion">Fashion</SelectItem>
-                          <SelectItem value="collectibles">
-                            Collectibles
-                          </SelectItem>
-                          <SelectItem value="home">Home & Garden</SelectItem>
-                          <SelectItem value="decor">Home & Garden</SelectItem>
-                        </SelectContent>
-                      </Select>
+                  <DateTimePicker value={startsAt} onChange={setStartsAt} />
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4 pt-2">
+                    {/* Tags: take remaining width, wrap onto new lines from the left */}
+                    <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+                      {TAGS.map((tag) => {
+                        const isSelected = selectedTags.includes(tag);
+                        return (
+                          <span
+                            key={tag}
+                            aria-pressed={isSelected}
+                            onClick={() => toggleTag(tag)}
+                            className={`rounded-xl px-1.5 py-1 text-xs transition-colors cursor-pointer ${
+                              isSelected
+                                ? "border border-secondary text-primary"
+                                : "bg-accent text-accent-foreground border-transparent hover:border-primary/50"
+                            }`}
+                          >
+                            {tag}
+                          </span>
+                        );
+                      })}
                     </div>
 
+                    {/* Button: full width on mobile, natural width on desktop */}
                     <Button
                       onClick={handleCreateShow}
-                      className="w-full sm:w-fit cursor-pointer"
+                      className="w-full sm:w-fit shrink-0 cursor-pointer"
                       disabled={isLoading}
                     >
                       {isLoading ? (
