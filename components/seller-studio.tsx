@@ -44,7 +44,6 @@ export default function SellerStudio() {
   const [description, setDescription] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -107,6 +106,28 @@ export default function SellerStudio() {
       return;
     }
 
+    // check the time and date of show
+    if (!startsAt) {
+      toast.error("Validation error", {
+        description: "Please select show date and time",
+      });
+      return;
+    }
+    if (startsAt.getTime() <= Date.now()) {
+      toast.error("Validation error", {
+        description: "Show must be in the future",
+      });
+      return;
+    }
+
+    // check if tags are selected - atleast one
+    if (selectedTags.length === 0) {
+      toast.error("Validation error", {
+        description: "Pick atleast one tag for show",
+      });
+      return;
+    }
+
     if (!imagePreview) {
       toast.error("Validation error", {
         description: "Please upload a thumbnail for show",
@@ -129,6 +150,8 @@ export default function SellerStudio() {
 
       formData.append("showTitle", title.trim());
       formData.append("showDescription", description.trim());
+      formData.append("startsAt", startsAt.toISOString());
+      formData.append("tags", JSON.stringify(selectedTags));
 
       const res = await api.post<ApiResponse<Show>>("/show/create", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -142,6 +165,8 @@ export default function SellerStudio() {
       setDescription("");
       setImagePreview(null);
       setImageFile(null);
+      setSelectedTags([]);
+      setStartsAt(null);
 
       toast.success("Success!", {
         description: "Show created successfully",
@@ -165,8 +190,6 @@ export default function SellerStudio() {
       } catch (error) {
         toast.error(getErrorMessage(error));
         console.log(error);
-      } finally {
-        setIsFetching(false);
       }
     };
     getAllShows();
@@ -282,6 +305,7 @@ export default function SellerStudio() {
                         const isSelected = selectedTags.includes(tag);
                         return (
                           <span
+                            aria-disabled={isLoading}
                             key={tag}
                             aria-pressed={isSelected}
                             onClick={() => toggleTag(tag)}

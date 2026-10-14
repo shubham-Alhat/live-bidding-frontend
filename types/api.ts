@@ -25,6 +25,15 @@ export interface AuthApiResponse<T> {
   data: T;
 }
 
+export interface Seller {
+  id: string;
+  username: string;
+  email: string;
+  isVerifiedSeller: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // Enum for Auction status
 type AuctionStatus = "ACTIVE" | "ENDED";
 
