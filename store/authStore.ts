@@ -1,10 +1,13 @@
-import { MainUser } from "@/types/api";
+import { AuthUser, MainUser } from "@/types/api";
 import { create } from "zustand";
 
 interface AuthState {
-  authUser: MainUser | null;
+  authUser: AuthUser | MainUser | null;
   token: string | undefined;
-  setAuthUser: (user: MainUser | null, token: string | undefined) => void;
+  setAuthUser: (
+    user: AuthUser | MainUser | null,
+    token: string | undefined,
+  ) => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({

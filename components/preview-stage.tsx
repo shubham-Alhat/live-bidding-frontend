@@ -1,26 +1,8 @@
 "use client";
 
-import { Button } from "./ui/button";
-
-import {
-  ChevronLeft,
-  ChevronRight,
-  Gift,
-  MessageCircleMore,
-  MessageCircleOff,
-  Plus,
-  ShareIcon,
-  ShoppingBag,
-  Star,
-  Store,
-  VideoIcon,
-  VideoOffIcon,
-  X,
-} from "lucide-react";
+import { ChevronLeft, Plus, ShareIcon, Star, Store } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Volume2 } from "lucide-react";
-import { VolumeX } from "lucide-react";
 
 import { useEffect, useRef, useState } from "react";
 import { Show } from "@/types/api";
@@ -324,7 +306,7 @@ export default function PreviewStage({
         {/* Drawer */}
         <div
           ref={drawerRef}
-          className={`fixed inset-x-0 bottom-0 z-50 h-[85svh] rounded-t-2xl bg-background flex flex-col lg:hidden transition-transform duration-300 ease-out ${
+          className={`fixed inset-x-0 bottom-0 z-50 h-[60svh] rounded-t-2xl bg-background flex flex-col lg:hidden transition-transform duration-300 ease-out ${
             isShopOpen ? "translate-y-0" : "translate-y-full"
           }`}
         >

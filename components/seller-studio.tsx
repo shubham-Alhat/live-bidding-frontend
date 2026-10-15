@@ -389,7 +389,7 @@ export default function SellerStudio() {
                       onClick={() => {
                         setLoadingId(show.id);
                         startTransition(() => {
-                          router.push(`/home/seller/dashboard/live/${show.id}`);
+                          router.push(`/dashboard/show/${show.id}`);
                         });
                       }}
                     >

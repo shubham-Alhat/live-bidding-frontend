@@ -1,3 +1,4 @@
+import SellerInitializer from "@/components/seller-initializer";
 import { getSeller } from "@/utils/getSeller";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -13,7 +14,7 @@ export default async function SellerLayout({
 
   return (
     <>
-      {/* seller intilizer */}
+      <SellerInitializer seller={res.seller} token={res.sellerToken} />
       {children}
     </>
   );

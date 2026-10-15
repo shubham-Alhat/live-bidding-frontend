@@ -1,29 +1,33 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
 import api from "./api";
-import { Seller } from "@/types/api";
+import { AuthUser } from "@/types/api";
 
-export const getSeller = cache(async (): Promise<null | Seller> => {
-  const token = (await cookies()).get("accessToken")?.value;
+export const getSeller = cache(
+  async (): Promise<null | { seller: AuthUser; sellerToken: string }> => {
+    const token = (await cookies()).get("accessToken")?.value;
 
-  if (!token) return null;
+    if (!token) return null;
 
-  console.log("api call to backend..");
+    console.log("api call to backend..");
 
-  try {
-    const res = await api.get(
-      `${process.env.INTERNAL_API_URL}/auth/get-seller`,
-      {
-        headers: {
-          Cookie: `accessToken=${token}`,
-          Authorization: `Bearer ${token}`,
+    try {
+      const res = await api.get(
+        `${process.env.INTERNAL_API_URL}/auth/get-seller`,
+        {
+          headers: {
+            Cookie: `accessToken=${token}`,
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    );
+      );
 
-    return res.data.data;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-});
+      if (!res.data.data) return null;
+
+      return { seller: res.data.data, sellerToken: token };
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  },
+);

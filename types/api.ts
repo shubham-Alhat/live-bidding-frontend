@@ -5,6 +5,7 @@ export interface AuthUser {
   createdAt?: string;
   updatedAt?: string;
   isGuest?: false;
+  isVerifiedSeller?: boolean;
 }
 
 export type MainUser = {
