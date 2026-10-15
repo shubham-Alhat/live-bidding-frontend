@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
 import api from "./api";
-import { AuthUser } from "@/types/api";
+import { ApiResponse, AuthUser } from "@/types/api";
 
 export const getSeller = cache(
   async (): Promise<null | { seller: AuthUser; sellerToken: string }> => {
@@ -12,7 +12,7 @@ export const getSeller = cache(
     console.log("api call to backend..");
 
     try {
-      const res = await api.get(
+      const res = await api.get<ApiResponse<AuthUser>>(
         `${process.env.INTERNAL_API_URL}/auth/get-seller`,
         {
           headers: {
