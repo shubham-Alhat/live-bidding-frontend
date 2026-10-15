@@ -61,6 +61,26 @@ export default async function page({
     );
   }
 
+  // let initialToken: string | undefined = undefined;
+
+  // if (currentShow.status === "ACTIVE") {
+  //   const at = new AccessToken(
+  //     process.env.LIVEKIT_API_KEY!,
+  //     process.env.LIVEKIT_API_SECRET!,
+  //     {
+  //       identity: authUser.id,
+  //       name: authUser.username || "Streamer",
+  //     },
+  //   );
+  //   at.addGrant({
+  //     room: id,
+  //     roomJoin: true,
+  //     canPublish: true,
+  //     canSubscribe: true,
+  //   });
+  //   initialToken = await at.toJwt();
+  // }
+
   return (
     <>
       <div>liev stream page</div>
