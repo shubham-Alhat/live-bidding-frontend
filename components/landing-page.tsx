@@ -17,7 +17,7 @@ export function BrandMark() {
         ⌋⌊
       </span>
       <span className="text-2xl font-black tracking-[-0.08em] text-primary">
-        leven<span className="text-secondary">.</span>
+        leven<span className="text-secondary text-xs">■</span>
       </span>
     </Link>
   );
