@@ -8,15 +8,16 @@ import { useEffect, useRef, useState } from "react";
 import { Show } from "@/types/api";
 import { Input } from "./ui/input";
 import ShowProductCard from "./show-product-card";
+import { toast } from "sonner";
 
 const messages = [
-  { id: "01", text: "Hello world by whatnot", user: "Whatnot_user" },
+  { id: "01", text: "Hello world by whatnot", user: "Leven_user" },
   { id: "04", text: "Placing my bid now 🔥", user: "Whatnot_user" },
   { id: "05", text: "How many left in stock?", user: "sarah_j" },
   { id: "06", text: "First time here, loving the vibe", user: "newbie99" },
   { id: "07", text: "Can you show the back side?", user: "collector_23" },
   { id: "08", text: "That price is a steal", user: "deal_hunter" },
-  { id: "09", text: "GG well played everyone", user: "buyer_mike" },
+  { id: "09", text: "GG well played everyone", user: "zhoop_mike" },
   { id: "10", text: "Adding to cart right away", user: "sarah_j" },
   { id: "11", text: "Does this ship internationally?", user: "eu_buyer_88" },
   { id: "12", text: "Loving this stream today", user: "Whatnot_user" },
@@ -92,20 +93,29 @@ export default function PreviewStage({
   }, [isShopOpen]);
 
   const handleShareShow = async () => {
+    const url = `https://bidhub.in/show/${show.id}`;
+
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "MDN Web Docs",
-          text: "Check out the Web Share API!",
-          url: "https://developer.mozilla.org",
+          title: show.name,
+          text: `Join my live show "${show.name}" on BidHub`,
+          url,
         });
-        console.log("Content shared successfully!");
       } catch (error) {
-        console.log("Sharing failed or was canceled:", error);
+        // User closing the share sheet throws AbortError. That's not a real failure.
+        if ((error as Error).name !== "AbortError") {
+          console.error("Share failed:", error);
+        }
       }
     } else {
-      // Fallback behavior for unsupported browsers
-      alert("Web Share API is not supported on this browser.");
+      // Fallback for browsers without Web Share (e.g. Firefox desktop)
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied!"); // swap for a toast
+      } catch {
+        prompt("Copy this link:", url);
+      }
     }
   };
 
@@ -220,19 +230,19 @@ export default function PreviewStage({
                                 className="flex flex-row items-start gap-2 w-full max-w-full"
                               >
                                 {/* Avatar Circle */}
-                                <div className="w-7 h-7 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-black text-xs font-bold mt-0.5">
+                                <div className="w-7 h-7 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center text-black text-xs font-bold mt-0.5">
                                   {msg.user.charAt(0).toUpperCase()}
                                 </div>
 
                                 {/* Username and Message Container */}
                                 <div className="flex flex-col leading-tight min-w-0 flex-1">
-                                  {/* Username */}
-                                  <span className="text-white font-bold text-sm drop-shadow-md truncate">
+                                  {/* Username: slightly dimmer than message so hierarchy is clear */}
+                                  <span className="text-white/80 font-semibold text-[13px] truncate [text-shadow:0_1px_2px_rgba(0,0,0,0.9),0_0_6px_rgba(0,0,0,0.6)]">
                                     {msg.user}
                                   </span>
 
-                                  {/* Actual Message */}
-                                  <span className="text-orange-500 text-sm font-medium drop-shadow-md block truncate w-full">
+                                  {/* Message */}
+                                  <span className="text-white text-sm font-medium block truncate w-full [text-shadow:0_1px_2px_rgba(0,0,0,0.9),0_0_8px_rgba(0,0,0,0.7)]">
                                     {msg.text}
                                   </span>
                                 </div>

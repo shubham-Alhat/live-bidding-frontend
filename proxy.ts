@@ -87,5 +87,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/live/:path*"],
+  matcher: ["/", "/show/:path*"],
 };
