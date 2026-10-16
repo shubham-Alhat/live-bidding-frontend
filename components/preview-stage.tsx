@@ -99,7 +99,10 @@ export default function PreviewStage({
       try {
         await navigator.share({
           title: show.name,
-          text: `Join my live show "${show.name}" on BidHub`,
+          text:
+            show.status === "ACTIVE"
+              ? `Join my live show "${show.name}" on BidHub`
+              : `Join my upcoming show "${show.name}" on BidHub`,
           url,
         });
       } catch (error) {
