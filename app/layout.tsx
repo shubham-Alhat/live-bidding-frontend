@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://bidhub.in"),
   applicationName: "Leven",
   title: {
-    default: "Leven | Buy & Sell Through Live Shows",
+    default: "Leven | Buy & Sell on Live Shows",
     template: "%s | Leven",
   },
   description:
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://bidhub.in",
     siteName: "Leven",
-    title: "Leven | Buy & Sell Through Live Shows",
+    title: "Leven | Buy & Sell on Live Shows",
     description:
       "Bid live, win fast. Discover unique items and join real-time auctions on Leven.",
     images: [
@@ -44,15 +44,15 @@ export const metadata: Metadata = {
         url: "https://res.cloudinary.com/diery17cm/image/upload/v1792149580/copy_of_logo_bvyhil.png",
         width: 1200,
         height: 630,
-        alt: "Leven | Buy & Sell Through Live Shows",
+        alt: "Leven | Buy & Sell on Live Shows",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Leven | Buy & Sell Through Live Shows",
+    title: "Leven | Buy & Sell on Live Shows",
     description:
-      "Bid live, win fast. Discover unique items and join real-time auctions on Leven.",
+      "Shop live | Bid | win fast. Discover unique items and join real-time auctions on Leven.",
     images: [
       "https://res.cloudinary.com/diery17cm/image/upload/v1792149580/copy_of_logo_bvyhil.png",
     ],
