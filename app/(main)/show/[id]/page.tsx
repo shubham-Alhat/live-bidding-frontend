@@ -12,7 +12,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const res = await getShowMetaData(id);
   const show = res.data as Show;
 
-  if (!show) return { title: "Leven Show Is Live" };
+  if (!show)
+    return {
+      title: "Leven | Buy & Sell Through Live Shows",
+      description:
+        "Leven is a live auction platform where you bid in real time, discover unique finds, and win deals worth bragging about. Find your next sale.",
+      openGraph: {
+        title: "Leven | Buy & Sell Through Live Shows",
+        description:
+          "Leven is a live auction platform where you bid in real time, discover unique finds, and win deals worth bragging about. Find your next sale.",
+        url: "https://bidhub.in",
+        siteName: "Leven",
+        type: "website",
+        images: [
+          {
+            url: "https://res.cloudinary.com/diery17cm/image/upload/v1792149580/copy_of_logo_bvyhil.png",
+            width: 1200,
+            height: 630,
+            alt: "Leven | Buy & Sell Through Live Shows",
+          },
+        ],
+      },
+    };
 
   const url = `https://bidhub.in/show/${id}`;
   const description = show.description.slice(0, 160);
@@ -25,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: show.name,
       description,
       url,
-      siteName: "BidHub",
+      siteName: "Leven",
       type: "website",
       images: [
         { url: show.thumbnail, width: 1200, height: 630, alt: show.name },
