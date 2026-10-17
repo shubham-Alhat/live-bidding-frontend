@@ -1,45 +1,20 @@
 "use client";
 
-import {
-  Bell,
-  ChevronDown,
-  Gavel,
-  Heart,
-  Menu,
-  Package,
-  Search,
-  Settings,
-  ShieldCheck,
-  ShoppingBag,
-  User,
-  X,
-} from "lucide-react";
-import Link from "next/link";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { DropdownMenuIcons } from "./dropdown-menu";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Search } from "lucide-react";
 import { BrandMark } from "./landing-page";
+import useAuthStore from "@/store/authStore";
 
-const buyerLinks = [
-  { label: "Browse auctions", icon: Gavel },
-  { label: "Following", icon: Heart },
-  { label: "My purchases", icon: ShoppingBag },
-];
+export function Navigation({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+}) {
+  const { authUser } = useAuthStore();
 
-const sellerLinks = [
-  { label: "Seller Hub", icon: ShieldCheck },
-  { label: "My products", icon: Package },
-  { label: "Seller settings", icon: Settings },
-];
-
-export function Navigation() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [search, setSearch] = useState("");
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-black/65 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-background/65 backdrop-blur-xl">
       <nav
         className="mx-auto flex h-[72px] max-w-[1440px] items-center gap-4 px-4 sm:px-6 lg:px-8"
         aria-label="Main navigation"
@@ -47,18 +22,12 @@ export function Navigation() {
         <BrandMark />
 
         <div className="hidden items-center gap-1 md:flex md:pl-8">
-          <a
-            href="#home"
-            className="rounded-full px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
-          >
+          <span className="rounded-full px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary-foreground cursor-pointer">
             Home
-          </a>
-          <a
-            href="#browse"
-            className="rounded-full px-4 py-2 text-sm font-medium text-white/65 transition hover:bg-white/10 hover:text-white"
-          >
+          </span>
+          <span className="rounded-full px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary-foreground cursor-pointer">
             Browse
-          </a>
+          </span>
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
@@ -68,10 +37,8 @@ export function Navigation() {
               aria-hidden="true"
             />
             <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search auctions..."
-              aria-label="Search auctions"
+              placeholder="Search shows..."
+              aria-label="Search shows"
               className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/45"
             />
             <kbd className="hidden rounded border border-white/10 px-1.5 py-0.5 text-[10px] text-white/35 lg:inline">
@@ -79,60 +46,16 @@ export function Navigation() {
             </kbd>
           </label>
 
-          <button
-            type="button"
-            className="hidden size-10 items-center justify-center rounded-full text-white/65 transition hover:bg-white/10 hover:text-white sm:flex"
-            aria-label="Notifications"
-          >
-            <Bell className="size-[19px]" />
-          </button>
-
           <div>
-            <DropdownMenuIcons />
+            <button
+              onClick={() => setIsOpen(true)}
+              className="w-10 h-10 p-1 rounded-full bg-primary/90 text-primary-foreground font-bold text-xl flex justify-center items-center cursor-pointer"
+            >
+              {(authUser?.username[0] || "L").toUpperCase()}
+            </button>
           </div>
         </div>
       </nav>
-
-      {menuOpen && (
-        <div className="border-t border-white/10 px-4 pb-4 pt-3 md:hidden">
-          <label className="flex h-11 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] px-4">
-            <Search className="size-[18px] text-white/50" />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search auctions..."
-              aria-label="Search auctions"
-              className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/45"
-            />
-          </label>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <a
-              href="#home"
-              className="rounded-xl bg-white/10 px-3 py-3 text-sm font-medium"
-            >
-              Home
-            </a>
-            <a
-              href="#browse"
-              className="rounded-xl px-3 py-3 text-sm font-medium text-white/65 hover:bg-white/10 hover:text-white"
-            >
-              Browse auctions
-            </a>
-            <a
-              href="#following"
-              className="rounded-xl px-3 py-3 text-sm font-medium text-white/65 hover:bg-white/10 hover:text-white"
-            >
-              Following
-            </a>
-            <a
-              href="#seller-hub"
-              className="rounded-xl px-3 py-3 text-sm font-medium text-[#b9d3ff] hover:bg-[#b9d3ff]/10"
-            >
-              Seller Hub
-            </a>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
