@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Leven",
   },
   description:
-    "Leven is a live auction platform where you bid in real time, discover unique finds, and win deals worth bragging about. Find your next sale.",
+    "Leven is a live auction platform where you bid in real time, discover unique finds, and win deals worth bragging about",
   keywords: [
     "live shows",
     "live auctions",
