@@ -202,7 +202,7 @@ export default function SellerStudio() {
           <section id="shows" aria-labelledby="show-heading">
             <div className="mb-5 grid grid-cols-[auto_1fr_auto] items-center gap-4">
               <CircleArrowLeft
-                onClick={() => router.push("/home")}
+                onClick={() => (window.location.href = "/")}
                 size={22}
                 className="cursor-pointer"
               />
