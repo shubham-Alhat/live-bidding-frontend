@@ -290,7 +290,7 @@ export default function DateTimePicker({ value, onChange }: Props) {
                       aria-label={date.toDateString()}
                       className={`mx-auto flex aspect-square w-full max-w-11 touch-manipulation items-center justify-center rounded-full text-lg transition-colors duration-200 disabled:pointer-events-none disabled:text-muted-foreground/40 sm:text-xl ${
                         active
-                          ? "bg-[#EA2412] font-semibold text-primary"
+                          ? "bg-secondary font-semibold text-primary"
                           : isToday
                             ? "font-semibold text-primary hover:bg-accent"
                             : "text-foreground hover:bg-accent"

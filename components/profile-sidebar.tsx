@@ -5,7 +5,9 @@ import {
   Gift,
   LogOut,
   MessagesSquare,
+  PackagePlus,
   ShoppingBag,
+  Store,
   User,
   UserStar,
   Wallet,
@@ -76,6 +78,19 @@ export default function ProfileSidebar({
             <span className="flex items-center gap-4 justify-start">
               <User size={22} />
               Profile
+            </span>
+            <span>
+              <ChevronRight size={22} />
+            </span>
+          </button>
+          {/* Inventory*/}
+          <button
+            onClick={() => (window.location.href = "/dashboard/create")}
+            className="w-full px-2 py-4 flex gap-2 items-center justify-between bg-background text-primary cursor-pointer"
+          >
+            <span className="flex items-center gap-4 justify-start">
+              <PackagePlus size={22} />
+              Inventory
             </span>
             <span>
               <ChevronRight size={22} />

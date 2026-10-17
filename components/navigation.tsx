@@ -14,7 +14,7 @@ export function Navigation({
   const { authUser } = useAuthStore();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-background/65 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-background/65 backdrop-blur-2xl">
       <nav
         className="mx-auto flex h-[72px] max-w-[1440px] items-center gap-4 px-4 lg:px-8"
         aria-label="Main navigation"
@@ -51,7 +51,7 @@ export function Navigation({
               onClick={() => setIsOpen(true)}
               className="w-10 h-10 p-1 rounded-full bg-primary/90 text-primary-foreground font-bold text-xl flex justify-center items-center cursor-pointer"
             >
-              {(authUser?.username[0] || "L").toUpperCase()}
+              {(authUser?.username[0] || "").toUpperCase()}
             </button>
           </div>
         </div>

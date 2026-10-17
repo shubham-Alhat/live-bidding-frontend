@@ -11,9 +11,7 @@
   --popover-foreground: oklch(0.757 0 0);
   --primary: oklch(0 0 0);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(
-    60.781% 0.22532 29.979
-  ); /* ≈ #E4651A, Star of India Orange */
+  --secondary: oklch(0.69 0.21 39); /* ≈ #E4651A, Star of India Orange */
   --secondary-foreground: oklch(0.9696 0 0);
   --muted: oklch(0.757 0 0);
   --muted-foreground: oklch(0.4278 0 0);
@@ -176,9 +174,7 @@
   --popover-foreground: oklch(1 0 0);
   --primary: oklch(1 0 0);
   --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(
-    60.781% 0.22532 29.979
-  ); /* ≈ #E4651A, Star of India Orange */
+  --secondary: oklch(0.69 0.21 39); /* ≈ #E4651A, Star of India Orange */
   --secondary-foreground: oklch(0.885 0.062 18.334);
   --muted: oklch(0.2156 0 0);
   --muted-foreground: oklch(0.4741 0 0);
