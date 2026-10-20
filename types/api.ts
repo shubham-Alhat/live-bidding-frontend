@@ -87,11 +87,12 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  image: string;
+  images: string[];
+  startingPrice: Number;
+  buyNowPrice: Number;
   ownerId: string;
   owner?: AuthUser;
   auctions?: Auction[];
-  initialPrice: number;
   createdAt?: string;
   updatedAt?: string;
 }
