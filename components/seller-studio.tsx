@@ -89,6 +89,11 @@ export default function SellerStudio() {
     }
   };
 
+  // for debugginh purpose
+  useEffect(() => {
+    console.log(imageFile);
+  }, [imageFile]);
+
   const handleCreateShow = async () => {
     if (!title.trim()) {
       toast.error("Validation error", {

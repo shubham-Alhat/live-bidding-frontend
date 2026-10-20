@@ -91,7 +91,11 @@ export function MediaUploader({
   const showRequiredError = invalid && photos.length < MIN_PHOTOS;
 
   return (
-    <section aria-labelledby={headingId} className="w-full">
+    <section
+      aria-labelledby={headingId}
+      aria-label={headingId}
+      className="w-full"
+    >
       {/* <h2
         id={headingId}
         className="text-[16px] text-foreground w-full flex justify-center items-center"

@@ -150,7 +150,7 @@ export default function PreviewStage({
                         src={show.thumbnail}
                         alt={show.name}
                         fill
-                        className="object-cover lg:object-contain"
+                        className="object-cover sm:object-contain"
                       />
                       {/* actual overlay component */}
                       {/* 1. scrim layer at top and bottom - gradient bg for visible text : DIVS are self closing */}
@@ -319,7 +319,7 @@ export default function PreviewStage({
         {/* Drawer */}
         <div
           ref={drawerRef}
-          className={`fixed inset-x-0 bottom-0 z-50 h-[60svh] rounded-t-2xl bg-background flex flex-col lg:hidden transition-transform duration-300 ease-out ${
+          className={`fixed inset-x-0 bottom-0 z-50 h-[85svh] rounded-t-2xl bg-background flex flex-col lg:hidden transition-transform duration-300 ease-out ${
             isShopOpen ? "translate-y-0" : "translate-y-full"
           }`}
         >

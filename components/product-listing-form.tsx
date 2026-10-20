@@ -14,7 +14,7 @@ export default function ProductListingForm() {
 
   return (
     <div>
-      <MediaUploader />
+      <MediaUploader onChange={(e) => console.log(e)} />
 
       <div className="flex flex-col gap-4">
         <div>
