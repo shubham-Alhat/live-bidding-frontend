@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { MediaUploader } from "./media-uploader";
+import { useEffect, useRef, useState } from "react";
+
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Product } from "@/types/api";
+import { Images, X } from "lucide-react";
+import Image from "next/image";
 
 // ---- limits (adjust as needed) ----
 const MIN_PRICE = 1; // ₹
@@ -44,25 +46,79 @@ const validateInteger = (
   return null;
 };
 
+// 5MB limit to upload
+const MAX_SIZE = 5 * 1024 * 1024;
+
 export default function ProductListingForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [startingPrice, setStartingPrice] = useState("");
   const [buyNowPrice, setBuyNowPrice] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+  const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // for image uploading
+  const [preview, setPreview] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const urlRef = useRef<string | null>(null);
+
+  const revokeUrl = () => {
+    if (urlRef.current) {
+      URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+    }
+  };
+
+  // free the blob URL when the component unmounts
+  useEffect(() => {
+    return () => revokeUrl();
+  }, []);
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.warning("Invalid file", { description: "Please select an image" });
+      return;
+    }
+
+    if (file.size > MAX_SIZE) {
+      toast.warning("File too large", {
+        description: "Image size should be less than 5MB",
+      });
+      return;
+    }
+
+    revokeUrl();
+    urlRef.current = URL.createObjectURL(file);
+    setPreview(urlRef.current);
+    setImage(file);
+  };
+
+  const handleRemove = () => {
+    revokeUrl();
+    setPreview(null);
+    setImage(null);
+  };
 
   const handleCreateProduct = async () => {
     if (loading) return; // prevent double submit
 
     // ---- validation (runs BEFORE loading starts) ----
     if (!name.trim()) {
-      toast.warning("Name field is required!");
+      toast.warning("Name is required", {
+        description: "Please enter a name for your product.",
+      });
       return;
     }
 
     if (!description.trim()) {
-      toast.warning("Description field is required!");
+      toast.warning("Description is required", {
+        description:
+          "Please add a short description so bidders know what they're bidding on.",
+      });
       return;
     }
 
@@ -90,13 +146,17 @@ export default function ProductListingForm() {
 
     // buy now must be higher than the starting price, otherwise the auction is pointless
     if (Number(buyNowPrice) <= Number(startingPrice)) {
-      toast.warning("Buy now price must be greater than the starting price!");
+      toast.warning("Invalid buy now price", {
+        description: "Buy now price must be greater than the starting price.",
+      });
       return;
     }
 
     // check images
-    if (files.length < 1) {
-      toast.warning("At least one photo required for product!");
+    if (!image) {
+      toast.warning("Image required", {
+        description: "Please upload at least one image for your product.",
+      });
       return;
     }
 
@@ -105,8 +165,7 @@ export default function ProductListingForm() {
     formData.append("description", description.trim());
     formData.append("startingPrice", startingPrice);
     formData.append("buyNowPrice", buyNowPrice);
-
-    files.forEach((file) => formData.append("images", file));
+    formData.append("image", image);
 
     setLoading(true);
 
@@ -131,13 +190,66 @@ export default function ProductListingForm() {
       setDescription("");
       setBuyNowPrice("");
       setStartingPrice("");
-      setFiles([]);
+      setImage(null);
+      setPreview(null);
+      revokeUrl();
     }
   };
 
   return (
     <div>
-      <MediaUploader onChange={setFiles} />
+      {/* Media uplaoder */}
+      <section className="relative my-3 w-full">
+        <input
+          ref={inputRef}
+          onChange={handleImage}
+          type="file"
+          accept="image/*"
+          tabIndex={-1}
+          aria-hidden="true"
+          className="sr-only"
+        />
+
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          aria-label={preview ? "Change product image" : "Upload product image"}
+          className="relative flex h-56 w-full cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl border border-dashed border-muted bg-muted/40 px-4 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {preview ? (
+            <Image
+              src={preview}
+              alt="Product image preview"
+              fill
+              unoptimized
+              sizes="100vw"
+              className="object-contain p-2"
+            />
+          ) : (
+            <>
+              <Images
+                className="mb-2 size-9 text-foreground"
+                strokeWidth={1.5}
+                aria-hidden="true"
+              />
+              <span className="text-sm text-foreground">
+                Upload product image
+              </span>
+            </>
+          )}
+        </button>
+
+        {preview && (
+          <button
+            type="button"
+            onClick={handleRemove}
+            aria-label="Remove image"
+            className="absolute right-2 top-2 rounded-full bg-destructive p-2 text-destructive-foreground hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="size-3" strokeWidth={4} />
+          </button>
+        )}
+      </section>
 
       <div className="flex flex-col gap-4">
         <div>

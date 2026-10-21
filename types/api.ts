@@ -87,7 +87,8 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  images: string[];
+  image: string;
+  image_public_id: string;
   startingPrice: Number;
   buyNowPrice: Number;
   ownerId: string;

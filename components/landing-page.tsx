@@ -85,12 +85,12 @@ export default function Page() {
             >
               Become a seller
             </a>
-            <Link
-              href={"/login"}
+            <button
+              onClick={() => (window.location.href = "/login")}
               className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black active:scale-95 transform duration-200 cursor-pointer"
             >
               Login
-            </Link>
+            </button>
           </div>
         </div>
       </nav>
