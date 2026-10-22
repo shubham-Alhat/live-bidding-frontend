@@ -1,120 +1,114 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Product } from "@/types/api";
 
-import { Trash2 } from "lucide-react";
-import { ApiResponse, Product } from "@/types/api";
-import useProductStore from "@/store/productStore";
-import { toast } from "sonner";
-import api, { getErrorMessage } from "@/utils/api";
+const SUFFIXES = ["", "K", "M", "B", "T"];
 
-interface ProductCardProps {
-  product: Product;
+export function formatPrice(price: number): string {
+  // 1. Force to number, drop decimals (truncate, no rounding)
+  const num = Math.trunc(Number(price));
+
+  if (!Number.isFinite(num)) return "0";
+
+  const sign = num < 0 ? "-" : "";
+  const abs = Math.abs(num);
+
+  // 2. Up to 4 digits: return as-is
+  if (abs < 10_000) return `${sign}${abs}`;
+
+  // 3. Beyond 4 digits: abbreviate
+  const tier = Math.min(Math.floor(Math.log10(abs) / 3), SUFFIXES.length - 1);
+  const scaled = Math.trunc((abs / 10 ** (tier * 3)) * 10) / 10; // 1 decimal, truncated
+
+  return `${sign}${scaled}${SUFFIXES[tier]}`;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
-  const { deleteProduct } = useProductStore();
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const handleDelete = async (productId: string) => {
-    setIsDeleting(true);
-    try {
-      const res = await api.delete<ApiResponse<Product>>(
-        `/product/${productId}`,
-      );
-
-      deleteProduct(productId);
-      toast.success(res.data.message);
-    } catch (error) {
-      console.log(error);
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
+export default function ProductCard({
+  key,
+  product,
+}: {
+  key: string;
+  product: Product;
+}) {
   return (
-    <Card className="flex flex-col overflow-hidden rounded-2xl border-border bg-card shadow-sm transition-shadow hover:shadow-md">
-      {/* Product Image */}
-      <div className="relative m-3 h-48 overflow-hidden rounded-xl bg-secondary">
-        <img
-          src={product.image || "/placeholder.svg"}
-          alt={product.name}
-          className="h-full w-full object-cover"
-        />
-      </div>
+    <>
+      <div className="w-full flex flex-col cursor-pointer hover:opacity-70 transition-opacity duration-200">
+        <div className="aspect-4/5 w-full overflow-hidden rounded-xl bg-stone-100">
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          />
+        </div>
+        <div className="flex flex-1 flex-col px-0.5 pt-2.5">
+          <h3
+            title={product.name}
+            className="truncate text-sm font-semibold text-primary sm:text-base w-full"
+          >
+            {product.name}
+          </h3>
 
-      {/* Card Content */}
-      <CardContent className="flex flex-1 flex-col gap-1 px-4 pb-4 pt-0">
-        <h3 className="text-base font-semibold text-foreground line-clamp-1">
-          {product.name}
-        </h3>
-
-        {product.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p
+            title={product.description}
+            aria-label={product.description}
+            className="mt-1 truncate text-xs text-muted-foreground sm:text-sm w-full"
+          >
             {product.description}
           </p>
-        )}
 
-        {/* Price + Delete row */}
-        <div className="mt-3 flex items-end justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">Initial Price</p>
-            <p className="text-xl font-bold text-primary">
-              ${product.initialPrice}
-            </p>
-          </div>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={isDeleting}
-                className="border-border bg-transparent hover:bg-destructive-foreground hover:text-destructive cursor-pointer"
-              >
-                {isDeleting ? (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Product</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete "{product.name}"? This action
-                  cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="flex gap-3">
-                <AlertDialogCancel className="border-border">
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => handleDelete(product.id)}
-                  className="bg-destructive-foreground text-destructive hover:bg-destructive/90 cursor-pointer"
-                >
-                  Delete
-                </AlertDialogAction>
-              </div>
-            </AlertDialogContent>
-          </AlertDialog>
+          {/* mt-auto pins prices to the bottom so cards in a row align */}
+          <dl className="mt-auto flex items-end justify-between gap-2 pt-2">
+            <div>
+              <dt className="text-xs text-primary/50">Starts at</dt>
+              <dd className="text-sm font-medium text-primary">
+                ₹{formatPrice(Number(product.startingPrice))}
+              </dd>
+            </div>
+            <div className="text-right">
+              <dt className="text-xs text-primary/50">Buy now</dt>
+              <dd className="text-sm font-bold text-primary">
+                ₹{formatPrice(Number(product.buyNowPrice))}
+              </dd>
+            </div>
+          </dl>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </>
   );
 }
+
+// <AlertDialog>
+//   <AlertDialogTrigger asChild>
+//     <Button
+//       variant="outline"
+//       size="icon"
+//       disabled={isDeleting}
+//       className="border-border bg-transparent hover:bg-destructive-foreground hover:text-destructive cursor-pointer"
+//     >
+//       {isDeleting ? (
+//         <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+//       ) : (
+//         <Trash2 className="h-4 w-4" />
+//       )}
+//     </Button>
+//   </AlertDialogTrigger>
+//   <AlertDialogContent>
+//     <AlertDialogHeader>
+//       <AlertDialogTitle>Delete Product</AlertDialogTitle>
+//       <AlertDialogDescription>
+//         Are you sure you want to delete "{product.name}"? This action cannot be
+//         undone.
+//       </AlertDialogDescription>
+//     </AlertDialogHeader>
+//     <div className="flex gap-3">
+//       <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
+//       <AlertDialogAction
+//         onClick={() => handleDelete(product.id)}
+//         className="bg-destructive-foreground text-destructive hover:bg-destructive/90 cursor-pointer"
+//       >
+//         Delete
+//       </AlertDialogAction>
+//     </div>
+//   </AlertDialogContent>
+// </AlertDialog>;

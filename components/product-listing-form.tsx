@@ -10,6 +10,7 @@ import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Product } from "@/types/api";
 import { Images, X } from "lucide-react";
 import Image from "next/image";
+import useProductStore from "@/store/productStore";
 
 // ---- limits (adjust as needed) ----
 const MIN_PRICE = 1; // ₹
@@ -61,6 +62,9 @@ export default function ProductListingForm() {
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const urlRef = useRef<string | null>(null);
+
+  // product store
+  const { addNewProduct } = useProductStore();
 
   const revokeUrl = () => {
     if (urlRef.current) {
@@ -180,6 +184,11 @@ export default function ProductListingForm() {
       );
 
       console.log(res);
+      if (!res.data.data) {
+        toast.error("New product not found!");
+        return;
+      }
+      addNewProduct(res.data.data);
       toast.success(res.data.message);
     } catch (error) {
       console.error(error);

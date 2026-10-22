@@ -14,7 +14,7 @@ export function EmptyOutline() {
         <EmptyMedia variant="icon">
           <PackagePlus />
         </EmptyMedia>
-        <EmptyTitle>Empty products</EmptyTitle>
+        <EmptyTitle>Empty Store</EmptyTitle>
         <EmptyDescription>Create new products from above form</EmptyDescription>
       </EmptyHeader>
       <EmptyContent></EmptyContent>
