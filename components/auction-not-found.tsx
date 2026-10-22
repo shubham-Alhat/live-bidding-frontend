@@ -37,19 +37,20 @@ export function AuctionNotFound() {
 
         {/* Actions */}
         <div className="flex flex-col gap-2 pt-4">
-          <Link href="/home">
-            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-              Browse Live Auctions
-            </Button>
-          </Link>
-          <Link href="/home">
-            <Button
-              variant="outline"
-              className="w-full border-border text-foreground hover:bg-muted"
-            >
-              Go Home
-            </Button>
-          </Link>
+          <Button
+            onClick={() => (window.location.href = "/")}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            Browse Live Auctions
+          </Button>
+
+          <Button
+            onClick={() => (window.location.href = "/")}
+            variant="outline"
+            className="w-full border-border text-foreground hover:bg-muted"
+          >
+            Go Home
+          </Button>
         </div>
       </div>
     </div>
