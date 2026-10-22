@@ -1,6 +1,11 @@
 "use client";
 
+import useProductStore from "@/store/productStore";
 import { Product } from "@/types/api";
+import api, { getErrorMessage } from "@/utils/api";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const SUFFIXES = ["", "K", "M", "B", "T"];
 
@@ -30,16 +35,48 @@ export default function ProductCard({
   key: string;
   product: Product;
 }) {
+  const [loading, setLoading] = useState(false);
+
+  const { deleteProduct } = useProductStore();
+
+  const handleDeleteProduct = async (productId: string) => {
+    setLoading(true);
+
+    try {
+      const res = await api.delete(`/product/${productId}`);
+      console.log(res);
+      deleteProduct(productId);
+    } catch (error) {
+      console.log(error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
-      <div className="w-full flex flex-col cursor-pointer hover:opacity-70 transition-opacity duration-200">
-        <div className="aspect-4/5 w-full overflow-hidden rounded-xl bg-stone-100">
+      <div className="w-full flex flex-col cursor-pointer hover:opacity-85 transition-opacity duration-200">
+        <div className="aspect-4/5 w-full overflow-hidden rounded-xl relative">
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
+          {/* delete btn */}
+          <button
+            onClick={() => handleDeleteProduct(product.id)}
+            disabled={loading}
+            aria-label="Delete product"
+            className="absolute top-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-card/50 hover:text-destructive transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <span className="block h-4 w-4 animate-spin rounded-full border-2 border-destructive border-t-transparent" />
+            ) : (
+              <Trash2 size={20} />
+            )}
+          </button>
         </div>
         <div className="flex flex-1 flex-col px-0.5 pt-2.5">
           <h3
@@ -77,38 +114,3 @@ export default function ProductCard({
     </>
   );
 }
-
-// <AlertDialog>
-//   <AlertDialogTrigger asChild>
-//     <Button
-//       variant="outline"
-//       size="icon"
-//       disabled={isDeleting}
-//       className="border-border bg-transparent hover:bg-destructive-foreground hover:text-destructive cursor-pointer"
-//     >
-//       {isDeleting ? (
-//         <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
-//       ) : (
-//         <Trash2 className="h-4 w-4" />
-//       )}
-//     </Button>
-//   </AlertDialogTrigger>
-//   <AlertDialogContent>
-//     <AlertDialogHeader>
-//       <AlertDialogTitle>Delete Product</AlertDialogTitle>
-//       <AlertDialogDescription>
-//         Are you sure you want to delete "{product.name}"? This action cannot be
-//         undone.
-//       </AlertDialogDescription>
-//     </AlertDialogHeader>
-//     <div className="flex gap-3">
-//       <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
-//       <AlertDialogAction
-//         onClick={() => handleDelete(product.id)}
-//         className="bg-destructive-foreground text-destructive hover:bg-destructive/90 cursor-pointer"
-//       >
-//         Delete
-//       </AlertDialogAction>
-//     </div>
-//   </AlertDialogContent>
-// </AlertDialog>;
