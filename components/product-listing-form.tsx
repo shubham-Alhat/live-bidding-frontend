@@ -250,6 +250,7 @@ export default function ProductListingForm() {
 
         {preview && (
           <button
+            disabled={loading}
             type="button"
             onClick={handleRemove}
             aria-label="Remove image"
