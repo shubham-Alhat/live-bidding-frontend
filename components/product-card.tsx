@@ -28,13 +28,7 @@ export function formatPrice(price: number): string {
   return `${sign}${scaled}${SUFFIXES[tier]}`;
 }
 
-export default function ProductCard({
-  key,
-  product,
-}: {
-  key: string;
-  product: Product;
-}) {
+export default function ProductCard({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
 
   const { deleteProduct } = useProductStore();
