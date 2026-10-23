@@ -218,7 +218,7 @@ export default function DateTimePicker({ value, onChange }: Props) {
       </button>
 
       <div
-        className={`grid transition-[grid-template-rows,opacity,margin,visibility] duration-400 ease-out ${
+        className={`grid transition-[grid-template-rows,opacity,margin,visibility] duration-300 ease-out ${
           open
             ? "visible mt-2 grid-rows-[1fr] opacity-100"
             : "invisible mt-0 grid-rows-[0fr] opacity-0"
