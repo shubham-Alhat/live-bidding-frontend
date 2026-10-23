@@ -9,6 +9,7 @@ import {
   Package,
   Play,
   Sparkles,
+  Trash2,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,8 @@ export default function SellerStudio() {
   const [isPending, startTransition] = useTransition();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [startsAt, setStartsAt] = useState<Date | null>(null);
 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -63,7 +66,7 @@ export default function SellerStudio() {
     );
   };
 
-  const { addNewShow, setShowList, showList } = useShowStore();
+  const { addNewShow, setShowList, showList, deleteShowById } = useShowStore();
 
   useEffect(() => {
     console.log("value : ", startsAt);
@@ -199,6 +202,24 @@ export default function SellerStudio() {
     };
     getAllShows();
   }, []);
+
+  const handleDeleteShow = async (showId: string) => {
+    setIsDeleting(true);
+    setLoadingId(showId);
+    try {
+      const res = await api.delete(`/show/${showId}`);
+
+      console.log(res);
+
+      deleteShowById(showId);
+    } catch (error) {
+      console.log(error);
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsDeleting(false);
+      setLoadingId(null);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -376,6 +397,20 @@ export default function SellerStudio() {
                     sizes="(max-width: 640px) 50vw, 240px"
                   />
 
+                  {/* delete btn */}
+                  <button
+                    onClick={() => handleDeleteShow(show.id)}
+                    disabled={isDeleting || isPending}
+                    aria-label="Delete Show"
+                    className="absolute top-1 right-1 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-card/50 hover:text-destructive transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    {isDeleting && loadingId === show.id ? (
+                      <span className="block h-4 w-4 animate-spin rounded-full border-2 border-destructive border-t-transparent" />
+                    ) : (
+                      <Trash2 size={20} />
+                    )}
+                  </button>
+
                   {/* Scrim so text stays readable over any image */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/10" />
 
@@ -389,7 +424,7 @@ export default function SellerStudio() {
                     </p>
                     <Button
                       size="sm"
-                      disabled={isPending}
+                      disabled={isPending || isDeleting}
                       className="mt-2 h-8 w-full gap-1.5 bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer active:scale-95 disabled:opacity-70"
                       onClick={() => {
                         setLoadingId(show.id);
