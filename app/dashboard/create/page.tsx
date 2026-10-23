@@ -1,5 +1,6 @@
 import { ProductList } from "@/components/product-list";
 import ProductListingForm from "@/components/product-listing-form";
+import { CircleArrowLeft } from "lucide-react";
 
 export default function page() {
   return (
@@ -7,12 +8,6 @@ export default function page() {
       <main className="min-h-screen bg-background">
         {/* create product form */}
         <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-8">
-          <header className="mx-auto w-full">
-            <div className="w-full flex items-center justify-center text-[18px] font-semibold">
-              Create Product Listings
-            </div>
-          </header>
-          {/* actual form */}
           <ProductListingForm />
         </div>
         {/* product cards to render when created */}

@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import api, { getErrorMessage } from "@/utils/api";
 import { ApiResponse, Product } from "@/types/api";
-import { Images, X } from "lucide-react";
+import { CircleArrowLeft, Images, X } from "lucide-react";
 import Image from "next/image";
 import useProductStore from "@/store/productStore";
 
@@ -207,6 +207,19 @@ export default function ProductListingForm() {
 
   return (
     <div>
+      {/* header */}
+      <div className="mb-5 grid grid-cols-[auto_1fr_auto] items-center gap-4">
+        <CircleArrowLeft
+          onClick={() => (window.location.href = "/")}
+          size={22}
+          className="cursor-pointer"
+        />
+        <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+          Create Product
+        </p>
+        {/* empty spacer to balance the arrow's width */}
+        <div />
+      </div>
       {/* Media uplaoder */}
       <section className="relative my-3 w-full">
         <input
