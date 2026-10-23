@@ -41,7 +41,7 @@ export const metadata: Metadata = {
       "Bid live, win fast. Discover unique items and join real-time auctions on Leven.",
     images: [
       {
-        url: "https://res.cloudinary.com/diery17cm/image/upload/v1792149580/copy_of_logo_bvyhil.png",
+        url: "https://res.cloudinary.com/diery17cm/image/upload/v1792716073/copyofnewlogo.png",
         width: 1200,
         height: 630,
         alt: "Leven | Buy & Sell on Live Shows",
