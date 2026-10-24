@@ -74,7 +74,10 @@ export default function ProfileSidebar({
         {/* Scrollable content */}
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
           {/* profile */}
-          <button className="w-full px-2 py-4 flex gap-2 items-center justify-between bg-background text-primary cursor-pointer">
+          <button
+            onClick={() => (window.location.href = "/dashboard/profile")}
+            className="w-full px-2 py-4 flex gap-2 items-center justify-between bg-background text-primary cursor-pointer"
+          >
             <span className="flex items-center gap-4 justify-start">
               <User size={22} />
               Profile
