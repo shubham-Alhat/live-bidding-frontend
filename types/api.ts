@@ -3,6 +3,7 @@ export interface AuthUser {
   username: string;
   email: string;
   avatar?: string;
+  avatar_public_id?: string;
   bio?: string;
   createdAt?: string;
   updatedAt?: string;
