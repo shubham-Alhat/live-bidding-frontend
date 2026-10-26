@@ -168,7 +168,7 @@ export default function PreviewStage({
                           <div className="flex items-center gap-3 pointer-events-auto">
                             <Avatar
                               onClick={() => console.log("Avatar")}
-                              className="size-12 border border-white/20"
+                              className="size-14 border-white/20"
                             >
                               <AvatarImage
                                 src={seller.avatar}
@@ -181,12 +181,12 @@ export default function PreviewStage({
                             <div className="flex flex-col gap-1">
                               <span
                                 onClick={() => console.log("username:seller")}
-                                className="text-white text-[15px] font-semibold"
+                                className="text-white text-[16px] font-semibold"
                               >
                                 {seller.username}
                               </span>
                               <div className="flex items-center gap-2">
-                                <span className="flex items-center gap-1 text-sm font-medium">
+                                <span className="flex items-center gap-1 text-[15px] font-medium">
                                   <Star className="size-3 fill-yellow-400" />{" "}
                                   4.8
                                 </span>
