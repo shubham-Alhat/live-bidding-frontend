@@ -4,6 +4,9 @@ import { Search } from "lucide-react";
 import { BrandMark } from "./landing-page";
 import useAuthStore from "@/store/authStore";
 
+export const getInitial = (username?: string, fallback = "") =>
+  (username?.match(/\p{L}/u)?.[0] ?? fallback).toUpperCase();
+
 export function Navigation({
   isOpen,
   setIsOpen,
@@ -51,7 +54,7 @@ export function Navigation({
               onClick={() => setIsOpen(true)}
               className="w-10 h-10 p-1 rounded-full bg-primary/90 text-primary-foreground font-bold text-xl flex justify-center items-center cursor-pointer"
             >
-              {(authUser?.username[0] || "").toUpperCase()}
+              {getInitial(authUser?.username)}
             </button>
           </div>
         </div>

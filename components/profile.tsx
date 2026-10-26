@@ -279,7 +279,7 @@ export default function ProfilePage({ seller }: Props) {
                 <Button
                   onClick={cancelEditing}
                   disabled={loading}
-                  className="shrink-0 cursor-pointer font-semibold active:scale-95"
+                  className="shrink-0 bg-primary text-primary-foreground cursor-pointer font-semibold active:scale-95"
                 >
                   Cancel
                 </Button>
@@ -333,7 +333,7 @@ export default function ProfilePage({ seller }: Props) {
                 </button>
                 <button
                   type="button"
-                  className="flex flex-1 cursor-pointer items-center justify-center rounded-full bg-secondary px-5 py-3 text-[16px] font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex flex-1 cursor-pointer items-center justify-center rounded-full bg-secondary px-5 py-3 text-[16px] font-semibold text-primary transition-colors hover:bg-secondary/80"
                 >
                   Message
                 </button>
