@@ -1,23 +1,23 @@
 import PreviewStage from "@/components/preview-stage";
-import { ApiResponse, Show } from "@/types/api";
+import { ApiResponse, Product, Show } from "@/types/api";
 import api from "@/utils/api";
 import { getSeller } from "@/utils/getSeller";
 
 import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
-const getShow = async (id: string, token: string) => {
+const getShowAndProducts = async (id: string, token: string) => {
   // check if show exists && seller is owner of this show
+  // fetch the products also
   try {
-    const res = await api.get<ApiResponse<Show>>(
-      `${process.env.INTERNAL_API_URL}/show/${id}`,
-      {
-        headers: {
-          Cookie: `accessToken=${token}`,
-          Authorization: `Bearer ${token}`,
-        },
+    const res = await api.get<
+      ApiResponse<{ show: Show; sellerProducts: Product[] | [] }>
+    >(`${process.env.INTERNAL_API_URL}/show/${id}`, {
+      headers: {
+        Cookie: `accessToken=${token}`,
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
 
     if (!res.data.data) notFound();
     return res.data.data;
@@ -44,8 +44,8 @@ export default async function page({
   if (!user) redirect("/login?message=auth_required");
 
   // get the show
-  const show = await getShow(id, token);
-  console.log("show : ", show);
+  const showAndProducts = await getShowAndProducts(id, token);
+  console.log("show & products : ", showAndProducts);
 
   // access userAgent to know whether we are on mobile/desktop
   const headersList = await headers();
@@ -53,10 +53,15 @@ export default async function page({
   const isMobile = /iPhone|iPad|Android/i.test(userAgent);
 
   // render preview stage when show is scheduled
-  if (show.status === "SCHEDULED") {
+  if (showAndProducts.show.status === "SCHEDULED") {
     return (
       <>
-        <PreviewStage isMobile={isMobile} show={show} />
+        <PreviewStage
+          isMobile={isMobile}
+          show={showAndProducts.show}
+          sellerProductList={showAndProducts.sellerProducts}
+          seller={user.seller}
+        />
       </>
     );
   }

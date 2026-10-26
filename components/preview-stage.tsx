@@ -5,10 +5,12 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 import { useEffect, useRef, useState } from "react";
-import { Show } from "@/types/api";
+import { AuthUser, Product, Show } from "@/types/api";
 import { Input } from "./ui/input";
 import ShowProductCard from "./show-product-card";
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { getInitial } from "./navigation";
 
 const messages = [
   { id: "01", text: "Hello world by whatnot", user: "Leven_user" },
@@ -26,9 +28,13 @@ const messages = [
 export default function PreviewStage({
   show,
   isMobile,
+  sellerProductList,
+  seller,
 }: {
   show: Show;
   isMobile: boolean;
+  sellerProductList: Product[] | [];
+  seller: AuthUser;
 }) {
   // Parent component state
   const [isShopOpen, setIsShopOpen] = useState(false);
@@ -99,10 +105,7 @@ export default function PreviewStage({
       try {
         await navigator.share({
           title: show.name,
-          text:
-            show.status === "ACTIVE"
-              ? `Join my live show "${show.name}" on BidHub`
-              : `Join my upcoming show "${show.name}" on BidHub`,
+          text: show.description,
           url,
         });
       } catch (error) {
@@ -168,17 +171,19 @@ export default function PreviewStage({
                               className="size-12 border border-white/20"
                             >
                               <AvatarImage
-                                src="https://res.cloudinary.com/diery17cm/image/upload/v1779881922/apfvnjmurhd7hsogeusm.jpg"
+                                src={seller.avatar}
                                 alt="bottledbeauty"
                               />
-                              <AvatarFallback>BB</AvatarFallback>
+                              <AvatarFallback>
+                                {getInitial(seller.username)}
+                              </AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col gap-1">
                               <span
                                 onClick={() => console.log("username:seller")}
                                 className="text-white text-[15px] font-semibold"
                               >
-                                bottledbeauty
+                                {seller.username}
                               </span>
                               <div className="flex items-center gap-2">
                                 <span className="flex items-center gap-1 text-sm font-medium">
@@ -214,7 +219,7 @@ export default function PreviewStage({
                           >
                             <Store className="size-7" />
                             <span className="absolute -top-1 -right-1 size-5 rounded-full bg-secondary text-secondary-foreground text-[11px] font-bold flex items-center justify-center">
-                              2
+                              {sellerProductList.length || 0}
                             </span>
                           </button>
                         </div>
@@ -345,7 +350,7 @@ export default function PreviewStage({
           {/* List area */}
           <div className="flex-1 overflow-y-auto px-4 py-3">
             <div className="flex flex-col gap-3">
-              {true ? (
+              {sellerProductList && sellerProductList.length > 0 ? (
                 <>
                   <ShowProductCard />
                   <ShowProductCard />
@@ -359,9 +364,12 @@ export default function PreviewStage({
                   <ShowProductCard />
                 </>
               ) : (
-                <p className="py-10 text-center text-sm text-zinc-500">
-                  No products found.
-                </p>
+                <>
+                  <p className="pt-10 text-center text-[16px] text-muted-foreground">
+                    No products found.
+                  </p>
+                  <button>Create products list</button>
+                </>
               )}
             </div>
           </div>
