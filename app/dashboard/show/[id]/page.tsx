@@ -88,7 +88,9 @@ export default async function page({
 
   return (
     <>
-      <div>liev stream page</div>
+      <div>
+        liev stream page, status: {JSON.stringify(showAndProducts.show.status)}
+      </div>
     </>
   );
 }
