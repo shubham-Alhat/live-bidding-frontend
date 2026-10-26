@@ -134,8 +134,6 @@ export default function ProfilePage({ seller }: Props) {
     if (image) body.append("image", image);
     KEYS.forEach((k) => body.append(k, draft[k]));
 
-    console.log(image);
-
     setLoading(true);
     try {
       const res = await api.post<ApiResponse<AuthUser>>("/auth/profile", body, {
