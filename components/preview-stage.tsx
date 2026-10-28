@@ -352,16 +352,9 @@ export default function PreviewStage({
             <div className="flex flex-col gap-3">
               {sellerProductList && sellerProductList.length > 0 ? (
                 <>
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
-                  <ShowProductCard />
+                  {sellerProductList.map((sellerProduct) => (
+                    <ShowProductCard sellerProduct={sellerProduct} />
+                  ))}
                 </>
               ) : (
                 <>
@@ -375,9 +368,9 @@ export default function PreviewStage({
           </div>
 
           {/* Floating add button */}
-          <button className="absolute bottom-7 right-7 size-12 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground">
+          {/* <button className="absolute bottom-7 right-7 size-12 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground">
             <Plus className="size-5" strokeWidth={4} />
-          </button>
+          </button> */}
         </div>
       </div>
     </>

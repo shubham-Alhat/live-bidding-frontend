@@ -7,7 +7,7 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const SUFFIXES = ["", "K", "M", "B", "T"];
+export const SUFFIXES = ["", "K", "M", "B", "T"];
 
 export function formatPrice(price: number): string {
   // 1. Force to number, drop decimals (truncate, no rounding)

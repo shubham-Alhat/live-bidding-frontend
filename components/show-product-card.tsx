@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Ellipsis, MoreHorizontal, Pin } from "lucide-react";
 import Image from "next/image";
+import { formatPrice } from "./product-card";
+import { Product } from "@/types/api";
 
 const products = [
   {
@@ -35,13 +37,17 @@ const products = [
   },
 ];
 
-export default function ShowProductCard() {
+export default function ShowProductCard({
+  sellerProduct,
+}: {
+  sellerProduct: Product;
+}) {
   return (
-    <div className="flex gap-3 bg-card border border-border rounded-xl p-2.5">
+    <div className="flex gap-3 bg-card border border-border rounded-xl p-2.5 relative">
       {/* Image Thumbnail */}
-      <div className="relative shrink-0 w-20 sm:w-24 aspect-square overflow-hidden rounded-lg border border-border">
+      <div className="relative shrink-0 w-24 aspect-square overflow-hidden rounded-lg border border-border">
         <Image
-          src="https://res.cloudinary.com/diery17cm/image/upload/v1779897446/tknlm9ocydjm3wpqofqa.jpg"
+          src={sellerProduct.image}
           alt="Raymond watch"
           fill
           className="object-cover"
@@ -51,26 +57,37 @@ export default function ShowProductCard() {
 
       {/* Right Column */}
       <div className="flex flex-col min-w-0 flex-1">
-        <p className="text-card-foreground text-sm sm:text-[15px] font-bold leading-tight line-clamp-2">
-          Raymond watch
+        <p className="text-card-foreground text-sm sm:text-[15px] font-bold leading-tight line-clamp-2 break-words">
+          {sellerProduct.name}
         </p>
-        <p className="text-card-foreground/70 text-xs sm:text-sm truncate leading-tight mt-1">
-          this is tom cruise&apos;s watch
+        <p className="text-card-foreground/70 text-sm truncate leading-tight mt-1">
+          {sellerProduct.description}
         </p>
-        <p className="text-white text-[12px] sm:text-[13px] leading-tight mt-1">
-          10 Bids
+        <p className="mt-2 flex items-center gap-1.5 text-[14px] sm:text-[13px] leading-tight min-w-0">
+          <span className="truncate text-card-foreground/60">
+            Start{" "}
+            <span className="font-semibold text-card-foreground">
+              ₹{formatPrice(Number(sellerProduct.startingPrice))}
+            </span>
+          </span>
+          {true && (
+            <>
+              <span className="text-muted-foreground">|</span>
+              <span className="truncate text-card-foreground/60">
+                Buy{" "}
+                <span className="font-semibold text-card-foreground">
+                  ₹{formatPrice(Number(sellerProduct.buyNowPrice))}
+                </span>
+              </span>
+            </>
+          )}
         </p>
 
-        {/* Button Row */}
-        <div className="mt-auto flex items-center gap-4 pt-2">
-          <button className="rounded-full bg-muted px-4 py-1.5 text-[15px] font-semibold text-card-foreground/70 transition">
-            Start Auction
-          </button>
-
+        <div className="absolute bottom-3 right-3">
           <button
             aria-pressed={true}
             // onClick={() => setSaved(!saved)}
-            className="grid size-9 place-items-center rounded-full bg-secondary text-secondary-foreground transition"
+            className="grid size-9 place-items-center rounded-full bg-secondary text-black transition"
           >
             <Pin className="size-5 rotate-45" strokeWidth={2} />
           </button>
